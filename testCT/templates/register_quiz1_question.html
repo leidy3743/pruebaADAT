@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Registrar Pregunta de Quiz 1</title>
+</head>
+<body>
+    <h1>Registrar Pregunta de Quiz 1</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.statement.label }}<br>
+            {{ form.statement(size=50) }}<br>
+            {% for error in form.statement.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.option_a.label }}<br>
+            {{ form.option_a(size=32) }}<br>
+            {% for error in form.option_a.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.option_b.label }}<br>
+            {{ form.option_b(size=32) }}<br>
+            {% for error in form.option_b.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.option_c.label }}<br>
+            {{ form.option_c(size=32) }}<br>
+            {% for error in form.option_c.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.option_d.label }}<br>
+            {{ form.option_d(size=32) }}<br>
+            {% for error in form.option_d.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.correct_answer.label }}<br>
+            {{ form.correct_answer() }}<br>
+            {% for error in form.correct_answer.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.label.label }}<br>
+            {{ form.label(size=32) }}<br>
+            {% for error in form.label.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.percentage.label }}<br>
+            {{ form.percentage() }}<br>
+            {% for error in form.percentage.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.image_url.label }}<br>
+            {{ form.image_url(size=50) }}<br>
+            {% for error in form.image_url.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.submit() }}
+        </p>
+    </form>
+</body>
+</html>

@@ -1,0 +1,191 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Resultados de ADAT {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+  /* Asegúrate de que cada gráfico tenga el mismo tamaño y esté alineado horizontalmente */
+  .chart-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+  }
+  .chart {
+    flex: 1 1 30%; /* Cada gráfico ocupa el 30% del ancho disponible */
+    min-width: 300px; /* Ancho mínimo para los gráficos */
+    height: 400px; /* Altura de cada gráfico */
+  }
+
+  .chart-legend {
+      margin-top: 10px;
+      font-weight: bold;
+      text-align: center;
+  }
+
+</style>
+
+<style>
+    /* Estilos para mejorar la apariencia del acordeón */
+    .accordion-item {
+        border: none; /* Elimina el borde blanco */
+        background-color: #f8f9fa; /* Color de fondo gris claro */
+        margin: 8px 10px; /* Espaciado entre los elementos */
+        border-radius: 5px; /* Bordes redondeados */
+    }
+
+    /* Agregar icono de flecha */
+    .accordion-button {
+        padding: 12px 20px; /* Espaciado interno más amplio */
+        background-color: #e9ecef; /* Color de fondo del botón */
+        border: none; /* Quita bordes blancos */
+        box-shadow: none; /* Evita sombras al hacer clic */
+    }
+
+    /* Flecha hacia abajo */
+    .accordion-button::after {
+        content: "\25BC"; /* Unicode de una flecha hacia abajo */
+        font-size: 14px;
+        transition: transform 0.3s ease-in-out;
+        margin-left: auto; /* Alinear la flecha a la derecha */
+    }
+
+    /* Rotar la flecha cuando el acordeón está abierto */
+    .accordion-button:not(.collapsed)::after {
+        transform: rotate(180deg);
+    }
+
+    /* Estilo del cuerpo del acordeón */
+    .accordion-body {
+        background-color: #f8f9fa; /* Fondo gris claro */
+        padding: 15px;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Resultados de ADAT</h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          <div class="table-responsive p-0">
+            <h8 class="text-primary">Este cuestionario identifica el nivel de las habilidades de abstracción, descomposición y pensamiento algoritmico en el pensamiento computacional.</h8>
+            <br> 
+            <br>
+            <stro>Respuestas Correctas: {{ resultado.respuestas_correctas }}</p>
+            <srto>Respuestas Incorrectas: {{ resultado.respuestas_incorrectas }}</p>
+            
+            <h3>Habilidades:</h3>
+            <div class="accordion" id="accordionEtiquetas">
+                {% for etiqueta, score in etiqueta_scores.items() %}
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading{{ loop.index }}">
+                      <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
+                      <strong>{{ etiqueta }}: {{ "%.2f" % score }}%</strong>
+                    </button>
+                  </h2>
+                  <div id="collapse{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading{{ loop.index }}" data-bs-parent="#accordionEtiquetas">
+                                    <div class="accordion-body bg-light">
+                                    {{ etiqueta_descriptions[etiqueta] }}
+                                  </div>
+                                </div>
+                              </div>
+                {% endfor %}
+            </div>
+          </div>
+
+          <!-- Contenedor de las gráficas -->
+          <div class="chart-container">
+            {% for etiqueta, score in etiqueta_scores.items() %}
+                <div id="chart-{{ loop.index }}" class="chart"></div>
+            {% endfor %}
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer py-4">
+  <div class="container-fluid">
+    <div class="row align-items-center justify-content-lg-between">
+      <div class="col-lg-6 mb-lg-0 mb-4">
+        <div class="copyright text-center text-sm text-muted text-lg-start">
+          © <script>
+            document.write(new Date().getFullYear())
+          </script>,
+          <i class="fa fa-heart"></i>
+          <a href="https://www.creative-tim.com" class="font-weight-bold" target="_blank">Creative by</a>
+          Leidy Carvajal.
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <ul class="nav nav-footer justify-content-center justify-content-lg-end">
+          <li class="nav-item">
+            <a href="https://www.creative-tim.com" class="nav-link text-muted" target="_blank">Creative Tim</a>
+          </li>
+          <li class="nav-item">
+            <a href="https://www.creative-tim.com/presentation" class="nav-link text-muted" target="_blank">About Us</a>
+          </li>
+          <li class="nav-item">
+            <a href="https://www.creative-tim.com/blog" class="nav-link text-muted" target="_blank">Blog</a>
+          </li>
+          <li class="nav-item">
+            <a href="https://www.creative-tim.com/license" class="nav-link pe-0 text-muted" target="_blank">License</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script>
+    // Convierte el JSON de Flask a un objeto de JavaScript
+    const etiquetaScores = {{ etiqueta_scores | tojson | safe }};
+
+    let index = 1;
+    for (const [etiqueta, score] of Object.entries(etiquetaScores)) {
+        const data = [{
+            values: [score, 100 - score],
+            labels: [etiqueta, 'Otros'],  // Usa la variable `etiqueta` directamente
+            type: 'pie',
+            marker: {
+                colors: ['#1A73E8', '#d3d3d3']
+            },
+            textinfo: 'percent',
+            hoverinfo: 'label+percent',
+            hole: 0.4
+        }];
+        
+        const width = Math.min(window.innerWidth * 0.4, 400); // Máximo 400px, pero se ajusta dinámicamente
+        const height = width; // Mantiene proporción cuadrada
+
+        const layout = {
+            title: `${etiqueta} - ${score.toFixed(2)}%`,
+            width: width,
+            height: height,
+            autosize: true,
+            responsive: true,
+            legend: {
+              orientation: 'h',
+              y:-0.3
+            }
+        };
+
+        // Asegúrate de que haya un elemento en el HTML con ID `chart-1`, `chart-2`, etc.
+        Plotly.newPlot(`chart-${index}`, data, layout);
+        index++;
+    }
+</script>
+{% endblock javascripts %}

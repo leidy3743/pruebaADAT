@@ -1,0 +1,158 @@
+{% extends "layouts/base-fullscreen.html" %}
+
+{% block title %} Registrarse {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <section>
+      <div class="page-header min-vh-100">
+        <div class="container">
+          <div class="row">
+            <div class="col-6 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 start-0 text-center justify-content-center flex-column">
+              <div class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center" style="background-image: url('/static/assets/img/illustrations/cerebro2.jpg'); background-size: cover;">
+              </div>
+            </div>
+            <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column ms-auto me-auto ms-lg-auto me-lg-5">
+              <div class="card card-plain">
+                <div class="card-header">
+                  <div style="text-align: center;">
+                    <a href="{{ url_for('static', filename='assets/img/akilab.png') }}" target="_blank">
+                      <img src="{{ url_for('static', filename='assets/img/akilab.png') }}" alt="Descripción de la imagen" style="width: 100%; max-width: 200px; height: auto; ">
+                    </a>
+                  </div>
+                  <h4 class="font-weight-bolder">
+                    Registrarse
+                  </h4>
+                  
+                  <p class="mb-0">
+                    {% if msg %}
+                      <span class="text-danger">{{ msg | safe }}</span>
+                    {% else %}
+                    Ingresar los datos para registrarse
+                    {% endif %}                    
+                  </p>
+                </div>
+
+                {% if success %}
+
+                  <div class="card-footer text-center pt-0 px-lg-2 px-1">
+                    <p class="mb-2 text-sm mx-auto text-center">
+                      <a  href="{{ url_for('authentication_blueprint.login') }}"
+                          class="btn btn-lg bg-gradient-primary btn-lg w-100 mt-4 mb-0">Ingresar</a>
+                    </p>
+                  </div>
+
+                {% else %}
+
+                  <div class="card-body">
+                    <form role="form" method="post" action="">
+                      {{ form.hidden_tag() }} 
+
+                      <div class="input-group input-group-outline mb-3">
+                        {{ form.nombres.label }}
+                        &nbsp;&nbsp;{{ form.nombres(class="form-control", placeholder="Nombre") }}
+                      </div>
+                    
+                      <div class="input-group input-group-outline mb-3">
+                          {{ form.correo.label }}
+                          &nbsp;&nbsp;{{ form.correo(class="form-control", placeholder="Correo Electrónico") }}
+                          {% if form.correo.errors %}
+                          <div class="text-danger">
+                              {% for error in form.correo.errors %}
+                                  {{ error }}
+                              {% endfor %}
+                          </div>
+                          {% endif %}
+                      </div>
+                      <div class="input-group input-group-outline mb-3">
+                          {{ form.edad.label }}
+                          &nbsp;&nbsp;{{ form.edad(class="form-control", placeholder="Edad") }}
+                      </div>
+                      <div class="input-group input-group-outline mb-3">
+                          {{ form.colegio.label }}
+                          &nbsp;&nbsp;{{ form.colegio(class="form-control", placeholder="Institución Educativa") }}
+                      </div>
+                      <div class="input-group input-group-outline mb-3">
+                          {{ form.nivel_educativo.label }}
+                          &nbsp;&nbsp;{{ form.nivel_educativo(class="form-control", placeholder="Nivel Educativo") }}
+                      </div>
+                      <div class="input-group input-group-outline mb-3">
+                          {{ form.rol.label }}
+                          &nbsp;&nbsp;{{ form.rol(onchange="toggleFields()", class="form-control", placeholder="Tipo de Usuario") }}
+                      </div>
+                    
+                    
+                      <div id="docente_fields" style="display: none;">
+                          <div class="input-group input-group-outline mb-3">
+                              {{ form.anios_experiencia.label }}
+                              &nbsp;&nbsp;{{ form.anios_experiencia(class="form-control") }}
+                          </div>
+                          <div class="input-group input-group-outline mb-3">
+                              {{ form.nivel_grados.label }}
+                              &nbsp;&nbsp;{{ form.nivel_grados(class="form-control") }}
+                          </div>
+                          <div class="input-group input-group-outline mb-3">
+                              {{ form.cursos.label }}
+                              &nbsp;&nbsp;{{ form.cursos(class="form-control") }}
+                          </div>
+                          <div class="input-group input-group-outline mb-3">
+                              {{ form.grados.label }}
+                              &nbsp;&nbsp;{{ form.grados(class="form-control") }}
+                          </div>
+                          
+                      </div>
+                    
+                      <div class="input-group input-group-outline mb-3">
+                          {{ form.username.label }}
+                          &nbsp;&nbsp;{{ form.username(class="form-control", placeholder="Usuario") }}
+                        </div>
+                        <div class="input-group input-group-outline mb-3">
+                          {{ form.password.label }}
+                          &nbsp;&nbsp;{{ form.password(class="form-control", type="password", placeholder="Contraseña") }}
+                        </div>
+                        <div class="form-check form-check-info text-start ps-0">
+                          <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" checked>
+                          <label class="form-check-label" for="flexCheckDefault">
+                            Acepto los <a href="javascript:;" class="text-dark font-weight-bolder">terminos y condiciones</a>
+                          </label>
+                        </div>
+                        <div class="text-center">
+                          <button type="submit" name="register" class="btn btn-lg bg-gradient-primary btn-lg w-100 mt-4 mb-0">Registrarme</button>
+                        </div>
+                      </form>
+                    </div>
+                    <div class="card-footer text-center pt-0 px-lg-2 px-1">
+                      <p class="mb-2 text-sm mx-auto">
+                        Ya tienes una cuenta?
+                        <a href="{{ url_for('login') }}" class="text-primary text-gradient font-weight-bold">Ingresar</a>
+                      </p>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+<script>
+    function toggleFields() {
+        var tipoUsuario = document.querySelector('[name="rol"]').value;
+        var docenteFields = document.getElementById("docente_fields");
+
+        if (tipoUsuario === "docente") {
+            docenteFields.style.display = "block";
+        } else {
+            docenteFields.style.display = "none";
+        }
+    }
+</script>
+
+    
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

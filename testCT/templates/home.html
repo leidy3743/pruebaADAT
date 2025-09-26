@@ -1,0 +1,53 @@
+{% extends "layouts/base-fullscreen.html" %}
+
+{% block title %} Inicio {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/css/volt.css') }}">
+{% endblock stylesheets %}
+
+{% block content %}
+  <div class="page-header align-items-start min-vh-100" 
+  style="background-image: url('/static/assets/img/illustrations/1.jpg'); background-size: cover;">
+    <span class="mask bg-gradient-dark opacity-6"></span>
+    <div class="container my-auto">
+      <div class="row">
+        <div class="col-lg-4 col-md-8 col-12 mx-auto">
+          <div class="card z-index-0 fadeIn3 fadeInBottom">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+              
+              <div class="bg-gradient-primary shadow-primary border-radius-lg py-3 pe-1">
+              <div style="text-align: center;">
+                <a href="{{ url_for('static', filename='assets/img/logorosa.png') }}" target="_blank">
+                  <img src="{{ url_for('static', filename='assets/img/logorosa.png') }}" alt="Descripción de la imagen" style="width: 100%; max-width: 200px; height: auto; ">
+                </a>
+              </div>
+               <!-- <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">
+                  Akila
+                </h4>-->
+                <div class="row mt-3">
+                  <p class="mb-0 text-white text-center">
+                    Herramienta para apoyar el aprendizaje de las habilidades de pensamiento computacional
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body text-center">
+              <div class="d-flex justify-content-center mb-4">
+                <a href="{{ url_for('register') }}" class="btn btn-secondary me-3">Registrarse</a>
+                <a href="{{ url_for('login') }}" class="btn btn-secondary me-3">Ingresar</a>
+              </div>
+              <p class="mt-4 text-sm">
+                &copy; Universidad del Valle 2024 - 2025
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% include 'includes/footer-fullscreen.html' %}
+  </div>
+{% endblock content %}
+
+{% block javascripts %}{% endblock javascripts %}

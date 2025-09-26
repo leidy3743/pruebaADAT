@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Registrar Pregunta de Quiz 3</title>
+</head>
+<body>
+    <h1>Registrar Pregunta de Quiz 3</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.statement.label }}<br>
+            {{ form.statement(size=50) }}<br>
+            {% for error in form.statement.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.option_a.label }}<br>
+            {{ form.option_a(size=32) }}<br>
+            {% for error in form.option_a.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.option_b.label }}<br>
+            {{ form.option_b(size=32) }}<br>
+            {% for error in form.option_b.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.option_c.label }}<br>
+            {{ form.option_c(size=32) }}<br>
+            {% for error in form.option_c.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.option_d.label }}<br>
+            {{ form.option_d(size=32) }}<br>
+            {% for error in form.option_d.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.option_e.label }}<br>
+            {{ form.option_e(size=32) }}<br>
+            {% for error in form.option_e.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.submit() }}
+        </p>
+    </form>
+</body>
+</html>

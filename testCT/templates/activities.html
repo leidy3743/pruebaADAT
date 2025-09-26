@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividades Generadas</title>
+</head>
+<body>
+    <h1>Actividades Generadas Automáticamente</h1>
+    {% if activities %}
+        <ul>
+        {% for activity in activities %}
+            <li><strong>Actividad:</strong> {{ activity['activity'] }}<br>
+                <strong>Habilidad:</strong> {{ activity['skill'] }}<br>
+                <strong>Asignatura:</strong> {{ activity['subject'] }}<br>
+                <strong>Temática:</strong> {{ activity['topic'] }}<br>
+                <strong>Cantidad de estudiantes:</strong> {{ activity['students'] }}<br>
+                <strong>Tiempo:</strong> {{ activity['time'] }} minutos<br>
+                <strong>Recursos:</strong> {{ activity['resources'] }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No se encontraron actividades.</p>
+    {% endif %}
+    <a href="{{ url_for('select_activities') }}">Volver</a>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Administrar Cuestionario</title>
+</head>
+<body>
+    <h1>Administrar Cuestionario</h1>
+    <form method="POST">
+        <label for="text">Texto de la Pregunta:</label><br>
+        <input type="text" name="text" required><br><br>
+
+        <label for="type">Tipo de Pregunta:</label><br>
+        <select name="type" required>
+            <option value="text">Texto</option>
+            <option value="choice">Opción Múltiple</option>
+        </select><br><br>
+
+        <label for="choices">Opciones (separadas por comas, si aplica):</label><br>
+        <input type="text" name="choices"><br><br>
+
+        <label for="tag">Etiqueta:</label><br>
+        <input type="text" name="tag"><br><br>
+
+        <label for="weight">Peso (en porcentaje):</label><br>
+        <input type="number" name="weight" value="0"><br><br>
+
+        <label for="image">Nombre de la Imagen (si aplica):</label><br>
+        <input type="text" name="image"><br><br>
+
+        <button type="submit">Agregar Pregunta</button>
+    </form>
+
+    <h2>Preguntas Existentes</h2>
+    <ul>
+        {% for question in questions %}
+        <li>{{ question.text }} - {{ question.type }} - {{ question.tag }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

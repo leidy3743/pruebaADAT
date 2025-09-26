@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Resultados del Cuestionario</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        canvas {
+            max-width: 600px;
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Resultados del Cuestionario</h1>
+    
+    <h2>Resultados por Etiqueta</h2>
+    <canvas id="resultsChart"></canvas>
+
+    <script>
+        const ctx = document.getElementById('resultsChart').getContext('2d');
+        const resultsData = {{ results_data|tojson }};
+        
+        const labels = resultsData.map(item => item.label);
+        const percentages = resultsData.map(item => item.percentage);
+
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Porcentaje por Etiqueta',
+                    data: percentages,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Porcentaje'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <h2>Detalles de tus Respuestas</h2>
+    <ul>
+        {% for question, response in user_responses.items() %}
+            <li>
+                <strong>{{ question }}</strong>: {{ response }}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('quiz') }}">Volver a empezar</a>
+</body>
+</html>
