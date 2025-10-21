@@ -31,5 +31,5 @@ ENV FLASK_APP=app.py
 ENV FLASK_ENV=production
 ENV PYTHONUNBUFFERED=1
 
-# Comando para ejecutar la aplicación
-CMD ["python3", "app.py"]
+# Comando para ejecutar la aplicación con Gunicorn (producción)
+CMD ["gunicorn", "-w", "2", "-k", "gthread", "--threads", "8", "-b", "0.0.0.0:5002", "--timeout", "120", "--keep-alive", "10", "app:app"]

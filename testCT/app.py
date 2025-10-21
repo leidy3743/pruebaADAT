@@ -27,6 +27,13 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///instance/dev.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'mi_secreto'
+# Ajustes de pool de conexiones para producción (deben definirse ANTES de crear 'db')
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_size': int(os.getenv('DB_POOL_SIZE', '5')),
+    'max_overflow': int(os.getenv('DB_MAX_OVERFLOW', '10')),
+    'pool_pre_ping': True,
+    'pool_recycle': int(os.getenv('DB_POOL_RECYCLE', '1800'))
+}
 app.jinja_env.filters['zip'] = zip
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -2026,7 +2033,7 @@ El taller debe ser apropiado para el nivel educativo, aprovechar los recursos di
 Usa un lenguaje claro y profesional. Formatea el texto usando Markdown con títulos (##, ###), listas, y énfasis (**negrita**, *cursiva*).
 """
 
-            client = openai.OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+            client = openai.OpenAI(api_key=os.getenv('OPENAI_API_KEY'), timeout=30.0, max_retries=1)
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[

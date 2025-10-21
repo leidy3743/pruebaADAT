@@ -53,13 +53,13 @@
                                 <div class="col-md-6">
                                     <div class="input-group input-group-outline mb-3 is-filled">
                                         <label class="form-label">Nombre del Profesor</label>
-                                        <input type="text" name="nombre_profesor" class="form-control" value="{{ actividad.nombre_profesor }}" required>
+                                        <input type="text" name="nombre_profesor" class="form-control" value="{{ actividad.nombre_profesor }}" placeholder="Ej: Profe Juan Pérez" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="input-group input-group-outline mb-3 is-filled">
                                         <label class="form-label">Asignatura</label>
-                                        <input type="text" name="asignatura" class="form-control" value="{{ actividad.asignatura }}" required>
+                                        <input type="text" name="asignatura" class="form-control" value="{{ actividad.asignatura }}" placeholder="Ej: Matemáticas" required>
                                     </div>
                                 </div>
                             </div>
@@ -96,13 +96,13 @@
                                 <div class="col-md-4">
                                     <div class="input-group input-group-outline mb-3 is-filled">
                                         <label class="form-label">Número de Estudiantes</label>
-                                        <input type="number" name="cantidad_estudiantes" class="form-control" value="{{ actividad.cantidad_estudiantes }}" min="1" max="100" required>
+                                        <input type="number" name="cantidad_estudiantes" class="form-control" value="{{ actividad.cantidad_estudiantes }}" placeholder="Ej: 30" min="1" max="100" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="input-group input-group-outline mb-3 is-filled">
                                         <label class="form-label">Tiempo (minutos)</label>
-                                        <input type="number" name="tiempo" class="form-control" value="{{ actividad.tiempo }}" min="5" max="300" required>
+                                        <input type="number" name="tiempo" class="form-control" value="{{ actividad.tiempo }}" placeholder="Ej: 45" min="5" max="300" required>
                                     </div>
                                 </div>
                             </div>
@@ -118,13 +118,13 @@
                                 <div class="col-md-6">
                                     <div class="input-group input-group-outline mb-3 is-filled">
                                         <label class="form-label">Temática</label>
-                                        <input type="text" name="tematica" class="form-control" value="{{ actividad.tematica }}" required>
+                                        <input type="text" name="tematica" class="form-control" value="{{ actividad.tematica }}" placeholder="Ej: Fracciones y decimales" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="input-group input-group-outline mb-3 is-filled">
                                         <label class="form-label">Recursos Disponibles</label>
-                                        <input type="text" name="recursos" class="form-control" value="{{ actividad.recursos }}" required>
+                                        <input type="text" name="recursos" class="form-control" value="{{ actividad.recursos }}" placeholder="Ej: Computadores, proyector, tarjetas, internet..." required>
                                     </div>
                                 </div>
                             </div>
@@ -157,7 +157,7 @@
                             </div>
                             <div class="input-group input-group-outline is-filled">
                                 <label class="form-label">Contenido (formato Markdown)</label>
-                                <textarea name="contenido" class="form-control" rows="15" required>{{ actividad.contenido }}</textarea>
+                                <textarea name="contenido" class="form-control" rows="15" placeholder="Ej: ## Título del taller\n- Objetivo 1..." required>{{ actividad.contenido }}</textarea>
                             </div>
                             <small class="text-muted">
                                 Puedes usar formato Markdown: **negrita**, *cursiva*, ## Títulos, - Listas
