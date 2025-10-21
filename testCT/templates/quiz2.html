@@ -34,18 +34,20 @@
                     </div>
                 {% endfor %}
                 {% if page * questions_per_page >= total_questions %}
-                  <button type="submit" class="text-primary text-gradient font-weight-bold">Enviar Respuestas</button>
+                  <button type="submit" class="btn btn-primary w-100">Enviar Respuestas</button>
                 {% endif %}
                 
                 
             </form>
             <div>
-              {% if page > 1 %}
-                  <a href="{{ url_for('quiz2', page=page - 1) }}" class="btn btn-link">Página anterior</a>
-              {% endif %}
-              {% if page * questions_per_page < total_questions %}
-                  <a href="{{ url_for('quiz2', page=page + 1) }}" class="btn btn-link">Página siguiente</a>
-              {% endif %}
+        <div class="d-grid gap-2">
+        {% if page > 1 %}
+          <a href="{{ url_for('quiz2', page=page - 1) }}" class="btn btn-outline-primary">Página anterior</a>
+        {% endif %}
+        {% if page * questions_per_page < total_questions %}
+          <a href="{{ url_for('quiz2', page=page + 1) }}" class="btn btn-outline-primary">Página siguiente</a>
+        {% endif %}
+        </div>
           </div>
             </div>
           </div>

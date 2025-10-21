@@ -3,6 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, RadioField, SubmitField, TextAreaField, PasswordField, IntegerField, SelectField, FloatField, BooleanField, FieldList, FormField, SelectMultipleField
 from wtforms.validators import DataRequired, Length, Email, URL, Optional
 from wtforms_sqlalchemy.fields import QuerySelectMultipleField
+from models import Curso, Grado
 
 class CursoGradoForm(FlaskForm):
     grado_id = BooleanField()  # Checkbox para seleccionar el grado
@@ -74,4 +75,19 @@ class QuizFormTres(FlaskForm):
     option_c = StringField('Opción C', validators=[DataRequired(), Length(max=100)])
     option_d = StringField('Opción D', validators=[DataRequired(), Length(max=100)])
     option_e = StringField('Opción E', validators=[DataRequired(), Length(max=100)])
+    submit = SubmitField('Registrar Pregunta')
+
+
+class QuizFormCuatro(FlaskForm):
+    # Aquí puedes agregar campos para las preguntas del cuestionario
+    # Ejemplo:
+    statement = TextAreaField('Enunciado', validators=[DataRequired()])
+    option_a = StringField('Opción A', validators=[DataRequired(), Length(max=100)])
+    option_b = StringField('Opción B', validators=[DataRequired(), Length(max=100)])
+    option_c = StringField('Opción C', validators=[DataRequired(), Length(max=100)])
+    option_d = StringField('Opción D', validators=[DataRequired(), Length(max=100)])
+    correct_answer = RadioField('Respuesta Correcta', choices=[('A','A'),('B','B'),('C','C'),('D','D')], validators=[DataRequired()])
+    label = StringField('Etiqueta', validators=[Optional(), Length(max=50)])
+    percentage = FloatField('Porcentaje', validators=[Optional()])
+    image_url = StringField('URL de la Imagen (opcional)', validators=[Optional(), URL(), Length(max=200)])
     submit = SubmitField('Registrar Pregunta')

@@ -1,0 +1,22 @@
+{% extends 'layouts/base.html' %}
+{% block title %} Resultado Test Pensamiento Computacional {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12 col-md-8 col-lg-6 mx-auto">
+      <div class="card">
+        <div class="card-header pb-0">
+          <h6>Resultados</h6>
+        </div>
+        <div class="card-body px-3 pt-3 pb-2">
+          <p class="mb-1"><strong>Correctas:</strong> {{ resultado.correct_count }}</p>
+          <p class="mb-1"><strong>Incorrectas:</strong> {{ resultado.incorrect_count }}</p>
+          <p class="mb-3"><strong>Puntaje:</strong> {{ resultado.score }}</p>
+          <a href="{{ url_for('dashboard') }}" class="btn btn-secondary w-100">Volver al inicio</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

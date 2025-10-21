@@ -22,7 +22,7 @@
                 <br>
               <form action="/crear_actividad" method="POST">
                 <label for="grado">Grado:</label>
-                <select name="grado" id="grado">
+                <select name="grado" id="grado" class="form-control mb-3">
                     {% for grado in grados %}
                         <option value="{{ grado.id }}">{{ grado.nombre }}</option>
                     {% else %}
@@ -32,7 +32,7 @@
 
                 <!-- Selección de Asignatura -->
                 <label for="asignatura">Asignatura:</label>
-                <select name="asignatura" id="asignatura">
+                <select name="asignatura" id="asignatura" class="form-control mb-3">
                     {% for asignatura in asignaturas %}
                         <option value="{{ asignatura.id }}">{{ asignatura.nombre }}</option>
                     {% else %}
@@ -41,11 +41,11 @@
                 </select><br><br>
 
                 <label for="topic">Temática:</label>
-                <input type="text" id="topic" name="topic" required><br><br>
+                <input type="text" id="topic" name="topic" class="form-control mb-3" required>
 
                 <!-- Selección de Habilidades -->
                 <label for="habilidades">Habilidades:</label>
-                <select name="habilidades" id="habilidades" multiple>
+                <select name="habilidades" id="habilidades" class="form-control mb-3" multiple>
                     {% for habilidad in habilidades %}
                         <option value="{{ habilidad.id }}">{{ habilidad.nombre }}</option>
                     {% else %}
@@ -54,15 +54,15 @@
                 </select><br><br>
 
                 <label for="students">Cantidad de estudiantes:</label>
-                <input type="number" id="students" name="students" required><br><br>
+                <input type="number" id="students" name="students" class="form-control mb-3" required>
 
                 <label for="time">Cantidad de tiempo (minutos):</label>
-                <input type="number" id="time" name="time" required><br><br>
+                <input type="number" id="time" name="time" class="form-control mb-3" required>
 
                 <label for="resources">Recursos:</label>
-                <input type="text" id="resources" name="resources"><br><br>
+                <input type="text" id="resources" name="resources" class="form-control mb-3">
 
-                <button type="submit">Generar Actividades</button>  
+                <button type="submit" class="btn btn-primary w-100">Generar Actividades</button>  
             </form>
             {% if actividades %}
         <h2>Actividades Generadas:</h2>

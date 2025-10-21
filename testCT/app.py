@@ -1,10 +1,11 @@
 import json
+import os
 import openai
 import traceback
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import RegistrationForm, QuizForm, LoginForm, QuizFormDos, QuizFormTres, CursoGradoForm
+from forms import RegistrationForm, QuizForm, LoginForm, QuizFormDos, QuizFormTres, CursoGradoForm, QuizFormCuatro
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from models import Curso, Colegio, User, Question, QuestionDos, QuestionTres, ResultadoQuiz, ResultadoQuizDos, ResultadoQuizTres  # Asegúrate de que tienes tus modelos configurados
@@ -13,7 +14,9 @@ from rich import print
 from sqlalchemy.exc import IntegrityError
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:lady@localhost/ayuda'
+# Sugerencia: usar el driver de psycopg v3 para evitar problemas de arquitectura en macOS ARM
+# Permite sobreescribir la BD por variable de entorno en pruebas: export DATABASE_URL=sqlite:///instance/dev.db
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql+psycopg://postgres:lady@localhost/ayuda')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'mi_secreto'
 app.jinja_env.filters['zip'] = zip
@@ -175,6 +178,8 @@ class ResultadoQuizCuatro(db.Model):
 class Grado(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
+
+
 # Ruta para el test Marco Roman
 @app.route('/quiz4', methods=['GET', 'POST'])
 @login_required
@@ -398,6 +403,14 @@ def login():
     return render_template('login.html', form=form)
 
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Sesión cerrada correctamente.', 'success')
+    return redirect(url_for('login'))
+
+
 @app.route('/register_quiz1_question', methods=['GET', 'POST'])
 def register_quiz1_question():
     form = QuizForm()
@@ -468,7 +481,6 @@ def quiz1():
 
     return render_template('quiz1.html', questions=questions_to_display, page=page, total_questions=total_questions, questions_per_page=questions_per_page)
 
-
 @app.route('/submit_quiz', methods=['POST'])
 @login_required
 def submit_quiz():
@@ -521,6 +533,46 @@ def submit_quiz():
 
     return redirect(url_for('quiz_results', result_id=resultado.id))
 
+@app.route('/submit_quiz4', methods=['POST'])
+@login_required
+def submit_quiz4():
+    user_responses = request.form.to_dict()
+    resultado = ResultadoQuizCuatro.query.filter_by(user_id=current_user.id).first()
+    print("Respuestas del usuario:", user_responses)
+
+    if resultado:
+        flash("Ya has completado este cuestionario. Aquí están tus resultados.", "warning")
+        return redirect(url_for('quiz4_results', result_id=resultado.id))
+
+    correct_count = 0
+    incorrect_count = 0
+    score = 0
+
+    for question_id, user_answer in user_responses.items():
+        # Aquí debes obtener la pregunta desde la base de datos
+        question = QuizCuatro.query.get(int(question_id))
+        if question is not None:
+            # Comprobar si la respuesta del usuario es correcta
+            if question.correct_answer == user_answer:
+                correct_count += 1
+                score += question.percentage if question.percentage else 1
+            else:
+                incorrect_count += 1
+        else:
+            print(f"Pregunta con ID {question_id} no encontrada en la base de datos.")
+
+    # Guardar en la base de datos del Quiz 4
+    resultado = ResultadoQuizCuatro(
+        user_id=current_user.id,
+        score=int(score),
+        correct_count=correct_count,
+        incorrect_count=incorrect_count,
+    )
+    db.session.add(resultado)
+    db.session.commit()
+
+    return redirect(url_for('quiz4_results', result_id=resultado.id))
+
 
 @app.route('/quiz_results/<int:result_id>')
 def quiz_results(result_id):
@@ -572,6 +624,27 @@ def register_quiz2_question():
         return redirect(url_for('register_quiz2_question'))
     return render_template('register_quiz2_question.html', form=form)
 
+
+@app.route('/register_quiz4_question', methods=['GET', 'POST'])
+def register_quiz4_question():
+    form = QuizFormCuatro()
+    if form.validate_on_submit():
+        question = QuizCuatro(
+            statement=form.statement.data,
+            option_a=form.option_a.data,
+            option_b=form.option_b.data,
+            option_c=form.option_c.data,
+            option_d=form.option_d.data,
+            correct_answer=form.correct_answer.data,
+            label=form.label.data or 'CTt',
+            percentage=form.percentage.data or 1,
+            image_url=form.image_url.data or ''
+        )
+        db.session.add(question)
+        db.session.commit()
+        flash('Pregunta registrada con éxito', 'success')
+        return redirect(url_for('register_quiz4_question'))
+    return render_template('register_quiz4_question.html', form=form)
 
 @app.route('/quiz2', methods=['GET', 'POST'])
 @login_required
@@ -1032,4 +1105,4 @@ def select_activities():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5002)

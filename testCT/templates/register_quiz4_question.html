@@ -1,0 +1,17 @@
+{% extends 'layouts/base.html' %}
+{% block title %} Registrar pregunta CTt {% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h4>Registrar pregunta para Test de Pensamiento Computacional</h4>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">{{ form.statement.label }} {{ form.statement(class_='form-control') }}</div>
+    <div class="mb-3">{{ form.option_a.label }} {{ form.option_a(class_='form-control') }}</div>
+    <div class="mb-3">{{ form.option_b.label }} {{ form.option_b(class_='form-control') }}</div>
+    <div class="mb-3">{{ form.option_c.label }} {{ form.option_c(class_='form-control') }}</div>
+    <div class="mb-3">{{ form.option_d.label }} {{ form.option_d(class_='form-control') }}</div>
+    <div class="mb-3">{{ form.submit(class_='btn btn-primary') }}</div>
+  </form>
+</div>
+{% endblock %}

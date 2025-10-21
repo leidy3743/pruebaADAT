@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
           showlegend: false,
       };
 
-      Plotly.newPlot('chart', data, layout);
+            Plotly.newPlot('chart', data, layout, {responsive: true});
   });
 </script>
 {% endblock javascripts %}

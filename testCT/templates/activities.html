@@ -1,27 +1,42 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Actividades Generadas</title>
-</head>
-<body>
-    <h1>Actividades Generadas Automáticamente</h1>
-    {% if activities %}
-        <ul>
-        {% for activity in activities %}
-            <li><strong>Actividad:</strong> {{ activity['activity'] }}<br>
-                <strong>Habilidad:</strong> {{ activity['skill'] }}<br>
-                <strong>Asignatura:</strong> {{ activity['subject'] }}<br>
-                <strong>Temática:</strong> {{ activity['topic'] }}<br>
-                <strong>Cantidad de estudiantes:</strong> {{ activity['students'] }}<br>
-                <strong>Tiempo:</strong> {{ activity['time'] }} minutos<br>
-                <strong>Recursos:</strong> {{ activity['resources'] }}</li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No se encontraron actividades.</p>
-    {% endif %}
-    <a href="{{ url_for('select_activities') }}">Volver</a>
-</body>
-</html>
+{% extends "layouts/base.html" %}
+
+{% block title %} Actividades Generadas {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12 col-lg-10 mx-auto">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Actividades Generadas Automáticamente</h6>
+                    </div>
+                </div>
+                <div class="card-body px-3 px-md-4 pb-2">
+                    {% if activities %}
+                        <div class="list-group">
+                            {% for activity in activities %}
+                                <div class="list-group-item">
+                                    <p class="mb-2"><strong>Actividad:</strong> {{ activity['activity'] }}</p>
+                                    <p class="mb-1"><strong>Habilidad:</strong> {{ activity['skill'] }}</p>
+                                    <p class="mb-1"><strong>Asignatura:</strong> {{ activity['subject'] }}</p>
+                                    <p class="mb-1"><strong>Temática:</strong> {{ activity['topic'] }}</p>
+                                    <p class="mb-1"><strong>Cantidad de estudiantes:</strong> {{ activity['students'] }}</p>
+                                    <p class="mb-3"><strong>Tiempo:</strong> {{ activity['time'] }} minutos</p>
+                                    <p class="mb-0"><strong>Recursos:</strong> {{ activity['resources'] }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>No se encontraron actividades.</p>
+                    {% endif %}
+
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('select_activities') }}" class="btn btn-secondary w-100">Volver</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

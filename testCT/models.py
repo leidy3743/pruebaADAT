@@ -155,6 +155,17 @@ class QuestionCuatro(db.Model):
     percentage = db.Column(db.Float, nullable=True)
     image_url = db.Column(db.String(200), nullable=True)
 
+class ResultadoQuizCuatro(db.Model):
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
+    abstraccion = db.Column(db.Float, nullable=False)
+    descomposicion = db.Column(db.Float, nullable=False)
+    pensamiento_algoritmico = db.Column(db.Float, nullable=False)
+    respuestas_correctas = db.Column(db.Integer, nullable=False)
+    respuestas_incorrectas =db.Column(db.Integer, nullable=False)
+    usuario = db.relationship('User', backref=db.backref('resultado_quiz_cuatro', uselist=False))
+
 class Grado(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)

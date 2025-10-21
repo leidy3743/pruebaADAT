@@ -1,0 +1,80 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Test de Pensamiento Computacional {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12 col-lg-10 mx-auto">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Test de Pensamiento Computacional</h6>
+          </div>
+        </div>
+        <div class="card-body px-3 px-md-4 pb-2">
+          <div class="table-responsive p-0">
+            <p class="text-primary">
+              Las preguntas de este cuestionario están destinadas a medir las habilidades en pensamiento computacional.
+              Es posible que no sepa la respuesta a algunas de las preguntas. Si no sabe la respuesta a una pregunta,
+              responda con su mejor suposición. Este cuestionario está basado en el test de Marcos Román (UNED, 2020).
+              El cuestionario tardará aproximadamente 45 minutos en completarse.
+            </p>
+            <form method="POST" class="text-start" action="{{ url_for('submit_quiz4') }}">
+              {% for question in questions %}
+              <div class="mb-4">
+                <p class="mb-2" style="color: black;">{{ loop.index }}. {{ question.statement }}</p>
+
+                {% if question.image_url %}
+                <img src="{{ question.image_url }}" alt="Pregunta imagen" class="img-fluid mb-2" style="max-width: 100%; height: auto;">
+                {% endif %}
+
+                <div class="form-check mt-2">
+                  <div class="d-flex align-items-start mb-1">
+                    <input type="radio" class="form-check-input" id="q{{ question.id }}A" name="{{ question.id }}" value="A">
+                    <label class="form-check-label ms-2 w-100" for="q{{ question.id }}A" style="color: black;">A) {{ question.option_a }}</label>
+                  </div>
+                  <div class="d-flex align-items-start mb-1">
+                    <input type="radio" class="form-check-input" id="q{{ question.id }}B" name="{{ question.id }}" value="B">
+                    <label class="form-check-label ms-2 w-100" for="q{{ question.id }}B" style="color: black;">B) {{ question.option_b }}</label>
+                  </div>
+                  <div class="d-flex align-items-start mb-1">
+                    <input type="radio" class="form-check-input" id="q{{ question.id }}C" name="{{ question.id }}" value="C">
+                    <label class="form-check-label ms-2 w-100" for="q{{ question.id }}C" style="color: black;">C) {{ question.option_c }}</label>
+                  </div>
+                  <div class="d-flex align-items-start">
+                    <input type="radio" class="form-check-input" id="q{{ question.id }}D" name="{{ question.id }}" value="D">
+                    <label class="form-check-label ms-2 w-100" for="q{{ question.id }}D" style="color: black;">D) {{ question.option_d }}</label>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+
+              <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary text-gradient font-weight-bold w-100">
+                  Enviar Respuestas
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer py-4">
+    <div class="container-fluid">
+      <div class="row align-items-center justify-content-lg-between">
+        <div class="col-lg-6 mb-lg-0 mb-4">
+          <div class="copyright text-center text-sm text-muted text-lg-start">
+            © <script>document.write(new Date().getFullYear())</script>,
+            <i class="fa fa-heart"></i> 
+            <a href="#" class="font-weight-bold" target="_blank">Desarrollado por</a>
+            Leidy Carvajal.
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
+{% endblock %}

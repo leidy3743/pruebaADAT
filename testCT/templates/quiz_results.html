@@ -184,7 +184,7 @@
         };
 
         // Asegúrate de que haya un elemento en el HTML con ID `chart-1`, `chart-2`, etc.
-        Plotly.newPlot(`chart-${index}`, data, layout);
+    Plotly.newPlot(`chart-${index}`, data, layout, {responsive: true});
         index++;
     }
 </script>
