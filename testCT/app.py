@@ -150,9 +150,72 @@ class AnswerTres(db.Model):
     selected_answer = db.Column(db.String(500), nullable=False)
 
 
+
+# Modelo para preguntas del test Marco Roman
+class QuizCuatro(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    statement = db.Column(db.String(1000), nullable=False)
+    option_a = db.Column(db.String(500), nullable=False)
+    option_b = db.Column(db.String(500), nullable=False)
+    option_c = db.Column(db.String(500), nullable=False)
+    option_d = db.Column(db.String(500), nullable=False)
+    correct_answer = db.Column(db.String(1), nullable=False)
+    label = db.Column(db.String(50), nullable=True)
+    percentage = db.Column(db.Float, nullable=True)
+    image_url = db.Column(db.String(200), nullable=True)
+
+class ResultadoQuizCuatro(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
+    score = db.Column(db.Integer, nullable=False)
+    correct_count = db.Column(db.Integer, nullable=False)
+    incorrect_count = db.Column(db.Integer, nullable=False)
+    usuario = db.relationship('User', backref=db.backref('resultado_quiz_cuatro', uselist=False))
+
 class Grado(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
+# Ruta para el test Marco Roman
+@app.route('/quiz4', methods=['GET', 'POST'])
+@login_required
+def quiz4():
+    resultado = ResultadoQuizCuatro.query.filter_by(user_id=current_user.id).first()
+
+    if resultado:
+        flash("Ya has completado este cuestionario. Aquí están tus resultados.", "success")
+        return redirect(url_for('quiz4_results', result_id=resultado.id))
+
+    questions = QuizCuatro.query.order_by(QuizCuatro.id).all()
+
+    if request.method == 'POST':
+        user_answers = request.form.to_dict()
+        correct_count = 0
+        incorrect_count = 0
+        score = 0
+        for question in questions:
+            user_answer = user_answers.get(str(question.id))
+            if user_answer == question.correct_answer:
+                correct_count += 1
+                score += question.percentage if question.percentage else 1
+            else:
+                incorrect_count += 1
+        resultado = ResultadoQuizCuatro(
+            user_id=current_user.id,
+            score=score,
+            correct_count=correct_count,
+            incorrect_count=incorrect_count
+        )
+        db.session.add(resultado)
+        db.session.commit()
+        return redirect(url_for('quiz4_results', result_id=resultado.id))
+
+    return render_template('quiz4.html', questions=questions)
+
+# Ruta para mostrar resultados de quiz4
+@app.route('/quiz4_results/<int:result_id>')
+def quiz4_results(result_id):
+    resultado = ResultadoQuizCuatro.query.get_or_404(result_id)
+    return render_template('quiz4_results.html', resultado=resultado)
 
 
 class Asignatura(db.Model):

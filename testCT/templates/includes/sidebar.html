@@ -20,6 +20,14 @@
           </a>
         </li>
         <li class="nav-item">
+          <a class="nav-link text-white" href="{{ url_for('quiz4') }}">
+            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="material-icons opacity-10">more_vert</i>
+            </div>
+            <span class="nav-link-text ms-1">Test Pensamiento <br>Computacional</span>
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link text-white {% if 'tables' in segment %} active bg-gradient-primary {% endif %}" 
              href="{{ url_for('quiz1') }}">
             <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -29,21 +37,21 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-white {% if 'billing' in segment %} active bg-gradient-primary {% endif %}" 
-             href="{{ url_for('quiz2') }}">
-            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-              <i class="material-icons opacity-10">receipt_long</i>
-            </div>
-            <span class="nav-link-text ms-1">Estilos de aprendizaje</span>
-          </a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link text-white {% if 'virtual' in segment %} active bg-gradient-primary {% endif %}" 
              href="{{ url_for('quiz3') }}">
             <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
               <i class="material-icons opacity-10">view_in_ar</i>
             </div>
             <span class="nav-link-text ms-1">Tipo de jugador</span>
+          </a>
+        </li>
+         <li class="nav-item">
+          <a class="nav-link text-white {% if 'billing' in segment %} active bg-gradient-primary {% endif %}" 
+             href="{{ url_for('quiz2') }}">
+            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="material-icons opacity-10">receipt_long</i>
+            </div>
+            <span class="nav-link-text ms-1">Estilos de aprendizaje</span>
           </a>
         </li>
         <li class="nav-item">

@@ -141,6 +141,20 @@ class ResultadoQuizTres(db.Model):
     usuario = db.relationship('User', backref=db.backref('resultados_quiz_tres', uselist=False))
 
 
+
+# Modelo para preguntas del test CTt (QuestionCuatro)
+class QuestionCuatro(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    statement = db.Column(db.String(1000), nullable=False)
+    option_a = db.Column(db.String(500), nullable=False)
+    option_b = db.Column(db.String(500), nullable=False)
+    option_c = db.Column(db.String(500), nullable=False)
+    option_d = db.Column(db.String(500), nullable=False)
+    correct_answer = db.Column(db.String(1), nullable=False)
+    label = db.Column(db.String(50), nullable=True)
+    percentage = db.Column(db.Float, nullable=True)
+    image_url = db.Column(db.String(200), nullable=True)
+
 class Grado(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
