@@ -178,6 +178,66 @@
                   </div>
                 </div>
               </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="card border">
+                  <div class="card-body">
+                    <h6>Genera Actividades</h6>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" 
+                             type="checkbox" 
+                             name="config_generador_actividades_activo" 
+                             value="true"
+                             id="generadorSwitch"
+                             {% if configs.generador_actividades_activo.valor == 'true' %}checked{% endif %}>
+                      <label class="form-check-label" for="generadorSwitch">
+                        Activo
+                      </label>
+                    </div>
+                    <small class="text-muted">Activa/Desactiva el Generador de Actividades y la sección "Mis Actividades" para usuarios no administradores. Para administradores siempre está activo.</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="card border">
+                  <div class="card-body">
+                    <h6>Resultados</h6>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" 
+                             type="checkbox" 
+                             name="config_resultados_activo" 
+                             value="true"
+                             id="resultadosSwitch"
+                             {% if configs.resultados_activo.valor == 'true' %}checked{% endif %}>
+                      <label class="form-check-label" for="resultadosSwitch">
+                        Activo
+                      </label>
+                    </div>
+                    <small class="text-muted">Activa/Desactiva la vista "Mis Resultados" para usuarios no administradores. Administradores siempre pueden acceder.</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="card border">
+                  <div class="card-body">
+                    <h6>Perfil</h6>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" 
+                             type="checkbox" 
+                             name="config_perfil_activo" 
+                             value="true"
+                             id="perfilSwitch"
+                             {% if configs.perfil_activo.valor == 'true' %}checked{% endif %}>
+                      <label class="form-check-label" for="perfilSwitch">
+                        Activo
+                      </label>
+                    </div>
+                    <small class="text-muted">Activa/Desactiva la vista de Perfil para usuarios no administradores. Administradores siempre pueden acceder.</small>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <hr class="horizontal dark">
@@ -220,6 +280,10 @@
             <li class="mb-2">
               <i class="material-icons align-middle text-sm">check_circle</i>
               Los tiempos de tests ayudan a controlar el tiempo máximo de evaluación
+            </li>
+            <li class="mb-2">
+              <i class="material-icons align-middle text-sm">check_circle</i>
+              "Genera Actividades" controla el Generador de Actividades y "Mis Actividades" para usuarios no administradores.
             </li>
             <li>
               <i class="material-icons align-middle text-sm">check_circle</i>

@@ -200,6 +200,16 @@ class Grado(db.Model):
 @app.route('/quiz4', methods=['GET', 'POST'])
 @login_required
 def quiz4():
+    # Flag de acceso al test PC
+    try:
+        conf = ConfiguracionSistema.query.filter_by(clave='quiz4_activo').first()
+        activo = (conf.valor == 'true') if conf else True
+    except Exception:
+        activo = True
+    if current_user.rol != 'admin' and not activo:
+        flash('El Test de Pensamiento Computacional está desactivado por el administrador.', 'warning')
+        return redirect(url_for('dashboard'))
+
     resultado = ResultadoQuizCuatro.query.filter_by(user_id=current_user.id).first()
 
     if resultado:
@@ -312,6 +322,16 @@ def dashboard():
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+    # Flag de acceso a Perfil
+    try:
+        conf = ConfiguracionSistema.query.filter_by(clave='perfil_activo').first()
+        activo = (conf.valor == 'true') if conf else True
+    except Exception:
+        activo = True
+    if current_user.rol != 'admin' and not activo:
+        flash('La vista de Perfil está desactivada por el administrador.', 'warning')
+        return redirect(url_for('dashboard'))
+
     if request.method == 'POST':
         try:
             # Solo actualizar nombre
@@ -1283,6 +1303,12 @@ def configuracion_sistema():
                         ConfiguracionSistema(clave='quiz3_activo', valor='true', descripcion='Activar/Desactivar Quiz 3 (Jugador)'),
         'quiz4_activo': ConfiguracionSistema.query.filter_by(clave='quiz4_activo').first() or 
                         ConfiguracionSistema(clave='quiz4_activo', valor='true', descripcion='Activar/Desactivar Quiz 4 (Pensamiento)'),
+        'generador_actividades_activo': ConfiguracionSistema.query.filter_by(clave='generador_actividades_activo').first() or 
+                         ConfiguracionSistema(clave='generador_actividades_activo', valor='true', descripcion='Activar/Desactivar Generador de Actividades y Mis Actividades'),
+        'resultados_activo': ConfiguracionSistema.query.filter_by(clave='resultados_activo').first() or 
+                         ConfiguracionSistema(clave='resultados_activo', valor='true', descripcion='Activar/Desactivar vista de Resultados del usuario'),
+        'perfil_activo': ConfiguracionSistema.query.filter_by(clave='perfil_activo').first() or 
+                         ConfiguracionSistema(clave='perfil_activo', valor='true', descripcion='Activar/Desactivar vista de Perfil del usuario'),
         'mensaje_bienvenida': ConfiguracionSistema.query.filter_by(clave='mensaje_bienvenida').first() or 
                               ConfiguracionSistema(clave='mensaje_bienvenida', valor='Bienvenido a la plataforma ADAT', descripcion='Mensaje de bienvenida'),
         'permitir_registro': ConfiguracionSistema.query.filter_by(clave='permitir_registro').first() or 
@@ -1303,6 +1329,27 @@ def configuracion_sistema():
         db.session.rollback()
     
     return render_template('admin_configuracion.html', configs=configs)
+
+
+# Exponer configuración al contexto de plantillas
+@app.context_processor
+def inject_config_flags():
+    """Inyecta helpers y banderas de configuración en todas las plantillas"""
+    def cfg(clave, default=None):
+        try:
+            c = ConfiguracionSistema.query.filter_by(clave=clave).first()
+            return c.valor if c else default
+        except Exception:
+            return default
+
+    # Bandera para generador de actividades (por defecto True)
+    try:
+        c = ConfiguracionSistema.query.filter_by(clave='generador_actividades_activo').first()
+        generador_activo = (c.valor == 'true') if c else True
+    except Exception:
+        generador_activo = True
+
+    return dict(cfg=cfg, generador_actividades_activo=generador_activo)
 
 
 @app.route('/register_quiz1_question', methods=['GET', 'POST'])
@@ -1347,6 +1394,16 @@ def results():
 @app.route('/quiz1', methods=['GET', 'POST'])
 @login_required
 def quiz1():
+    # Flag de acceso a ADAT
+    try:
+        conf = ConfiguracionSistema.query.filter_by(clave='quiz1_activo').first()
+        activo = (conf.valor == 'true') if conf else True
+    except Exception:
+        activo = True
+    if current_user.rol != 'admin' and not activo:
+        flash('El test ADAT está desactivado por el administrador.', 'warning')
+        return redirect(url_for('dashboard'))
+
     resultado = ResultadoQuiz.query.filter_by(user_id=current_user.id).first()
 
     if resultado:
@@ -1543,6 +1600,16 @@ def register_quiz4_question():
 @app.route('/quiz2', methods=['GET', 'POST'])
 @login_required
 def quiz2():
+    # Flag de acceso a Estilos de aprendizaje
+    try:
+        conf = ConfiguracionSistema.query.filter_by(clave='quiz2_activo').first()
+        activo = (conf.valor == 'true') if conf else True
+    except Exception:
+        activo = True
+    if current_user.rol != 'admin' and not activo:
+        flash('El test de Estilos de Aprendizaje está desactivado por el administrador.', 'warning')
+        return redirect(url_for('dashboard'))
+
     resultado = ResultadoQuizDos.query.filter_by(user_id=current_user.id).first()
 
     if resultado:
@@ -1736,6 +1803,16 @@ def register_quiz3_question():
 @app.route('/quiz3', methods=['GET', 'POST'])
 @login_required
 def quiz3():
+    # Flag de acceso a Tipo de Jugador
+    try:
+        conf = ConfiguracionSistema.query.filter_by(clave='quiz3_activo').first()
+        activo = (conf.valor == 'true') if conf else True
+    except Exception:
+        activo = True
+    if current_user.rol != 'admin' and not activo:
+        flash('El test de Tipo de Jugador está desactivado por el administrador.', 'warning')
+        return redirect(url_for('dashboard'))
+
     resultado = ResultadoQuizTres.query.filter_by(user_id=current_user.id).first()
 
     if resultado:
@@ -1990,6 +2067,16 @@ def crear_actividad():
 @app.route('/select_activities', methods=['GET', 'POST'])
 @login_required
 def select_activities():
+    # Restringir acceso si el admin desactivó la función (excepto para admin)
+    try:
+        conf = ConfiguracionSistema.query.filter_by(clave='generador_actividades_activo').first()
+        activo = (conf.valor == 'true') if conf else True
+    except Exception:
+        activo = True
+    if current_user.rol != 'admin' and not activo:
+        flash('El Generador de Actividades está desactivado por el administrador.', 'warning')
+        return redirect(url_for('dashboard'))
+
     if request.method == 'POST':
         # Obtener datos del formulario
         nombre_profesor = request.form.get('nombre_profesor')
@@ -2107,6 +2194,16 @@ Usa un lenguaje claro y profesional. Formatea el texto usando Markdown con títu
 @login_required
 def mis_actividades():
     """Ver todas las actividades generadas por el usuario"""
+    # Restringir acceso si el admin desactivó la función (excepto para admin)
+    try:
+        conf = ConfiguracionSistema.query.filter_by(clave='generador_actividades_activo').first()
+        activo = (conf.valor == 'true') if conf else True
+    except Exception:
+        activo = True
+    if current_user.rol != 'admin' and not activo:
+        flash('Mis Actividades está desactivado por el administrador.', 'warning')
+        return redirect(url_for('dashboard'))
+
     actividades = ActividadGenerada.query.filter_by(user_id=current_user.id).order_by(ActividadGenerada.fecha_creacion.desc()).all()
     return render_template('mis_actividades.html', actividades=actividades)
 
@@ -2115,6 +2212,15 @@ def mis_actividades():
 @login_required
 def ver_actividad(actividad_id):
     """Ver una actividad específica"""
+    # Restringir acceso si el admin desactivó la función (excepto para admin)
+    try:
+        conf = ConfiguracionSistema.query.filter_by(clave='generador_actividades_activo').first()
+        activo = (conf.valor == 'true') if conf else True
+    except Exception:
+        activo = True
+    if current_user.rol != 'admin' and not activo:
+        flash('Mis Actividades está desactivado por el administrador.', 'warning')
+        return redirect(url_for('dashboard'))
     actividad = ActividadGenerada.query.get_or_404(actividad_id)
     
     # Verificar que la actividad pertenece al usuario
@@ -2133,6 +2239,15 @@ def ver_actividad(actividad_id):
 @login_required
 def editar_actividad(actividad_id):
     """Editar una actividad existente"""
+    # Restringir acceso si el admin desactivó la función (excepto para admin)
+    try:
+        conf = ConfiguracionSistema.query.filter_by(clave='generador_actividades_activo').first()
+        activo = (conf.valor == 'true') if conf else True
+    except Exception:
+        activo = True
+    if current_user.rol != 'admin' and not activo:
+        flash('Mis Actividades está desactivado por el administrador.', 'warning')
+        return redirect(url_for('dashboard'))
     actividad = ActividadGenerada.query.get_or_404(actividad_id)
     
     # Verificar que la actividad pertenece al usuario
@@ -2167,6 +2282,15 @@ def editar_actividad(actividad_id):
 @login_required
 def eliminar_actividad(actividad_id):
     """Eliminar una actividad"""
+    # Restringir acceso si el admin desactivó la función (excepto para admin)
+    try:
+        conf = ConfiguracionSistema.query.filter_by(clave='generador_actividades_activo').first()
+        activo = (conf.valor == 'true') if conf else True
+    except Exception:
+        activo = True
+    if current_user.rol != 'admin' and not activo:
+        flash('Mis Actividades está desactivado por el administrador.', 'warning')
+        return redirect(url_for('dashboard'))
     actividad = ActividadGenerada.query.get_or_404(actividad_id)
     
     # Verificar que la actividad pertenece al usuario
@@ -2190,6 +2314,15 @@ def eliminar_actividad(actividad_id):
 @login_required
 def exportar_actividad_word(actividad_id=None):
     """Exportar actividad a Word con formato profesional"""
+    # Restringir acceso si el admin desactivó la función (excepto para admin)
+    try:
+        conf = ConfiguracionSistema.query.filter_by(clave='generador_actividades_activo').first()
+        activo = (conf.valor == 'true') if conf else True
+    except Exception:
+        activo = True
+    if current_user.rol != 'admin' and not activo:
+        flash('El Generador de Actividades está desactivado por el administrador.', 'warning')
+        return redirect(url_for('dashboard'))
     from docx import Document
     from docx.shared import Pt, RGBColor, Inches
     from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -2470,6 +2603,15 @@ def exportar_actividad_word(actividad_id=None):
 @login_required
 def mis_resultados():
     """Vista resumen con el estado de resultados del usuario en todos los tests"""
+    # Flag de acceso a Resultados
+    try:
+        conf = ConfiguracionSistema.query.filter_by(clave='resultados_activo').first()
+        activo = (conf.valor == 'true') if conf else True
+    except Exception:
+        activo = True
+    if current_user.rol != 'admin' and not activo:
+        flash('La vista de Resultados está desactivada por el administrador.', 'warning')
+        return redirect(url_for('dashboard'))
     r1 = ResultadoQuiz.query.filter_by(user_id=current_user.id).first()
     r2 = ResultadoQuizDos.query.filter_by(user_id=current_user.id).first()
     r3 = ResultadoQuizTres.query.filter_by(user_id=current_user.id).first()

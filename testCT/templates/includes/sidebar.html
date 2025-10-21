@@ -60,6 +60,7 @@
         {% endif %}
         
         <!-- CTt (Pensamiento Computacional) antes de ADAT -->
+        {% if current_user.is_authenticated and (current_user.rol == 'admin' or cfg('quiz4_activo','true') == 'true') %}
         <li class="nav-item">
           <a class="nav-link text-white" href="{{ url_for('quiz4') }}">
             <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -68,7 +69,9 @@
             <span class="nav-link-text ms-1">Test Pensamiento<br>Computacional</span>
           </a>
         </li>
+        {% endif %}
         <li class="nav-item">
+          {% if current_user.is_authenticated and (current_user.rol == 'admin' or cfg('quiz1_activo','true') == 'true') %}
           <a class="nav-link text-white {% if 'tables' in segment %} active bg-gradient-primary {% endif %}" 
              href="{{ url_for('quiz1') }}">
             <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -76,8 +79,10 @@
             </div>
             <span class="nav-link-text ms-1">ADAT</span>
           </a>
+          {% endif %}
         </li>
         <li class="nav-item">
+          {% if current_user.is_authenticated and (current_user.rol == 'admin' or cfg('quiz3_activo','true') == 'true') %}
           <a class="nav-link text-white {% if 'virtual' in segment %} active bg-gradient-primary {% endif %}" 
              href="{{ url_for('quiz3') }}">
             <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -85,8 +90,10 @@
             </div>
             <span class="nav-link-text ms-1">Tipo de jugador</span>
           </a>
+          {% endif %}
         </li>
          <li class="nav-item">
+          {% if current_user.is_authenticated and (current_user.rol == 'admin' or cfg('quiz2_activo','true') == 'true') %}
           <a class="nav-link text-white {% if 'billing' in segment %} active bg-gradient-primary {% endif %}" 
              href="{{ url_for('quiz2') }}">
             <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -94,7 +101,9 @@
             </div>
             <span class="nav-link-text ms-1">Estilos de aprendizaje</span>
           </a>
+          {% endif %}
         </li>
+        {% if current_user.is_authenticated and (current_user.rol == 'admin' or cfg('resultados_activo','true') == 'true') %}
         <li class="nav-item">
           <a class="nav-link text-white " href="{{ url_for('mis_resultados') }}">
             <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
@@ -103,6 +112,8 @@
             <span class="nav-link-text ms-1">Resultados</span>
           </a>
         </li>
+        {% endif %}
+        {% if current_user.is_authenticated and (current_user.rol == 'admin' or generador_actividades_activo) %}
         <li class="nav-item">
           <a class="nav-link text-white {% if 'select_activities' in segment %} active bg-gradient-primary {% endif %}" 
              href="{{ url_for('select_activities') }}">
@@ -121,6 +132,7 @@
             <span class="nav-link-text ms-1">Mis Actividades</span>
           </a>
         </li>
+        {% endif %}
         <!--<li class="nav-item">
           <a class="nav-link text-white {% if 'notifications' in segment %} active bg-gradient-primary {% endif %}" 
              href="/notifications.html">
@@ -133,6 +145,7 @@
         <li class="nav-item mt-3">
           <h6 class="ps-4 ms-2 text-uppercase text-xs text-white font-weight-bolder opacity-8">Usuario</h6>
         </li>
+        {% if current_user.is_authenticated and (current_user.rol == 'admin' or cfg('perfil_activo','true') == 'true') %}
         <li class="nav-item">
           <a class="nav-link text-white {% if 'profile' in segment %} active bg-gradient-primary {% endif %}" 
              href="{{ url_for('profile') }}">
@@ -142,6 +155,7 @@
             <span class="nav-link-text ms-1">Perfil</span>
           </a>
         </li>
+        {% endif %}
       </ul>
     </div>
     <div class="sidenav-footer position-absolute w-100 bottom-0 ">
