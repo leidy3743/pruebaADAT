@@ -37,7 +37,6 @@ def upgrade():
     sa.Column('score', sa.Integer(), nullable=False),
     sa.Column('correct_count', sa.Integer(), nullable=False),
     sa.Column('incorrect_count', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id')
     )

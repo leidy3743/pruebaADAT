@@ -3,7 +3,14 @@
 {% block title %} Registrarse {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+<style>
+  /* Asegura que el modal esté por encima del backdrop */
+  .modal-backdrop { z-index: 1040 !important; }
+  .modal { z-index: 1050 !important; }
+  .modal-dialog { z-index: 1055 !important; }
+</style>
+{% endblock stylesheets %}
 
 {% block content %}
 
@@ -48,6 +55,18 @@
                 {% else %}
 
                   <div class="card-body">
+                    <!-- Mensajes de error/éxito -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages %}
+                        {% for category, message in messages %}
+                          <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                            <strong>{{ message }}</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                        {% endfor %}
+                      {% endif %}
+                    {% endwith %}
+
                     <form role="form" method="post" action="">
                       {{ form.hidden_tag() }} 
 
@@ -71,10 +90,14 @@
                           {{ form.edad.label }}
                           &nbsp;&nbsp;{{ form.edad(class="form-control", placeholder="Edad") }}
                       </div>
-                      <div class="input-group input-group-outline mb-3">
-                          {{ form.colegio.label }}
-                          &nbsp;&nbsp;{{ form.colegio(class="form-control", placeholder="Institución Educativa") }}
-                      </div>
+            <div class="input-group input-group-outline mb-3">
+              {{ form.colegio.label }}
+              &nbsp;&nbsp;{{ form.colegio(class="form-control", placeholder="Grupo") }}
+            </div>
+            <div class="input-group input-group-outline mb-3">
+              {{ form.institucion.label }}
+              &nbsp;&nbsp;{{ form.institucion(class="form-control", placeholder="Institución") }}
+            </div>
                       <div class="input-group input-group-outline mb-3">
                           {{ form.nivel_educativo.label }}
                           &nbsp;&nbsp;{{ form.nivel_educativo(class="form-control", placeholder="Nivel Educativo") }}
@@ -90,17 +113,23 @@
                               {{ form.anios_experiencia.label }}
                               &nbsp;&nbsp;{{ form.anios_experiencia(class="form-control") }}
                           </div>
-                          <div class="input-group input-group-outline mb-3">
-                              {{ form.nivel_grados.label }}
-                              &nbsp;&nbsp;{{ form.nivel_grados(class="form-control") }}
+                          <div class="mb-2">
+                              <label class="form-label">{{ form.nivel_grados.label.text }}</label>
+                              <div class="form-check">
+                                {{ form.nivel_grados() }}
+                              </div>
                           </div>
-                          <div class="input-group input-group-outline mb-3">
-                              {{ form.cursos.label }}
-                              &nbsp;&nbsp;{{ form.cursos(class="form-control") }}
+                          <div class="mb-2">
+                              <label class="form-label">{{ form.cursos.label.text }}</label>
+                              <div class="form-check">
+                                {{ form.cursos() }}
+                              </div>
                           </div>
-                          <div class="input-group input-group-outline mb-3">
-                              {{ form.grados.label }}
-                              &nbsp;&nbsp;{{ form.grados(class="form-control") }}
+                          <div class="mb-3">
+                              <label class="form-label">{{ form.grados.label.text }}</label>
+                              <div class="form-check">
+                                {{ form.grados() }}
+                              </div>
                           </div>
                           
                       </div>
@@ -113,12 +142,35 @@
                           {{ form.password.label }}
                           &nbsp;&nbsp;{{ form.password(class="form-control", type="password", placeholder="Contraseña") }}
                         </div>
-                        <div class="form-check form-check-info text-start ps-0">
-                          <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" checked>
-                          <label class="form-check-label" for="flexCheckDefault">
-                            Acepto los <a href="javascript:;" class="text-dark font-weight-bolder">terminos y condiciones</a>
-                          </label>
-                        </div>
+                          <div class="form-check form-check-info text-start ps-0">
+                            <input class="form-check-input" type="checkbox" value="1" id="termsCheck">
+                            <label class="form-check-label" for="termsCheck">
+                              Acepto los <a href="#" id="termsLink" class="text-dark font-weight-bolder">términos y condiciones</a>
+                            </label>
+                          </div>
+
+                          <!-- Modal de Términos y Condiciones -->
+                          <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="termsModalLabel">Términos y condiciones</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" style="white-space: pre-line;">
+  Los datos recopilados en el marco de esta investigación serán tratados con estricta confidencialidad y se emplearán únicamente con fines académicos. Toda la información suministrada por los participantes estará protegida conforme a las disposiciones establecidas por la normativa vigente en materia de protección de datos personales y ética en la investigación.
+
+  El uso de los datos estará restringido exclusivamente al desarrollo y análisis de la tesis doctoral de la investigadora Leidy Johanna Carvajal Ortiz, garantizando en todo momento el anonimato de los participantes y la seguridad de la información. Los resultados obtenidos se presentarán de manera agregada, sin que sea posible identificar individualmente a las personas que participaron en el estudio.
+
+  La información no será compartida con terceros ni utilizada para propósitos distintos a los académicos descritos, asegurando el cumplimiento de los principios de confidencialidad, integridad y uso responsable de los datos.
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-outline-secondary" id="termsDecline" data-bs-dismiss="modal">Cancelar</button>
+                                  <button type="button" class="btn btn-primary" id="termsAccept">Acepto</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         <div class="text-center">
                           <button type="submit" name="register" class="btn btn-lg bg-gradient-primary btn-lg w-100 mt-4 mb-0">Registrarme</button>
                         </div>
@@ -147,12 +199,95 @@
             docenteFields.style.display = "block";
         } else {
             docenteFields.style.display = "none";
+            // Limpia selecciones si cambia a un rol no docente
+            ['nivel_grados','cursos','grados','anios_experiencia'].forEach(function(name){
+              var el = document.querySelector('[name="' + name + '"]');
+              if (!el) return;
+              // Si son checkboxes generados por WTForms, desmarcar todos
+              if (el.type === 'checkbox') {
+                document.querySelectorAll('input[name="' + name + '"]').forEach(function(cb){ cb.checked = false; });
+              } else if (el.multiple) {
+                for (var i=0; i<el.options.length; i++) el.options[i].selected = false;
+              } else {
+                el.value = '';
+              }
+            });
         }
     }
+  // Inicializa el estado al cargar
+  document.addEventListener('DOMContentLoaded', toggleFields);
 </script>
 
     
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var termsCheck = document.getElementById('termsCheck');
+    var termsLink = document.getElementById('termsLink');
+    var termsModalEl = document.getElementById('termsModal');
+    var termsAcceptBtn = document.getElementById('termsAccept');
+    var termsDeclineBtn = document.getElementById('termsDecline');
+    var formEl = document.querySelector('form[role="form"]');
+
+    if (!termsModalEl) return;
+    // Mueve el modal al body para evitar problemas de stacking context
+    if (termsModalEl.parentElement !== document.body) {
+      document.body.appendChild(termsModalEl);
+    }
+    var termsModal = new bootstrap.Modal(termsModalEl);
+    var programmatic = false;
+
+    // Al hacer click en el checkbox, abrir modal y no alternar de inmediato
+    if (termsCheck) {
+      termsCheck.addEventListener('click', function(e) {
+        if (programmatic) { programmatic = false; return; }
+        e.preventDefault();
+        termsModal.show();
+      });
+    }
+
+    // Enlace de términos también abre el modal
+    if (termsLink) {
+      termsLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        termsModal.show();
+      });
+    }
+
+    // Botón Acepto: marca el checkbox
+    if (termsAcceptBtn) {
+      termsAcceptBtn.addEventListener('click', function() {
+        programmatic = true;
+        if (termsCheck) termsCheck.checked = true;
+        termsModal.hide();
+      });
+    }
+
+    // Cancelar: desmarca (asegura estado)
+    if (termsDeclineBtn) {
+      termsDeclineBtn.addEventListener('click', function() {
+        programmatic = true;
+        if (termsCheck) termsCheck.checked = false;
+        // modal se cierra por data-bs-dismiss
+      });
+    }
+
+    // Impedir envío si no aceptó términos: abre modal
+    if (formEl) {
+      formEl.addEventListener('submit', function(e) {
+        if (!termsCheck || !termsCheck.checked) {
+          e.preventDefault();
+          alert('Por favor, acepta los términos y condiciones para continuar con el registro.');
+          termsModal.show();
+          return false;
+        }
+        // Si llegó aquí, el formulario se puede enviar
+        console.log('Formulario enviándose...');
+      });
+    }
+  });
+</script>
+{% endblock javascripts %}

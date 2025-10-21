@@ -1,0 +1,135 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Perfil {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+  <div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="card my-4">
+          <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+            <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+              <h6 class="text-white text-capitalize ps-3">Mi Perfil</h6>
+            </div>
+          </div>
+          <div class="card-body px-4 pb-2">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                    <span class="text-white">{{ message }}</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('profile') }}">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                    <label class="form-label">Nombres</label>
+                    <input type="text" class="form-control" name="nombres" value="{{ current_user.nombres }}" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3 is-filled">
+                    <label class="form-label">Correo</label>
+                    <input type="email" class="form-control" name="correo" value="{{ current_user.correo }}" readonly>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3 is-filled">
+                    <label class="form-label">Usuario</label>
+                    <input type="text" class="form-control" name="username" value="{{ current_user.username }}" readonly>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3 is-filled">
+                    <label class="form-label">Edad</label>
+                    <input type="number" class="form-control" name="edad" value="{{ current_user.edad }}" readonly>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3 is-filled">
+                    <label class="form-label">Institución</label>
+                    <input type="text" class="form-control" name="institucion" value="{{ current_user.institucion or '' }}" readonly>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3 is-filled">
+                    <label class="form-label">Nivel Educativo</label>
+                    <input type="text" class="form-control" name="nivel_educativo" value="{{ current_user.nivel_educativo }}" readonly>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3 is-filled">
+                    <label class="form-label">Rol</label>
+                    <input type="text" class="form-control" name="rol" value="{{ current_user.rol or '' }}" readonly>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3 is-filled">
+                    <label class="form-label">Años de Experiencia</label>
+                    <input type="number" class="form-control" name="anios_experiencia" value="{{ current_user.anios_experiencia }}" readonly>
+                  </div>
+                </div>
+              </div>
+
+              <hr class="horizontal dark mt-4 mb-4">
+              <h6 class="text-uppercase text-sm mb-3">Cambiar Contraseña (Opcional)</h6>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                    <label class="form-label">Nueva Contraseña</label>
+                    <input type="password" class="form-control" name="new_password" placeholder="Dejar en blanco para no cambiar">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3">
+                    <label class="form-label">Confirmar Contraseña</label>
+                    <input type="password" class="form-control" name="confirm_password" placeholder="Confirmar nueva contraseña">
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mt-4">
+                <div class="col-12">
+                  <button type="submit" class="btn bg-gradient-primary">
+                    <i class="material-icons text-sm">save</i>&nbsp;&nbsp;Guardar Cambios
+                  </button>
+                  <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary ms-2">
+                    <i class="material-icons text-sm">arrow_back</i>&nbsp;&nbsp;Volver
+                  </a>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% include 'includes/footer.html' %}
+
+  </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

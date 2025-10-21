@@ -1,0 +1,84 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Usuarios Registrados {% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Usuarios Registrados</h6>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table align-items-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Usuario</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nombres</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Correo</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Edad</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Institución</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Rol</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nivel Educativo</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Años Exp.</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                  <td class="align-middle text-center">
+                    <span class="text-secondary text-xs font-weight-bold">{{ usuario.id }}</span>
+                  </td>
+                  <td class="align-middle">
+                    <span class="text-secondary text-xs font-weight-bold">{{ usuario.username }}</span>
+                  </td>
+                  <td class="align-middle">
+                    <span class="text-secondary text-xs font-weight-bold">{{ usuario.nombres }}</span>
+                  </td>
+                  <td class="align-middle">
+                    <span class="text-secondary text-xs font-weight-bold">{{ usuario.correo }}</span>
+                  </td>
+                  <td class="align-middle text-center">
+                    <span class="text-secondary text-xs font-weight-bold">{{ usuario.edad }}</span>
+                  </td>
+                  <td class="align-middle">
+                    <span class="text-secondary text-xs font-weight-bold">{{ usuario.institucion or '-' }}</span>
+                  </td>
+                  <td class="align-middle">
+                    <span class="text-secondary text-xs font-weight-bold">{{ usuario.rol or '-' }}</span>
+                  </td>
+                  <td class="align-middle">
+                    <span class="text-secondary text-xs font-weight-bold">{{ usuario.nivel_educativo }}</span>
+                  </td>
+                  <td class="align-middle text-center">
+                    <span class="text-secondary text-xs font-weight-bold">{{ usuario.anios_experiencia }}</span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="px-4 py-3">
+            <p class="text-sm mb-0">
+              <strong>Total de usuarios registrados:</strong> {{ usuarios|length }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  {% include 'includes/footer.html' %}
+  
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}{% endblock javascripts %}

@@ -16,15 +16,15 @@ from sqlalchemy.exc import IntegrityError
 app = Flask(__name__)
 # Sugerencia: usar el driver de psycopg v3 para evitar problemas de arquitectura en macOS ARM
 # Permite sobreescribir la BD por variable de entorno en pruebas: export DATABASE_URL=sqlite:///instance/dev.db
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql+psycopg://postgres:lady@localhost/ayuda')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql+psycopg://leidy_user:uVPTOe32sInjJYl5c1OpF3XFzKi6SKn8@dpg-d3peql2li9vc73bh2lt0-a.oregon-postgres.render.com/leidy')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'mi_secreto'
 app.jinja_env.filters['zip'] = zip
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# Configuración de API key de OpenAI
-openai.api_key = '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'
+# Configuración de API key de OpenAI desde entorno
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -78,6 +78,7 @@ class User(UserMixin, db.Model):
     edad = db.Column(db.Integer, nullable=False)
     colegio_id = db.Column(db.Integer, db.ForeignKey('colegio.id'), nullable=True)
     colegio = db.relationship('Colegio', backref='usuarios', lazy="select")
+    institucion = db.Column(db.String(120), nullable=True)
     nivel_grados_id = db.Column(db.Integer, db.ForeignKey('nivel.id'), nullable=True)
     nivel_educativo = db.Column(db.String(50), nullable=False)
     rol = db.Column(db.String(100), nullable=True)
@@ -288,6 +289,37 @@ def dashboard():
     return render_template('dashboard.html')
 
 
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        try:
+            # Solo actualizar nombre
+            current_user.nombres = request.form.get('nombres')
+            
+            # Cambiar contraseña si se proporcionó
+            new_password = request.form.get('new_password')
+            confirm_password = request.form.get('confirm_password')
+            
+            if new_password:
+                if new_password == confirm_password:
+                    current_user.set_password(new_password)
+                else:
+                    flash('Las contraseñas no coinciden', 'error')
+                    return render_template('profile.html')
+            
+            db.session.commit()
+            flash('Perfil actualizado exitosamente', 'success')
+            return redirect(url_for('profile'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar el perfil: {str(e)}', 'error')
+            return render_template('profile.html')
+    
+    return render_template('profile.html')
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -306,47 +338,39 @@ def register():
 
     if request.method == "POST":
         print("Datos recibidos:", request.form)
-        colegio=form.colegio.data,
-        cursos_ids = [g.id if isinstance(g, Curso) else g for g in form.cursos.data]
-        grados_ids = [g.id if isinstance(g, Grado) else g for g in form.grados.data]
-        nivel_ids = [g.id if isinstance(g, Nivel) else g for g in form.nivel_grados.data]
-
+        
         if form.validate():
             try:
                 print("El formulario fue enviado y validado correctamente")
+                
+                # Extraer los IDs de las relaciones many-to-many
+                cursos_ids = [g.id if isinstance(g, Curso) else g for g in form.cursos.data]
+                grados_ids = [g.id if isinstance(g, Grado) else g for g in form.grados.data]
+                nivel_ids = [g.id if isinstance(g, Nivel) else g for g in form.nivel_grados.data]
+                
+                # Crear el usuario SIN las relaciones many-to-many
                 nuevo_usuario = User(
                     nombres=form.nombres.data,
                     correo=form.correo.data,
                     edad=form.edad.data,
                     colegio_id=int(form.colegio.data),
-                    nivel_grados=[db.session.get(Nivel, c_id) for c_id in nivel_ids],  # Guardamos el ID en lugar del objeto
-                    grados=[db.session.get(Grado, g_id) for g_id in grados_ids],  # Lista de objetos Grado
-                    cursos=[db.session.get(Curso, c_id) for c_id in cursos_ids],
+                    institucion=form.institucion.data,
                     anios_experiencia=form.anios_experiencia.data,
                     nivel_educativo=form.nivel_educativo.data,
                     username=form.username.data,
-                    password=generate_password_hash(request.form['password'], method='pbkdf2:sha256'),  # Asegúrate de hashear la contraseña
+                    password=generate_password_hash(request.form['password'], method='pbkdf2:sha256'),
                     rol=form.rol.data
-                    #nivel_grados=db.session.get(Nivel, form.nivel_grados.data),  
-                    #grados=[db.session.get(Grado, g_id) for g_id in form.grados.data],  
-                    #cursos=[db.session.get(Curso, c_id) for c_id in form.cursos.data]  
                 )
 
-            # Verifica si los datos son listas o valores únicos
-                if isinstance(form.nivel_grados.data, list):
-                    nuevo_usuario.nivel_grados.extend(Nivel.query.filter(Nivel.id.in_(form.nivel_grados.data)).all())
-                else:
-                    nuevo_usuario.nivel_grados = db.session.get(Nivel, form.nivel_grados.data)
-
-                if isinstance(form.grados.data, list):
-                    nuevo_usuario.grados.extend(Grado.query.filter(Grado.id.in_(form.grados.data)).all())
-                else:
-                    nuevo_usuario.grados = [db.session.get(Grado, form.grados.data)]
-
-                if isinstance(form.cursos.data, list):
-                    nuevo_usuario.cursos.extend(Curso.query.filter(Curso.id.in_(form.cursos.data)).all())
-                else:
-                    nuevo_usuario.cursos = [db.session.get(Curso, form.cursos.data)]
+                # Ahora agregar las relaciones many-to-many
+                if nivel_ids:
+                    nuevo_usuario.nivel_grados = [db.session.get(Nivel, nid) for nid in nivel_ids if nid]
+                
+                if grados_ids:
+                    nuevo_usuario.grados = [db.session.get(Grado, gid) for gid in grados_ids if gid]
+                
+                if cursos_ids:
+                    nuevo_usuario.cursos = [db.session.get(Curso, cid) for cid in cursos_ids if cid]
 
                 db.session.add(nuevo_usuario)
                 db.session.commit()
@@ -382,23 +406,34 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    print(f"=== LOGIN ROUTE CALLED - Method: {request.method} ===")
     form = LoginForm()
     if request.method == 'POST':
-        print("POST REQUEST")
+        print("POST REQUEST RECIBIDO")
         username = request.form['username']
         password = request.form['password']
         print(f"Usuario: {username}, Password: {password}")
         # Buscar usuario en la base de datos por email
         user = User.query.filter_by(username=username).first()
         
-        if user and check_password_hash(user.password, password):
-            # Si el usuario existe y la contraseña es correcta
-            print("user autenticado")
-            login_user(user)
-            return redirect(url_for('dashboard'))  # Redirige a la página principal después de iniciar sesión
+        if user:
+            print(f"Usuario encontrado: {user.username}")
+            print(f"Hash almacenado: {user.password}")
+            print(f"Verificando contraseña...")
+            password_match = check_password_hash(user.password, password)
+            print(f"¿Contraseña coincide? {password_match}")
+            
+            if password_match:
+                # Si el usuario existe y la contraseña es correcta
+                print("user autenticado")
+                login_user(user)
+                return redirect(url_for('dashboard'))  # Redirige a la página principal después de iniciar sesión
+            else:
+                print("Contraseña incorrecta")
+                flash('Usuario o contraseña incorrectos', 'danger')
         else:
             # Si el usuario no existe o la contraseña es incorrecta
-            print("autenticacion fallo")
+            print(f"Usuario '{username}' no encontrado en la base de datos")
             flash('Usuario o contraseña incorrectos', 'danger')
     return render_template('login.html', form=form)
 
@@ -409,6 +444,14 @@ def logout():
     logout_user()
     flash('Sesión cerrada correctamente.', 'success')
     return redirect(url_for('login'))
+
+
+@app.route('/admin/users')
+@login_required
+def admin_users():
+    """Ruta para ver todos los usuarios registrados"""
+    usuarios = User.query.all()
+    return render_template('admin_users.html', usuarios=usuarios)
 
 
 @app.route('/register_quiz1_question', methods=['GET', 'POST'])
@@ -1028,13 +1071,22 @@ def generate_activity(grade, subject, topic, skill, students, time, resources):
     """
     
     # Llamada a la API de OpenAI para generar el texto
-    response = openai.Completion.create(
-        engine="gpt-3.5-turbo",
-        prompt=prompt,
-        max_tokens=200  # Ajusta los tokens según la longitud que desees
-    )
-    
-    return response.choices[0].text.strip()
+    if not openai.api_key:
+        return "Configura OPENAI_API_KEY para generar actividades automáticamente."
+    try:
+        response = openai.completions.create(
+            model="gpt-3.5-turbo",
+            prompt=prompt,
+            max_tokens=200
+        )
+        # SDKs recientes devuelven dict-like; maneja ambas formas
+        if hasattr(response, 'choices'):
+            choice = response.choices[0]
+            text = getattr(choice, 'text', None) or choice.get('text', '')
+            return text.strip()
+        return "No se recibió un texto de respuesta de OpenAI."
+    except Exception as e:
+        return f"Error al generar actividades: {e}"
 
 
 @app.route('/crear_actividad', methods=['GET', 'POST'])

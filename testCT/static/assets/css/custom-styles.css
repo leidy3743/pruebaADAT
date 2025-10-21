@@ -1,0 +1,27 @@
+/* Estilos personalizados para texto negro en fondos blancos */
+
+/* Solo cambiar a negro los textos que estaban en gris oscuro */
+.card .text-dark,
+.card h6.text-dark,
+.card p.text-secondary,
+.timeline-content h6,
+.timeline-content p {
+  color: #000000 !important;
+}
+
+.text-sm:not(.text-white) {
+  color: #000000 !important;
+}
+
+/* Mantener los textos blancos como están */
+.text-white,
+.card .text-white,
+.nav-link.text-white,
+.sidenav .text-white {
+  color: #ffffff !important;
+}
+
+/* Asegurar que los links sean visibles */
+.card a:not(.btn):hover {
+  color: #1a73e8 !important;
+}

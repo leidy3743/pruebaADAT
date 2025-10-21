@@ -37,6 +37,8 @@
   <link id="pagestyle" href="/static/assets/css/material-dashboard.css?v=3.0.0" rel="stylesheet" />
   <!-- Mobile overrides -->
   <link href="/static/assets/css/mobile-overrides.css" rel="stylesheet" />
+  <!-- Custom styles -->
+  <link href="/static/assets/css/custom-styles.css" rel="stylesheet" />
 
   {% block stylesheets %}{% endblock stylesheets %}
 
@@ -141,6 +143,35 @@
     margin-left: 10px;
     cursor: pointer;
   }
+
+/* Estilos para textos en fondos blancos/claros */
+.card {
+  color: #344767 !important;
+}
+
+.card .text-dark,
+.card h1, .card h2, .card h3, .card h4, .card h5, .card h6,
+.card p, .card span, .card li, .card a:not(.btn) {
+  color: #344767 !important;
+}
+
+.card .text-secondary {
+  color: #67748e !important;
+}
+
+.timeline-content h6,
+.timeline-content p {
+  color: #344767 !important;
+}
+
+.text-sm {
+  color: #344767 !important;
+}
+
+/* Asegurar que los links sean visibles */
+.card a:not(.btn):hover {
+  color: #1a73e8 !important;
+}
 </style>
 
 </html>
