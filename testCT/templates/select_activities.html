@@ -1,153 +1,313 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Generador de Actividades {% endblock %} 
-
-<!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block title %} Generador de Actividades {% endblock %}
 
 {% block content %}
 
-  <div class="container-fluid py-4">
+<div class="container-fluid py-4">
     <div class="row">
-      <div class="col-12">
-        <div class="card my-4">
-          <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
-              <h6 class="text-white text-capitalize ps-3">Generador de Actividades</h6>
+        <div class="col-12">
+            <div class="card">
+                <!-- Cabecera del Card -->
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <div class="d-flex align-items-center px-3">
+                            <i class="material-icons text-white" style="font-size: 2rem;">psychology</i>
+                            <h6 class="text-white text-capitalize ps-3 mb-0">Generador de Actividades con IA</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensajes flash -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="px-4 pt-4">
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                    <span class="text-sm">{{ message }}</span>
+                                    <button type="button" class="btn-close text-lg py-3 opacity-10" data-bs-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <div class="card-body px-0 pb-2">
+                    <!-- Formulario de generación -->
+                    <form method="POST" action="{{ url_for('select_activities') }}" class="px-4">
+                        
+                        <!-- Sección 1: Información del Docente -->
+                        <div class="form-section mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="material-icons text-primary me-2">person</i>
+                                <h6 class="mb-0">Información del Docente</h6>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-outline mb-3">
+                                        <label class="form-label">Nombre del Profesor</label>
+                                        <input type="text" name="nombre_profesor" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-outline mb-3">
+                                        <label class="form-label">Asignatura</label>
+                                        <input type="text" name="asignatura" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección 2: Información del Curso -->
+                        <div class="form-section mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="material-icons text-info me-2">school</i>
+                                <h6 class="mb-0">Información del Curso</h6>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="input-group input-group-outline mb-3">
+                                        <label class="form-label">Grado</label>
+                                        <select name="grado" class="form-control" required>
+                                            <option value="" disabled selected></option>
+                                            <option value="1° Grado">1° Grado</option>
+                                            <option value="2° Grado">2° Grado</option>
+                                            <option value="3° Grado">3° Grado</option>
+                                            <option value="4° Grado">4° Grado</option>
+                                            <option value="5° Grado">5° Grado</option>
+                                            <option value="6° Grado">6° Grado</option>
+                                            <option value="7° Grado">7° Grado</option>
+                                            <option value="8° Grado">8° Grado</option>
+                                            <option value="9° Grado">9° Grado</option>
+                                            <option value="10° Grado">10° Grado</option>
+                                            <option value="11° Grado">11° Grado</option>
+                                            <option value="Posgrado">Posgrado</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-group input-group-outline mb-3">
+                                        <label class="form-label">Número de Estudiantes</label>
+                                        <input type="number" name="cantidad_estudiantes" class="form-control" min="1" max="100" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-group input-group-outline mb-3">
+                                        <label class="form-label">Tiempo (minutos)</label>
+                                        <input type="number" name="tiempo" class="form-control" min="5" max="300" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección 3: Contenido y Recursos -->
+                        <div class="form-section mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="material-icons text-success me-2">lightbulb</i>
+                                <h6 class="mb-0">Contenido y Recursos</h6>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-outline mb-3">
+                                        <label class="form-label">Temática</label>
+                                        <input type="text" name="tematica" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-outline mb-3">
+                                        <label class="form-label">Recursos Disponibles</label>
+                                        <input type="text" name="recursos" class="form-control" placeholder="Ej: Computadores, proyector, tabletas..." required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="form-label text-sm mb-2">Tipo de Actividad:</label>
+                                    <div class="d-flex gap-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="tipo_actividad" id="individual" value="Individual" checked>
+                                            <label class="form-check-label" for="individual">
+                                                Individual
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="tipo_actividad" id="colaborativo" value="Colaborativo">
+                                            <label class="form-check-label" for="colaborativo">
+                                                Colaborativo
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón de Generar -->
+                        <div class="text-center mt-4 mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="material-icons me-2">auto_awesome</i>
+                                Crear Actividad
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Resultado de la actividad generada -->
+                    {% if actividad %}
+                    <div class="activity-result mx-4 mt-5 mb-4">
+                        <div class="row align-items-center mb-3 px-4 pt-4">
+                            <div class="col-md-8">
+                                <h5 class="text-white mb-0">
+                                    <i class="material-icons align-middle me-2">check_circle</i>
+                                    Actividad Generada Exitosamente
+                                </h5>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <a href="{{ url_for('exportar_actividad_word') }}" class="btn btn-white btn-sm">
+                                    <i class="material-icons me-1" style="vertical-align: middle;">download</i>
+                                    Exportar a Word
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Tarjetas de información -->
+                        <div class="row px-4 mb-3">
+                            <div class="col-md-3">
+                                <div class="info-card">
+                                    <div class="text-muted text-xs">Asignatura</div>
+                                    <div class="text-dark fw-bold">{{ datos.asignatura }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="info-card">
+                                    <div class="text-muted text-xs">Grado</div>
+                                    <div class="text-dark fw-bold">{{ datos.grado }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="info-card">
+                                    <div class="text-muted text-xs">Estudiantes</div>
+                                    <div class="text-dark fw-bold">{{ datos.cantidad_estudiantes }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="info-card">
+                                    <div class="text-muted text-xs">Tiempo</div>
+                                    <div class="text-dark fw-bold">{{ datos.tiempo }} min</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contenido de la actividad -->
+                        <div class="activity-content mx-4 mb-4 p-4">
+                            {{ actividad|safe }}
+                        </div>
+
+                        <!-- Botón para generar nueva actividad -->
+                        <div class="text-center pb-4">
+                            <a href="{{ url_for('select_activities') }}" class="btn btn-outline-light">
+                                <i class="material-icons me-1" style="vertical-align: middle;">refresh</i>
+                                Generar Nueva Actividad
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>
             </div>
-          </div>
-          <div class="card-body px-4 pb-2">
-            <div class="table-responsive p-0">
-              <h8 class="text-primary">Selecciona los datos para generar las actividades</h8>
-                <br>
-              <form action="/crear_actividad" method="POST">
-                <label for="grado">Grado:</label>
-                <select name="grado" id="grado" class="form-control mb-3">
-                    {% for grado in grados %}
-                        <option value="{{ grado.id }}">{{ grado.nombre }}</option>
-                    {% else %}
-                        <option value="">No hay grados disponibles</option>
-                    {% endfor %}
-                </select><br><br>
-
-                <!-- Selección de Asignatura -->
-                <label for="asignatura">Asignatura:</label>
-                <select name="asignatura" id="asignatura" class="form-control mb-3">
-                    {% for asignatura in asignaturas %}
-                        <option value="{{ asignatura.id }}">{{ asignatura.nombre }}</option>
-                    {% else %}
-                        <option value="">No hay asignaturas disponibles</option>
-                    {% endfor %}
-                </select><br><br>
-
-                <label for="topic">Temática:</label>
-                <input type="text" id="topic" name="topic" class="form-control mb-3" required>
-
-                <!-- Selección de Habilidades -->
-                <label for="habilidades">Habilidades:</label>
-                <select name="habilidades" id="habilidades" class="form-control mb-3" multiple>
-                    {% for habilidad in habilidades %}
-                        <option value="{{ habilidad.id }}">{{ habilidad.nombre }}</option>
-                    {% else %}
-                        <option value="">No hay habilidades disponibles</option>
-                    {% endfor %}
-                </select><br><br>
-
-                <label for="students">Cantidad de estudiantes:</label>
-                <input type="number" id="students" name="students" class="form-control mb-3" required>
-
-                <label for="time">Cantidad de tiempo (minutos):</label>
-                <input type="number" id="time" name="time" class="form-control mb-3" required>
-
-                <label for="resources">Recursos:</label>
-                <input type="text" id="resources" name="resources" class="form-control mb-3">
-
-                <button type="submit" class="btn btn-primary w-100">Generar Actividades</button>  
-            </form>
-            {% if actividades %}
-        <h2>Actividades Generadas:</h2>
-        <p>{{ actividades }}</p>
-    {% endif %}
-           
-            </div>
-          </div>
         </div>
-      </div>
     </div>
-    </div>
-    <footer class="footer py-4  ">
-      <div class="container-fluid">
-        <div class="row align-items-center justify-content-lg-between">
-          <div class="col-lg-6 mb-lg-0 mb-4">
-            <div class="copyright text-center text-sm text-muted text-lg-start">
-              © <script>
-                document.write(new Date().getFullYear())
-              </script>,
-               <i class="fa fa-heart"></i> 
-              <a href="https://www.creative-tim.com" class="font-weight-bold" target="_blank">Creative by</a>
-              Universidad del Valle.
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <ul class="nav nav-footer justify-content-center justify-content-lg-end">
-              <li class="nav-item">
-                <a href="https://www.creative-tim.com" class="nav-link text-muted" target="_blank">Creative Tim</a>
-              </li>
-              <li class="nav-item">
-                <a href="https://www.creative-tim.com/presentation" class="nav-link text-muted" target="_blank">About Us</a>
-              </li>
-              <li class="nav-item">
-                <a href="https://www.creative-tim.com/blog" class="nav-link text-muted" target="_blank">Blog</a>
-              </li>
-              <li class="nav-item">
-                <a href="https://www.creative-tim.com/license" class="nav-link pe-0 text-muted" target="_blank">License</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </footer>
-  </div>
+</div>
+
+<style>
+    .form-section {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        border-left: 4px solid #e91e63;
+    }
+
+    .activity-result {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+    }
+
+    .activity-content {
+        background: white;
+        border-radius: 10px;
+        line-height: 1.8;
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+    .activity-content h1, .activity-content h2 {
+        color: #667eea;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .activity-content h3, .activity-content h4 {
+        color: #764ba2;
+        margin-top: 1.2rem;
+        margin-bottom: 0.8rem;
+        font-weight: 500;
+    }
+
+    .activity-content ul, .activity-content ol {
+        margin-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .activity-content li {
+        margin-bottom: 0.5rem;
+    }
+
+    .activity-content p {
+        margin-bottom: 1rem;
+        text-align: justify;
+    }
+
+    .activity-content strong {
+        color: #e91e63;
+        font-weight: 600;
+    }
+
+    .info-card {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .btn-white {
+        background-color: white;
+        color: #667eea;
+        font-weight: 600;
+    }
+
+    .btn-white:hover {
+        background-color: #f8f9fa;
+        color: #764ba2;
+    }
+
+    .btn-outline-light:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Estilos para los radio buttons */
+    .form-check-input:checked {
+        background-color: #e91e63;
+        border-color: #e91e63;
+    }
+
+    .form-check-label {
+        cursor: pointer;
+        user-select: none;
+    }
+</style>
 
 {% endblock content %}
-
-<!-- Specific Page JS goes HERE  -->
-<!-- Incluir jQuery y jQuery UI para el autocompletar -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script>
-    $(document).ready(function(){
-        // Cargar datos para selects desde la base de datos
-        $.get('/get_form_data', function(data){
-            data.grados.forEach(function(grade){
-                $('#grade').append(new Option(grade.nombre, grade.id));
-            });
-            data.asignaturas.forEach(function(subject){
-                $('#subject').append(new Option(subject.nombre, subject.id));
-            });
-            data.tematicas.forEach(function(topic){
-                $('#topic').append(new Option(topic.nombre, topic.id));
-            });
-            data.habilidades.forEach(function(skill){
-                $('#skill').append(new Option(skill.nombre, skill.id));
-            });
-        });
-
-        // Autocompletar para recursos
-        $("#resources").autocomplete({
-            source: function(request, response) {
-                $.getJSON("/autocomplete_recursos", { q: request.term }, function(data) {
-                    response($.map(data, function(item) {
-                        return {
-                            label: item.nombre,
-                            value: item.nombre
-                        };
-                    }));
-                });
-            },
-            minLength: 2
-        });
-    });
-</script>
-{% block javascripts %}{% endblock javascripts %}

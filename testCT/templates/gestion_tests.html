@@ -1,0 +1,173 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Gestión de Tests {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3 mb-0">Gestión de Contenido de Tests</h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          <p class="text-sm mb-4">Administra las preguntas de cada evaluación. Puedes crear, editar y eliminar preguntas.</p>
+          
+          <!-- Grid de tarjetas de tests -->
+          <div class="row">
+            <!-- Quiz 1 - ADAT -->
+            <div class="col-lg-6 col-md-6 mb-4">
+              <div class="card h-100">
+                <div class="card-header p-3 pb-0">
+                  <div class="d-flex align-items-center">
+                    <div class="icon icon-shape bg-gradient-info shadow text-center border-radius-md">
+                      <i class="material-icons opacity-10 text-white">table_view</i>
+                    </div>
+                    <div class="ms-3">
+                      <h6 class="mb-0">ADAT</h6>
+                      <p class="text-sm mb-0">Test de Adopción Digital</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body p-3">
+                  <div class="row">
+                    <div class="col-12">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-sm">Total de preguntas:</span>
+                        <span class="badge bg-gradient-info">{{ total_quiz1 }}</span>
+                      </div>
+                      <div class="d-flex gap-2">
+                        <a href="{{ url_for('gestion_quiz1') }}" class="btn btn-sm btn-primary">
+                          <i class="fas fa-list me-1"></i> Ver Preguntas
+                        </a>
+                        <a href="{{ url_for('register_quiz1_question') }}" class="btn btn-sm btn-success">
+                          <i class="fas fa-plus me-1"></i> Crear Nueva
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quiz 2 - Estilos de Aprendizaje -->
+            <div class="col-lg-6 col-md-6 mb-4">
+              <div class="card h-100">
+                <div class="card-header p-3 pb-0">
+                  <div class="d-flex align-items-center">
+                    <div class="icon icon-shape bg-gradient-success shadow text-center border-radius-md">
+                      <i class="material-icons opacity-10 text-white">receipt_long</i>
+                    </div>
+                    <div class="ms-3">
+                      <h6 class="mb-0">Estilos de Aprendizaje</h6>
+                      <p class="text-sm mb-0">Test de preferencias</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body p-3">
+                  <div class="row">
+                    <div class="col-12">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-sm">Total de preguntas:</span>
+                        <span class="badge bg-gradient-success">{{ total_quiz2 }}</span>
+                      </div>
+                      <div class="d-flex gap-2">
+                        <a href="{{ url_for('gestion_quiz2') }}" class="btn btn-sm btn-primary">
+                          <i class="fas fa-list me-1"></i> Ver Preguntas
+                        </a>
+                        <a href="{{ url_for('register_quiz2_question') }}" class="btn btn-sm btn-success">
+                          <i class="fas fa-plus me-1"></i> Crear Nueva
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quiz 3 - Tipo de Jugador -->
+            <div class="col-lg-6 col-md-6 mb-4">
+              <div class="card h-100">
+                <div class="card-header p-3 pb-0">
+                  <div class="d-flex align-items-center">
+                    <div class="icon icon-shape bg-gradient-warning shadow text-center border-radius-md">
+                      <i class="material-icons opacity-10 text-white">view_in_ar</i>
+                    </div>
+                    <div class="ms-3">
+                      <h6 class="mb-0">Tipo de Jugador</h6>
+                      <p class="text-sm mb-0">Test Bartle</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body p-3">
+                  <div class="row">
+                    <div class="col-12">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-sm">Total de preguntas:</span>
+                        <span class="badge bg-gradient-warning">{{ total_quiz3 }}</span>
+                      </div>
+                      <div class="d-flex gap-2">
+                        <a href="{{ url_for('gestion_quiz3') }}" class="btn btn-sm btn-primary">
+                          <i class="fas fa-list me-1"></i> Ver Preguntas
+                        </a>
+                        <a href="{{ url_for('register_quiz3_question') }}" class="btn btn-sm btn-success">
+                          <i class="fas fa-plus me-1"></i> Crear Nueva
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quiz 4 - Pensamiento Computacional -->
+            <div class="col-lg-6 col-md-6 mb-4">
+              <div class="card h-100">
+                <div class="card-header p-3 pb-0">
+                  <div class="d-flex align-items-center">
+                    <div class="icon icon-shape bg-gradient-danger shadow text-center border-radius-md">
+                      <i class="material-icons opacity-10 text-white">psychology</i>
+                    </div>
+                    <div class="ms-3">
+                      <h6 class="mb-0">Pensamiento Computacional</h6>
+                      <p class="text-sm mb-0">Test CTt</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body p-3">
+                  <div class="row">
+                    <div class="col-12">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-sm">Total de preguntas:</span>
+                        <span class="badge bg-gradient-danger">{{ total_quiz4 }}</span>
+                      </div>
+                      <div class="d-flex gap-2">
+                        <a href="{{ url_for('gestion_quiz4') }}" class="btn btn-sm btn-primary">
+                          <i class="fas fa-list me-1"></i> Ver Preguntas
+                        </a>
+                        <a href="{{ url_for('register_quiz4_question') }}" class="btn btn-sm btn-success">
+                          <i class="fas fa-plus me-1"></i> Crear Nueva
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-12">
+              <a href="{{ url_for('gestion_usuarios') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Volver a Gestión
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

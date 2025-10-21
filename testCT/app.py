@@ -2,7 +2,7 @@ import json
 import os
 import openai
 import traceback
-from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
+from flask import Flask, render_template, redirect, url_for, flash, request, jsonify, session
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import RegistrationForm, QuizForm, LoginForm, QuizFormDos, QuizFormTres, CursoGradoForm, QuizFormCuatro
@@ -12,11 +12,19 @@ from models import Curso, Colegio, User, Question, QuestionDos, QuestionTres, Re
 from datetime import datetime
 from rich import print
 from sqlalchemy.exc import IntegrityError
+import os
+import openai
+from dotenv import load_dotenv
+from sqlalchemy import inspect, text
+
+# Cargar variables de entorno desde .env
+load_dotenv()
 
 app = Flask(__name__)
 # Sugerencia: usar el driver de psycopg v3 para evitar problemas de arquitectura en macOS ARM
 # Permite sobreescribir la BD por variable de entorno en pruebas: export DATABASE_URL=sqlite:///instance/dev.db
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql+psycopg://leidy_user:uVPTOe32sInjJYl5c1OpF3XFzKi6SKn8@dpg-d3peql2li9vc73bh2lt0-a.oregon-postgres.render.com/leidy')
+# Usa DATABASE_URL desde el entorno; por defecto, SQLite local para desarrollo (sin credenciales)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///instance/dev.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'mi_secreto'
 app.jinja_env.filters['zip'] = zip
@@ -286,6 +294,11 @@ def home():
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    print(f"=== DEBUG DASHBOARD ===")
+    print(f"Usuario autenticado: {current_user.is_authenticated}")
+    print(f"Username: {current_user.username if current_user.is_authenticated else 'N/A'}")
+    print(f"Rol: {current_user.rol if current_user.is_authenticated else 'N/A'}")
+    print(f"======================")
     return render_template('dashboard.html')
 
 
@@ -406,6 +419,10 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Si el usuario ya está autenticado, redirigir al dashboard
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    
     print(f"=== LOGIN ROUTE CALLED - Method: {request.method} ===")
     form = LoginForm()
     if request.method == 'POST':
@@ -427,6 +444,9 @@ def login():
                 # Si el usuario existe y la contraseña es correcta
                 print("user autenticado")
                 login_user(user)
+                # Limpiar mensajes flash anteriores y agregar solo el de bienvenida
+                session.pop('_flashes', None)
+                flash(f'¡Bienvenido/a {user.nombres}!', 'success')
                 return redirect(url_for('dashboard'))  # Redirige a la página principal después de iniciar sesión
             else:
                 print("Contraseña incorrecta")
@@ -441,8 +461,9 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
+    nombre_usuario = current_user.nombres
     logout_user()
-    flash('Sesión cerrada correctamente.', 'success')
+    flash(f'Hasta pronto, {nombre_usuario}. Sesión cerrada correctamente.', 'info')
     return redirect(url_for('login'))
 
 
@@ -452,6 +473,829 @@ def admin_users():
     """Ruta para ver todos los usuarios registrados"""
     usuarios = User.query.all()
     return render_template('admin_users.html', usuarios=usuarios)
+
+
+@app.route('/gestion_usuarios')
+@login_required
+def gestion_usuarios():
+    """Panel de gestión de usuarios (solo para administradores)"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    usuarios = User.query.all()
+    return render_template('gestion_usuarios.html', usuarios=usuarios)
+
+
+@app.route('/gestion_usuarios/crear', methods=['GET', 'POST'])
+@login_required
+def crear_usuario():
+    """Crear nuevo usuario (solo admin)"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    if request.method == 'POST':
+        try:
+            nuevo_usuario = User(
+                nombres=request.form.get('nombres'),
+                correo=request.form.get('correo'),
+                edad=int(request.form.get('edad')),
+                username=request.form.get('username'),
+                password=generate_password_hash(request.form.get('password'), method='pbkdf2:sha256'),
+                nivel_educativo=request.form.get('nivel_educativo'),
+                anios_experiencia=int(request.form.get('anios_experiencia')),
+                rol=request.form.get('rol'),
+                institucion=request.form.get('institucion')
+            )
+            db.session.add(nuevo_usuario)
+            db.session.commit()
+            flash('Usuario creado exitosamente', 'success')
+            return redirect(url_for('gestion_usuarios'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al crear usuario: {str(e)}', 'danger')
+    
+    return render_template('crear_usuario.html')
+
+
+@app.route('/gestion_usuarios/editar/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def editar_usuario(user_id):
+    """Editar usuario existente (solo admin)"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    usuario = User.query.get_or_404(user_id)
+    
+    if request.method == 'POST':
+        try:
+            usuario.nombres = request.form.get('nombres')
+            usuario.correo = request.form.get('correo')
+            usuario.edad = int(request.form.get('edad'))
+            usuario.username = request.form.get('username')
+            usuario.nivel_educativo = request.form.get('nivel_educativo')
+            usuario.anios_experiencia = int(request.form.get('anios_experiencia'))
+            usuario.rol = request.form.get('rol')
+            usuario.institucion = request.form.get('institucion')
+            
+            # Cambiar contraseña solo si se proporciona
+            new_password = request.form.get('password')
+            if new_password:
+                usuario.password = generate_password_hash(new_password, method='pbkdf2:sha256')
+            
+            db.session.commit()
+            flash('Usuario actualizado exitosamente', 'success')
+            return redirect(url_for('gestion_usuarios'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar usuario: {str(e)}', 'danger')
+    
+    return render_template('editar_usuario.html', usuario=usuario)
+
+
+@app.route('/gestion_usuarios/eliminar/<int:user_id>', methods=['POST'])
+@login_required
+def eliminar_usuario(user_id):
+    """Eliminar usuario (solo admin)"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    try:
+        usuario = User.query.get_or_404(user_id)
+        
+        # No permitir eliminar el propio usuario admin
+        if usuario.id == current_user.id:
+            flash('No puedes eliminar tu propio usuario', 'danger')
+            return redirect(url_for('gestion_usuarios'))
+        
+        db.session.delete(usuario)
+        db.session.commit()
+        flash('Usuario eliminado exitosamente', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al eliminar usuario: {str(e)}', 'danger')
+    
+    return redirect(url_for('gestion_usuarios'))
+
+
+# ==================== GESTIÓN DE CONTENIDO DE TESTS ====================
+
+@app.route('/gestion_tests')
+@login_required
+def gestion_tests():
+    """Panel principal de gestión de tests"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Contar preguntas de cada test
+    total_quiz1 = Question.query.count()
+    total_quiz2 = QuestionDos.query.count()
+    total_quiz3 = QuestionTres.query.count()
+    total_quiz4 = QuizCuatro.query.count()
+    
+    return render_template('gestion_tests.html', 
+                         total_quiz1=total_quiz1,
+                         total_quiz2=total_quiz2,
+                         total_quiz3=total_quiz3,
+                         total_quiz4=total_quiz4)
+
+
+# ========== GESTIÓN QUIZ 1 (ADAT) ==========
+
+@app.route('/gestion_tests/quiz1')
+@login_required
+def gestion_quiz1():
+    """Ver todas las preguntas del Quiz 1 (ADAT)"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    preguntas = Question.query.all()
+    return render_template('gestion_quiz1.html', preguntas=preguntas)
+
+
+@app.route('/gestion_tests/quiz1/editar/<int:question_id>', methods=['GET', 'POST'])
+@login_required
+def editar_quiz1(question_id):
+    """Editar pregunta del Quiz 1"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    pregunta = Question.query.get_or_404(question_id)
+    form = QuizForm(obj=pregunta)
+    
+    if form.validate_on_submit():
+        try:
+            pregunta.statement = form.statement.data
+            pregunta.option_a = form.option_a.data
+            pregunta.option_b = form.option_b.data
+            pregunta.option_c = form.option_c.data
+            pregunta.option_d = form.option_d.data
+            pregunta.correct_answer = form.correct_answer.data
+            pregunta.label = form.label.data
+            pregunta.percentage = form.percentage.data
+            pregunta.image_url = form.image_url.data
+            
+            db.session.commit()
+            flash('Pregunta actualizada exitosamente', 'success')
+            return redirect(url_for('gestion_quiz1'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar pregunta: {str(e)}', 'danger')
+    
+    return render_template('editar_quiz1.html', form=form, pregunta=pregunta)
+
+
+@app.route('/gestion_tests/quiz1/eliminar/<int:question_id>', methods=['POST'])
+@login_required
+def eliminar_quiz1(question_id):
+    """Eliminar pregunta del Quiz 1"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    try:
+        pregunta = Question.query.get_or_404(question_id)
+        db.session.delete(pregunta)
+        db.session.commit()
+        flash('Pregunta eliminada exitosamente', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al eliminar pregunta: {str(e)}', 'danger')
+    
+    return redirect(url_for('gestion_quiz1'))
+
+
+# ========== GESTIÓN QUIZ 2 (Estilos de Aprendizaje) ==========
+
+@app.route('/gestion_tests/quiz2')
+@login_required
+def gestion_quiz2():
+    """Ver todas las preguntas del Quiz 2"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    preguntas = QuestionDos.query.all()
+    return render_template('gestion_quiz2.html', preguntas=preguntas)
+
+
+@app.route('/gestion_tests/quiz2/editar/<int:question_id>', methods=['GET', 'POST'])
+@login_required
+def editar_quiz2(question_id):
+    """Editar pregunta del Quiz 2"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    pregunta = QuestionDos.query.get_or_404(question_id)
+    form = QuizFormDos(obj=pregunta)
+    
+    if form.validate_on_submit():
+        try:
+            pregunta.statement = form.statement.data
+            pregunta.option_a = form.option_a.data
+            pregunta.option_b = form.option_b.data
+            
+            db.session.commit()
+            flash('Pregunta actualizada exitosamente', 'success')
+            return redirect(url_for('gestion_quiz2'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar pregunta: {str(e)}', 'danger')
+    
+    return render_template('editar_quiz2.html', form=form, pregunta=pregunta)
+
+
+@app.route('/gestion_tests/quiz2/eliminar/<int:question_id>', methods=['POST'])
+@login_required
+def eliminar_quiz2(question_id):
+    """Eliminar pregunta del Quiz 2"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    try:
+        pregunta = QuestionDos.query.get_or_404(question_id)
+        db.session.delete(pregunta)
+        db.session.commit()
+        flash('Pregunta eliminada exitosamente', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al eliminar pregunta: {str(e)}', 'danger')
+    
+    return redirect(url_for('gestion_quiz2'))
+
+
+# ========== GESTIÓN QUIZ 3 (Tipo de Jugador) ==========
+
+@app.route('/gestion_tests/quiz3')
+@login_required
+def gestion_quiz3():
+    """Ver todas las preguntas del Quiz 3"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    preguntas = QuestionTres.query.all()
+    return render_template('gestion_quiz3.html', preguntas=preguntas)
+
+
+@app.route('/gestion_tests/quiz3/editar/<int:question_id>', methods=['GET', 'POST'])
+@login_required
+def editar_quiz3(question_id):
+    """Editar pregunta del Quiz 3"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    pregunta = QuestionTres.query.get_or_404(question_id)
+    form = QuizFormTres(obj=pregunta)
+    
+    if form.validate_on_submit():
+        try:
+            pregunta.statement = form.statement.data
+            pregunta.option_a = form.option_a.data
+            pregunta.option_b = form.option_b.data
+            pregunta.option_c = form.option_c.data
+            pregunta.option_d = form.option_d.data
+            pregunta.option_e = form.option_e.data
+            
+            db.session.commit()
+            flash('Pregunta actualizada exitosamente', 'success')
+            return redirect(url_for('gestion_quiz3'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar pregunta: {str(e)}', 'danger')
+    
+    return render_template('editar_quiz3.html', form=form, pregunta=pregunta)
+
+
+@app.route('/gestion_tests/quiz3/eliminar/<int:question_id>', methods=['POST'])
+@login_required
+def eliminar_quiz3(question_id):
+    """Eliminar pregunta del Quiz 3"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    try:
+        pregunta = QuestionTres.query.get_or_404(question_id)
+        db.session.delete(pregunta)
+        db.session.commit()
+        flash('Pregunta eliminada exitosamente', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al eliminar pregunta: {str(e)}', 'danger')
+    
+    return redirect(url_for('gestion_quiz3'))
+
+
+# ========== GESTIÓN QUIZ 4 (Pensamiento Computacional) ==========
+
+@app.route('/gestion_tests/quiz4')
+@login_required
+def gestion_quiz4():
+    """Ver todas las preguntas del Quiz 4"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    preguntas = QuizCuatro.query.all()
+    return render_template('gestion_quiz4.html', preguntas=preguntas)
+
+
+@app.route('/gestion_tests/quiz4/editar/<int:question_id>', methods=['GET', 'POST'])
+@login_required
+def editar_quiz4(question_id):
+    """Editar pregunta del Quiz 4"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    pregunta = QuizCuatro.query.get_or_404(question_id)
+    form = QuizFormCuatro(obj=pregunta)
+    
+    if form.validate_on_submit():
+        try:
+            pregunta.statement = form.statement.data
+            pregunta.option_a = form.option_a.data
+            pregunta.option_b = form.option_b.data
+            pregunta.option_c = form.option_c.data
+            pregunta.option_d = form.option_d.data
+            pregunta.correct_answer = form.correct_answer.data
+            pregunta.label = form.label.data
+            pregunta.percentage = form.percentage.data
+            pregunta.image_url = form.image_url.data
+            
+            db.session.commit()
+            flash('Pregunta actualizada exitosamente', 'success')
+            return redirect(url_for('gestion_quiz4'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar pregunta: {str(e)}', 'danger')
+    
+    return render_template('editar_quiz4.html', form=form, pregunta=pregunta)
+
+
+@app.route('/gestion_tests/quiz4/eliminar/<int:question_id>', methods=['POST'])
+@login_required
+def eliminar_quiz4(question_id):
+    """Eliminar pregunta del Quiz 4"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    try:
+        pregunta = QuizCuatro.query.get_or_404(question_id)
+        db.session.delete(pregunta)
+        db.session.commit()
+        flash('Pregunta eliminada exitosamente', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al eliminar pregunta: {str(e)}', 'danger')
+    
+    return redirect(url_for('gestion_quiz4'))
+
+
+# ==================== ESTADÍSTICAS PARA ADMIN ====================
+
+@app.route('/admin/estadisticas')
+@login_required
+def estadisticas():
+    """Dashboard de estadísticas completo para administradores"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    from sqlalchemy import func
+    from datetime import datetime, timedelta
+    
+    # === ESTADÍSTICAS GENERALES ===
+    total_usuarios = User.query.count()
+    
+    # Completitud por test
+    quiz1_completados = ResultadoQuiz.query.count()
+    quiz2_completados = ResultadoQuizDos.query.count()
+    quiz3_completados = ResultadoQuizTres.query.count()
+    quiz4_completados = ResultadoQuizCuatro.query.count()
+    
+    total_tests_completados = quiz1_completados + quiz2_completados + quiz3_completados + quiz4_completados
+    
+    # Porcentajes de completitud
+    quiz1_porcentaje = round((quiz1_completados / total_usuarios * 100) if total_usuarios > 0 else 0, 1)
+    quiz2_porcentaje = round((quiz2_completados / total_usuarios * 100) if total_usuarios > 0 else 0, 1)
+    quiz3_porcentaje = round((quiz3_completados / total_usuarios * 100) if total_usuarios > 0 else 0, 1)
+    quiz4_porcentaje = round((quiz4_completados / total_usuarios * 100) if total_usuarios > 0 else 0, 1)
+    
+    # === ESTADÍSTICAS QUIZ 4 (Pensamiento Computacional) ===
+    quiz4_promedio = db.session.query(func.avg(ResultadoQuizCuatro.score)).scalar() or 0
+    quiz4_promedio = round(quiz4_promedio, 1)
+    
+    quiz4_max = db.session.query(func.max(ResultadoQuizCuatro.score)).scalar() or 0
+    quiz4_min = db.session.query(func.min(ResultadoQuizCuatro.score)).scalar() or 0
+    
+    # Top 5 usuarios en Quiz 4
+    top_quiz4 = db.session.query(
+        User.nombres, 
+        ResultadoQuizCuatro.score,
+        ResultadoQuizCuatro.correct_count
+    ).join(ResultadoQuizCuatro).order_by(ResultadoQuizCuatro.score.desc()).limit(5).all()
+    
+    # === ESTADÍSTICAS POR INSTITUCIÓN ===
+    stats_institucion = db.session.query(
+        User.institucion,
+        func.count(User.id).label('total_usuarios')
+    ).group_by(User.institucion).order_by(func.count(User.id).desc()).all()
+    
+    # === ESTADÍSTICAS POR NIVEL EDUCATIVO ===
+    stats_nivel = db.session.query(
+        User.nivel_educativo,
+        func.count(User.id).label('total')
+    ).group_by(User.nivel_educativo).order_by(func.count(User.id).desc()).all()
+    
+    # === ESTADÍSTICAS POR ROL ===
+    stats_rol = db.session.query(
+        User.rol,
+        func.count(User.id).label('total')
+    ).group_by(User.rol).all()
+    
+    # === DISTRIBUCIÓN DE EDADES ===
+    edad_promedio = db.session.query(func.avg(User.edad)).scalar() or 0
+    edad_promedio = round(edad_promedio, 1)
+    
+    # Rangos de edad
+    rango_18_25 = User.query.filter(User.edad >= 18, User.edad <= 25).count()
+    rango_26_35 = User.query.filter(User.edad >= 26, User.edad <= 35).count()
+    rango_36_45 = User.query.filter(User.edad >= 36, User.edad <= 45).count()
+    rango_46_mas = User.query.filter(User.edad >= 46).count()
+    
+    # === USUARIOS RECIENTES ===
+    # Aproximación: últimos 10 usuarios por ID
+    usuarios_recientes = User.query.order_by(User.id.desc()).limit(10).all()
+    
+    # === RESULTADOS RECIENTES ===
+    resultados_recientes_quiz4 = db.session.query(
+        User.nombres,
+        ResultadoQuizCuatro.score,
+        ResultadoQuizCuatro.id
+    ).join(ResultadoQuizCuatro).order_by(ResultadoQuizCuatro.id.desc()).limit(5).all()
+    
+    return render_template('admin_estadisticas.html',
+                         # Generales
+                         total_usuarios=total_usuarios,
+                         total_tests_completados=total_tests_completados,
+                         # Completitud
+                         quiz1_completados=quiz1_completados,
+                         quiz2_completados=quiz2_completados,
+                         quiz3_completados=quiz3_completados,
+                         quiz4_completados=quiz4_completados,
+                         quiz1_porcentaje=quiz1_porcentaje,
+                         quiz2_porcentaje=quiz2_porcentaje,
+                         quiz3_porcentaje=quiz3_porcentaje,
+                         quiz4_porcentaje=quiz4_porcentaje,
+                         # Quiz 4 detalle
+                         quiz4_promedio=quiz4_promedio,
+                         quiz4_max=quiz4_max,
+                         quiz4_min=quiz4_min,
+                         top_quiz4=top_quiz4,
+                         # Demografía
+                         stats_institucion=stats_institucion,
+                         stats_nivel=stats_nivel,
+                         stats_rol=stats_rol,
+                         edad_promedio=edad_promedio,
+                         rango_18_25=rango_18_25,
+                         rango_26_35=rango_26_35,
+                         rango_36_45=rango_36_45,
+                         rango_46_mas=rango_46_mas,
+                         # Recientes
+                         usuarios_recientes=usuarios_recientes,
+                         resultados_recientes_quiz4=resultados_recientes_quiz4)
+
+
+# ==================== EXPORTACIÓN DE DATOS ====================
+
+@app.route('/admin/exportar/usuarios')
+@login_required
+def exportar_usuarios():
+    """Exportar todos los usuarios a Excel"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    import io
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+    from flask import send_file
+    
+    # Crear workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Usuarios"
+    
+    # Encabezados
+    headers = ['ID', 'Nombres', 'Usuario', 'Correo', 'Edad', 'Institución', 
+               'Nivel Educativo', 'Años Experiencia', 'Rol']
+    ws.append(headers)
+    
+    # Estilo de encabezados
+    header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF")
+    
+    for cell in ws[1]:
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+    
+    # Obtener usuarios
+    usuarios = User.query.all()
+    
+    # Agregar datos
+    for usuario in usuarios:
+        ws.append([
+            usuario.id,
+            usuario.nombres,
+            usuario.username,
+            usuario.correo,
+            usuario.edad,
+            usuario.institucion,
+            usuario.nivel_educativo,
+            usuario.anios_experiencia,
+            usuario.rol
+        ])
+    
+    # Ajustar ancho de columnas
+    for column in ws.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = min(max_length + 2, 50)
+        ws.column_dimensions[column_letter].width = adjusted_width
+    
+    # Guardar en memoria
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    
+    from datetime import datetime
+    fecha = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    return send_file(
+        output,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name=f'usuarios_adat_{fecha}.xlsx'
+    )
+
+
+@app.route('/admin/exportar/resultados/<quiz>')
+@login_required
+def exportar_resultados(quiz):
+    """Exportar resultados de un quiz específico a Excel"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    import io
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+    from flask import send_file
+    from datetime import datetime
+    
+    wb = Workbook()
+    ws = wb.active
+    
+    # Estilo de encabezados
+    header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF")
+    
+    if quiz == 'quiz1':
+        ws.title = "Resultados ADAT"
+        headers = ['ID Usuario', 'Nombres', 'Usuario', 'Institución', 'Puntuaciones (JSON)']
+        ws.append(headers)
+        
+        resultados = db.session.query(
+            User.id, User.nombres, User.username, User.institucion, ResultadoQuiz.score
+        ).join(ResultadoQuiz).all()
+        
+        for resultado in resultados:
+            ws.append([resultado[0], resultado[1], resultado[2], resultado[3], str(resultado[4])])
+    
+    elif quiz == 'quiz2':
+        ws.title = "Resultados Estilos Aprendizaje"
+        headers = ['ID Usuario', 'Nombres', 'Usuario', 'Institución', 
+                   'Sensorial-Intuitivo', 'Visual-Verbal', 'Activo-Reflexivo', 'Secuencial-Global']
+        ws.append(headers)
+        
+        resultados = db.session.query(
+            User.id, User.nombres, User.username, User.institucion,
+            ResultadoQuizDos.sensorial_intuitivo,
+            ResultadoQuizDos.visual_verbal,
+            ResultadoQuizDos.activo_reflexivo,
+            ResultadoQuizDos.secuencial_global
+        ).join(ResultadoQuizDos).all()
+        
+        for resultado in resultados:
+            ws.append([resultado[0], resultado[1], resultado[2], resultado[3],
+                      str(resultado[4]), str(resultado[5]), str(resultado[6]), str(resultado[7])])
+    
+    elif quiz == 'quiz3':
+        ws.title = "Resultados Tipo Jugador"
+        headers = ['ID Usuario', 'Nombres', 'Usuario', 'Institución',
+                   'Filántropo', 'Socializador', 'Triunfador', 'Jugador', 'Espíritu Libre', 'Disruptor']
+        ws.append(headers)
+        
+        resultados = db.session.query(
+            User.id, User.nombres, User.username, User.institucion,
+            ResultadoQuizTres.filantropo, ResultadoQuizTres.socializador,
+            ResultadoQuizTres.triunfador, ResultadoQuizTres.jugador,
+            ResultadoQuizTres.espiritu_libre, ResultadoQuizTres.disruptor
+        ).join(ResultadoQuizTres).all()
+        
+        for resultado in resultados:
+            ws.append(list(resultado))
+    
+    elif quiz == 'quiz4':
+        ws.title = "Resultados Pensamiento Comp"
+        headers = ['ID Usuario', 'Nombres', 'Usuario', 'Institución', 
+                   'Puntuación', 'Correctas', 'Incorrectas']
+        ws.append(headers)
+        
+        resultados = db.session.query(
+            User.id, User.nombres, User.username, User.institucion,
+            ResultadoQuizCuatro.score, ResultadoQuizCuatro.correct_count,
+            ResultadoQuizCuatro.incorrect_count
+        ).join(ResultadoQuizCuatro).all()
+        
+        for resultado in resultados:
+            ws.append(list(resultado))
+    
+    else:
+        flash('Quiz no válido', 'danger')
+        return redirect(url_for('estadisticas'))
+    
+    # Aplicar estilo a encabezados
+    for cell in ws[1]:
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+    
+    # Ajustar ancho de columnas
+    for column in ws.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = min(max_length + 2, 50)
+        ws.column_dimensions[column_letter].width = adjusted_width
+    
+    # Guardar en memoria
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    
+    fecha = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    return send_file(
+        output,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name=f'resultados_{quiz}_{fecha}.xlsx'
+    )
+
+
+# ==================== CONFIGURACIÓN DEL SISTEMA ====================
+
+# Modelo para configuraciones
+class ConfiguracionSistema(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    clave = db.Column(db.String(100), unique=True, nullable=False)
+    valor = db.Column(db.String(5000), nullable=False)
+    descripcion = db.Column(db.String(500))
+
+
+# Modelo para actividades generadas
+class ActividadGenerada(db.Model):
+    __tablename__ = 'actividad_generada'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    nombre_profesor = db.Column(db.String(200), nullable=False)
+    grado = db.Column(db.String(50), nullable=False)
+    asignatura = db.Column(db.String(200), nullable=False)
+    tematica = db.Column(db.String(500), nullable=False)
+    cantidad_estudiantes = db.Column(db.Integer, nullable=False)
+    tipo_actividad = db.Column(db.String(50), nullable=False)
+    tiempo = db.Column(db.Integer, nullable=False)
+    recursos = db.Column(db.String(1000), nullable=False)
+    contenido = db.Column(db.Text, nullable=False)
+    fecha_creacion = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    fecha_modificacion = db.Column(db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+    
+    # Relación con usuario
+    usuario = db.relationship('User', backref=db.backref('actividades_generadas', lazy='dynamic'))
+    
+    def __repr__(self):
+        return f'<ActividadGenerada {self.asignatura} - {self.tematica}>'
+
+
+# ====== AUTO-CREACIÓN SEGURA DE LA TABLA ACTIVIDAD_GENERADA ======
+# No usa el ambiente/venv. En el arranque valida y crea solo esta tabla si falta.
+try:
+    with app.app_context():
+        inspector = inspect(db.engine)
+        if not inspector.has_table('actividad_generada'):
+            # Crear únicamente la tabla del modelo ActividadGenerada
+            ActividadGenerada.__table__.create(bind=db.engine, checkfirst=True)
+            # Crear índice para user_id (idempotente)
+            db.session.execute(text('CREATE INDEX IF NOT EXISTS idx_actividad_user_id ON actividad_generada(user_id)'))
+            db.session.commit()
+            print('✅ Tabla actividad_generada creada automáticamente')
+        else:
+            # Asegurar índice (no falla si ya existe)
+            db.session.execute(text('CREATE INDEX IF NOT EXISTS idx_actividad_user_id ON actividad_generada(user_id)'))
+            db.session.commit()
+except Exception as e:
+    # No bloquear arranque si hay un problema; registrar y continuar
+    try:
+        db.session.rollback()
+    except Exception:
+        pass
+    print(f'⚠️  No se pudo verificar/crear la tabla actividad_generada: {e}')
+
+
+@app.route('/admin/configuracion', methods=['GET', 'POST'])
+@login_required
+def configuracion_sistema():
+    """Panel de configuración del sistema"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    if request.method == 'POST':
+        try:
+            # Actualizar configuraciones
+            for key in request.form:
+                if key.startswith('config_'):
+                    clave = key.replace('config_', '')
+                    valor = request.form.get(key)
+                    
+                    config = ConfiguracionSistema.query.filter_by(clave=clave).first()
+                    if config:
+                        config.valor = valor
+                    else:
+                        config = ConfiguracionSistema(clave=clave, valor=valor)
+                        db.session.add(config)
+            
+            db.session.commit()
+            flash('Configuración actualizada exitosamente', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar configuración: {str(e)}', 'danger')
+    
+    # Obtener o crear configuraciones por defecto
+    configs = {
+        'quiz1_activo': ConfiguracionSistema.query.filter_by(clave='quiz1_activo').first() or 
+                        ConfiguracionSistema(clave='quiz1_activo', valor='true', descripcion='Activar/Desactivar Quiz 1 (ADAT)'),
+        'quiz2_activo': ConfiguracionSistema.query.filter_by(clave='quiz2_activo').first() or 
+                        ConfiguracionSistema(clave='quiz2_activo', valor='true', descripcion='Activar/Desactivar Quiz 2 (Estilos)'),
+        'quiz3_activo': ConfiguracionSistema.query.filter_by(clave='quiz3_activo').first() or 
+                        ConfiguracionSistema(clave='quiz3_activo', valor='true', descripcion='Activar/Desactivar Quiz 3 (Jugador)'),
+        'quiz4_activo': ConfiguracionSistema.query.filter_by(clave='quiz4_activo').first() or 
+                        ConfiguracionSistema(clave='quiz4_activo', valor='true', descripcion='Activar/Desactivar Quiz 4 (Pensamiento)'),
+        'mensaje_bienvenida': ConfiguracionSistema.query.filter_by(clave='mensaje_bienvenida').first() or 
+                              ConfiguracionSistema(clave='mensaje_bienvenida', valor='Bienvenido a la plataforma ADAT', descripcion='Mensaje de bienvenida'),
+        'permitir_registro': ConfiguracionSistema.query.filter_by(clave='permitir_registro').first() or 
+                             ConfiguracionSistema(clave='permitir_registro', valor='true', descripcion='Permitir nuevos registros'),
+        'tiempo_quiz1': ConfiguracionSistema.query.filter_by(clave='tiempo_quiz1').first() or 
+                        ConfiguracionSistema(clave='tiempo_quiz1', valor='30', descripcion='Tiempo límite Quiz 1 (minutos)'),
+        'tiempo_quiz4': ConfiguracionSistema.query.filter_by(clave='tiempo_quiz4').first() or 
+                        ConfiguracionSistema(clave='tiempo_quiz4', valor='45', descripcion='Tiempo límite Quiz 4 (minutos)'),
+    }
+    
+    # Guardar configs nuevas si no existen
+    for config in configs.values():
+        if not config.id:
+            db.session.add(config)
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+    
+    return render_template('admin_configuracion.html', configs=configs)
 
 
 @app.route('/register_quiz1_question', methods=['GET', 'POST'])
@@ -1137,23 +1981,479 @@ def crear_actividad():
 
 
 @app.route('/select_activities', methods=['GET', 'POST'])
+@login_required
 def select_activities():
     if request.method == 'POST':
-        grade = request.form.get('grade')
-        subject = request.form.get('subject')
-        topic = request.form.get('topic')
-        skill = request.form.get('skill')
-        students = request.form.get('students')
-        time = request.form.get('time')
-        resources = request.form.get('resources')
+        # Obtener datos del formulario
+        nombre_profesor = request.form.get('nombre_profesor')
+        grado = request.form.get('grado')
+        asignatura = request.form.get('asignatura')
+        tematica = request.form.get('tematica')
+        cantidad_estudiantes = request.form.get('cantidad_estudiantes')
+        tipo_actividad = request.form.get('tipo_actividad')  # individual o colaborativo
+        tiempo = request.form.get('tiempo')
+        recursos = request.form.get('recursos')
 
-        # Llamada a la función que genera las actividades usando ChatGPT
-        activity = generate_activity(grade, subject, topic, skill, students, time, resources)
-        activities = [{"activity": activity, "skill": skill, "subject": subject, "topic": topic, "students": students, "time": time, "resources": resources}]
+        # Generar actividad usando OpenAI
+        try:
+            prompt = f"""
+Eres un experto en pedagogía y diseño de actividades educativas. Crea un taller educativo completo con la siguiente información:
+
+- Asignatura: {asignatura}
+- Grado: {grado}
+- Temática: {tematica}
+- Profesor: {nombre_profesor}
+- Cantidad de estudiantes: {cantidad_estudiantes}
+- Tipo de actividad: {tipo_actividad}
+- Tiempo disponible: {tiempo} minutos
+- Recursos disponibles: {recursos}
+
+Genera un taller estructurado que incluya:
+1. Título creativo y llamativo
+2. Objetivos de aprendizaje (3-4 objetivos claros)
+3. Introducción motivadora
+4. Desarrollo de la actividad (paso a paso)
+5. Actividades prácticas específicas
+6. Evaluación o cierre
+7. Recursos necesarios
+
+El taller debe ser apropiado para el nivel educativo, aprovechar los recursos disponibles, y adaptarse al tiempo y tipo de trabajo ({tipo_actividad}).
+Usa un lenguaje claro y profesional. Formatea el texto usando Markdown con títulos (##, ###), listas, y énfasis (**negrita**, *cursiva*).
+"""
+
+            client = openai.OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "Eres un experto pedagogo que crea talleres educativos innovadores y efectivos. Responde siempre en formato Markdown."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=2000,
+                temperature=0.7
+            )
+            
+            actividad_generada = response.choices[0].message.content
+            
+            # Convertir markdown a HTML
+            import markdown
+            actividad_html = markdown.markdown(actividad_generada, extensions=['nl2br', 'tables', 'fenced_code'])
+
+            # Guardar en base de datos
+            nueva_actividad = ActividadGenerada(
+                user_id=current_user.id,
+                nombre_profesor=nombre_profesor,
+                grado=grado,
+                asignatura=asignatura,
+                tematica=tematica,
+                cantidad_estudiantes=int(cantidad_estudiantes),
+                tipo_actividad=tipo_actividad,
+                tiempo=int(tiempo),
+                recursos=recursos,
+                contenido=actividad_generada
+            )
+            db.session.add(nueva_actividad)
+            db.session.commit()
+            
+            # Guardar en sesión para poder exportar después
+            session['ultima_actividad'] = {
+                'id': nueva_actividad.id,
+                'nombre_profesor': nombre_profesor,
+                'grado': grado,
+                'asignatura': asignatura,
+                'tematica': tematica,
+                'cantidad_estudiantes': cantidad_estudiantes,
+                'tipo_actividad': tipo_actividad,
+                'tiempo': tiempo,
+                'recursos': recursos,
+                'contenido': actividad_generada
+            }
+
+            flash('Actividad generada y guardada exitosamente', 'success')
+            return render_template('select_activities.html', 
+                                 actividad=actividad_html,
+                                 datos={
+                                     'nombre_profesor': nombre_profesor,
+                                     'grado': grado,
+                                     'asignatura': asignatura,
+                                     'tematica': tematica,
+                                     'cantidad_estudiantes': cantidad_estudiantes,
+                                     'tipo_actividad': tipo_actividad,
+                                     'tiempo': tiempo,
+                                     'recursos': recursos
+                                 })
         
-        return render_template('activities.html', activities=activities)
+        except Exception as e:
+            flash(f'Error al generar actividad: {str(e)}', 'danger')
+            return render_template('select_activities.html')
 
     return render_template('select_activities.html')
+
+
+@app.route('/mis_actividades')
+@login_required
+def mis_actividades():
+    """Ver todas las actividades generadas por el usuario"""
+    actividades = ActividadGenerada.query.filter_by(user_id=current_user.id).order_by(ActividadGenerada.fecha_creacion.desc()).all()
+    return render_template('mis_actividades.html', actividades=actividades)
+
+
+@app.route('/ver_actividad/<int:actividad_id>')
+@login_required
+def ver_actividad(actividad_id):
+    """Ver una actividad específica"""
+    actividad = ActividadGenerada.query.get_or_404(actividad_id)
+    
+    # Verificar que la actividad pertenece al usuario
+    if actividad.user_id != current_user.id:
+        flash('No tienes permiso para ver esta actividad', 'danger')
+        return redirect(url_for('mis_actividades'))
+    
+    # Convertir markdown a HTML
+    import markdown
+    actividad_html = markdown.markdown(actividad.contenido, extensions=['nl2br', 'tables', 'fenced_code'])
+    
+    return render_template('ver_actividad.html', actividad=actividad, actividad_html=actividad_html)
+
+
+@app.route('/editar_actividad/<int:actividad_id>', methods=['GET', 'POST'])
+@login_required
+def editar_actividad(actividad_id):
+    """Editar una actividad existente"""
+    actividad = ActividadGenerada.query.get_or_404(actividad_id)
+    
+    # Verificar que la actividad pertenece al usuario
+    if actividad.user_id != current_user.id:
+        flash('No tienes permiso para editar esta actividad', 'danger')
+        return redirect(url_for('mis_actividades'))
+    
+    if request.method == 'POST':
+        try:
+            actividad.nombre_profesor = request.form.get('nombre_profesor')
+            actividad.grado = request.form.get('grado')
+            actividad.asignatura = request.form.get('asignatura')
+            actividad.tematica = request.form.get('tematica')
+            actividad.cantidad_estudiantes = int(request.form.get('cantidad_estudiantes'))
+            actividad.tipo_actividad = request.form.get('tipo_actividad')
+            actividad.tiempo = int(request.form.get('tiempo'))
+            actividad.recursos = request.form.get('recursos')
+            actividad.contenido = request.form.get('contenido')
+            actividad.fecha_modificacion = datetime.now()
+            
+            db.session.commit()
+            flash('Actividad actualizada exitosamente', 'success')
+            return redirect(url_for('ver_actividad', actividad_id=actividad.id))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar actividad: {str(e)}', 'danger')
+    
+    return render_template('editar_actividad.html', actividad=actividad)
+
+
+@app.route('/eliminar_actividad/<int:actividad_id>', methods=['POST'])
+@login_required
+def eliminar_actividad(actividad_id):
+    """Eliminar una actividad"""
+    actividad = ActividadGenerada.query.get_or_404(actividad_id)
+    
+    # Verificar que la actividad pertenece al usuario
+    if actividad.user_id != current_user.id:
+        flash('No tienes permiso para eliminar esta actividad', 'danger')
+        return redirect(url_for('mis_actividades'))
+    
+    try:
+        db.session.delete(actividad)
+        db.session.commit()
+        flash('Actividad eliminada exitosamente', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al eliminar actividad: {str(e)}', 'danger')
+    
+    return redirect(url_for('mis_actividades'))
+
+
+@app.route('/exportar_actividad_word')
+@app.route('/exportar_actividad_word/<int:actividad_id>')
+@login_required
+def exportar_actividad_word(actividad_id=None):
+    """Exportar actividad a Word con formato profesional"""
+    from docx import Document
+    from docx.shared import Pt, RGBColor, Inches
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
+    import io
+    from flask import send_file
+    import re
+    
+    # Si se proporciona ID, buscar en BD
+    if actividad_id:
+        actividad_obj = ActividadGenerada.query.get_or_404(actividad_id)
+        
+        # Verificar permisos
+        if actividad_obj.user_id != current_user.id:
+            flash('No tienes permiso para exportar esta actividad', 'danger')
+            return redirect(url_for('mis_actividades'))
+        
+        actividad = {
+            'nombre_profesor': actividad_obj.nombre_profesor,
+            'grado': actividad_obj.grado,
+            'asignatura': actividad_obj.asignatura,
+            'tematica': actividad_obj.tematica,
+            'cantidad_estudiantes': str(actividad_obj.cantidad_estudiantes),
+            'tipo_actividad': actividad_obj.tipo_actividad,
+            'tiempo': str(actividad_obj.tiempo),
+            'recursos': actividad_obj.recursos,
+            'contenido': actividad_obj.contenido
+        }
+    else:
+        # Usar sesión (última actividad generada)
+        actividad = session.get('ultima_actividad')
+        if not actividad:
+            flash('No hay ninguna actividad para exportar', 'warning')
+            return redirect(url_for('select_activities'))
+    
+    # Crear documento
+    doc = Document()
+    
+    # Configurar márgenes
+    sections = doc.sections
+    for section in sections:
+        section.top_margin = Inches(0.8)
+        section.bottom_margin = Inches(0.8)
+        section.left_margin = Inches(1)
+        section.right_margin = Inches(1)
+    
+    # ========== ENCABEZADO CON COLOR ==========
+    # Título principal con fondo de color
+    titulo = doc.add_heading(f"TALLER DE {actividad['asignatura'].upper()}", 0)
+    titulo.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    titulo_run = titulo.runs[0]
+    titulo_run.font.size = Pt(24)
+    titulo_run.font.color.rgb = RGBColor(255, 255, 255)  # Texto blanco
+    titulo_run.font.bold = True
+    
+    # Agregar fondo azul al título
+    shading_elm = OxmlElement('w:shd')
+    shading_elm.set(qn('w:fill'), '667eea')  # Color morado/azul
+    titulo.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    titulo._element.get_or_add_pPr().append(shading_elm)
+    
+    doc.add_paragraph()
+    
+    # ========== TABLA DE INFORMACIÓN ==========
+    tabla_info = doc.add_table(rows=7, cols=2)
+    tabla_info.style = 'Light Grid Accent 1'
+    
+    # Configurar datos de la tabla
+    datos_tabla = [
+        ('👨‍🏫 Profesor', actividad['nombre_profesor']),
+        ('📚 Grado', actividad['grado']),
+        ('💡 Temática', actividad['tematica']),
+        ('👥 Tipo', actividad['tipo_actividad']),
+        ('🎓 Estudiantes', str(actividad['cantidad_estudiantes'])),
+        ('⏱️ Tiempo', f"{actividad['tiempo']} minutos"),
+        ('🛠️ Recursos', actividad['recursos'])
+    ]
+    
+    for i, (campo, valor) in enumerate(datos_tabla):
+        row_cells = tabla_info.rows[i].cells
+        
+        # Celda de campo (izquierda) con color
+        cell_campo = row_cells[0]
+        cell_campo.text = campo
+        cell_campo.paragraphs[0].runs[0].font.bold = True
+        cell_campo.paragraphs[0].runs[0].font.size = Pt(11)
+        cell_campo.paragraphs[0].runs[0].font.color.rgb = RGBColor(68, 114, 196)
+        
+        # Agregar fondo gris claro
+        shading = OxmlElement('w:shd')
+        shading.set(qn('w:fill'), 'E7E6E6')
+        cell_campo.paragraphs[0]._element.get_or_add_pPr().append(shading)
+        
+        # Celda de valor (derecha)
+        cell_valor = row_cells[1]
+        cell_valor.text = valor
+        cell_valor.paragraphs[0].runs[0].font.size = Pt(11)
+    
+    doc.add_paragraph()
+    
+    # ========== LÍNEA DECORATIVA ==========
+    linea = doc.add_paragraph()
+    linea_run = linea.add_run('═' * 80)
+    linea_run.font.color.rgb = RGBColor(102, 126, 234)
+    linea.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    doc.add_paragraph()
+    
+    # ========== CONTENIDO DE LA ACTIVIDAD ==========
+    # Procesar el contenido markdown para Word
+    contenido = actividad['contenido']
+    
+    # Procesar líneas del contenido
+    lineas = contenido.split('\n')
+    
+    for linea in lineas:
+        linea = linea.strip()
+        if not linea:
+            doc.add_paragraph()
+            continue
+        
+        # Detectar títulos nivel 1 (#)
+        if linea.startswith('# ') and not linea.startswith('## '):
+            titulo_h1 = doc.add_heading(linea.replace('# ', '').strip(), level=1)
+            titulo_h1.runs[0].font.color.rgb = RGBColor(68, 114, 196)
+            titulo_h1.runs[0].font.size = Pt(18)
+            
+        # Detectar títulos nivel 2 (##)
+        elif linea.startswith('## ') and not linea.startswith('### '):
+            titulo_seccion = doc.add_heading(linea.replace('## ', '').strip(), level=2)
+            titulo_seccion.runs[0].font.color.rgb = RGBColor(102, 126, 234)
+            titulo_seccion.runs[0].font.size = Pt(16)
+            
+        # Detectar títulos nivel 3 (###)
+        elif linea.startswith('### ') and not linea.startswith('#### '):
+            titulo_subseccion = doc.add_heading(linea.replace('### ', '').strip(), level=3)
+            titulo_subseccion.runs[0].font.color.rgb = RGBColor(118, 75, 162)
+            titulo_subseccion.runs[0].font.size = Pt(14)
+            
+        # Detectar títulos nivel 4 (####)
+        elif linea.startswith('#### '):
+            titulo_h4 = doc.add_heading(linea.replace('#### ', '').strip(), level=4)
+            titulo_h4.runs[0].font.color.rgb = RGBColor(118, 75, 162)
+            titulo_h4.runs[0].font.size = Pt(12)
+            
+        # Detectar listas con viñetas
+        elif linea.startswith('- ') or linea.startswith('* '):
+            texto_limpio = linea[2:].strip()
+            # Procesar negritas en listas
+            p = doc.add_paragraph(style='List Bullet')
+            p.paragraph_format.left_indent = Inches(0.25)
+            
+            # Procesar formato inline
+            partes = re.split(r'(\*\*[^*]+\*\*|\*[^*]+\*)', texto_limpio)
+            for parte in partes:
+                if parte.startswith('**') and parte.endswith('**') and len(parte) > 4:
+                    run = p.add_run(parte[2:-2])
+                    run.font.bold = True
+                    run.font.color.rgb = RGBColor(233, 30, 99)
+                    run.font.size = Pt(11)
+                elif parte.startswith('*') and parte.endswith('*') and len(parte) > 2:
+                    run = p.add_run(parte[1:-1])
+                    run.font.italic = True
+                    run.font.size = Pt(11)
+                elif parte:
+                    run = p.add_run(parte)
+                    run.font.size = Pt(11)
+            
+        # Detectar listas numeradas
+        elif re.match(r'^\d+\.\s', linea):
+            texto_lista = re.sub(r'^\d+\.\s', '', linea).strip()
+            p = doc.add_paragraph(style='List Number')
+            p.paragraph_format.left_indent = Inches(0.25)
+            
+            # Procesar formato inline
+            partes = re.split(r'(\*\*[^*]+\*\*|\*[^*]+\*)', texto_lista)
+            for parte in partes:
+                if parte.startswith('**') and parte.endswith('**') and len(parte) > 4:
+                    run = p.add_run(parte[2:-2])
+                    run.font.bold = True
+                    run.font.color.rgb = RGBColor(233, 30, 99)
+                    run.font.size = Pt(11)
+                elif parte.startswith('*') and parte.endswith('*') and len(parte) > 2:
+                    run = p.add_run(parte[1:-1])
+                    run.font.italic = True
+                    run.font.size = Pt(11)
+                elif parte:
+                    run = p.add_run(parte)
+                    run.font.size = Pt(11)
+            
+        # Párrafo normal
+        else:
+            p = doc.add_paragraph()
+            p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+            p.paragraph_format.line_spacing = 1.15
+            
+            # Procesar formato inline (negritas, cursivas)
+            # Primero procesar negritas con cursiva (***texto***)
+            partes = re.split(r'(\*\*\*[^*]+\*\*\*)', linea)
+            
+            for parte in partes:
+                if parte.startswith('***') and parte.endswith('***'):
+                    # Negrita + Cursiva
+                    run = p.add_run(parte[3:-3])
+                    run.font.bold = True
+                    run.font.italic = True
+                    run.font.color.rgb = RGBColor(233, 30, 99)
+                    run.font.size = Pt(11)
+                else:
+                    # Seguir procesando negritas y cursivas simples
+                    sub_partes = re.split(r'(\*\*[^*]+\*\*|\*[^*]+\*)', parte)
+                    
+                    for sub_parte in sub_partes:
+                        if sub_parte.startswith('**') and sub_parte.endswith('**') and len(sub_parte) > 4:
+                            # Negrita
+                            run = p.add_run(sub_parte[2:-2])
+                            run.font.bold = True
+                            run.font.color.rgb = RGBColor(233, 30, 99)
+                            run.font.size = Pt(11)
+                        elif sub_parte.startswith('*') and sub_parte.endswith('*') and len(sub_parte) > 2:
+                            # Cursiva
+                            run = p.add_run(sub_parte[1:-1])
+                            run.font.italic = True
+                            run.font.size = Pt(11)
+                        elif sub_parte:
+                            # Texto normal
+                            run = p.add_run(sub_parte)
+                            run.font.size = Pt(11)
+    
+    doc.add_paragraph()
+    
+    # ========== PIE DE PÁGINA ==========
+    linea_footer = doc.add_paragraph()
+    linea_footer_run = linea_footer.add_run('═' * 80)
+    linea_footer_run.font.color.rgb = RGBColor(102, 126, 234)
+    linea_footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    footer = doc.add_paragraph()
+    footer_run1 = footer.add_run('✨ Generado por Plataforma ADAT ✨')
+    footer_run1.font.bold = True
+    footer_run1.font.color.rgb = RGBColor(102, 126, 234)
+    footer_run1.font.size = Pt(10)
+    footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    fecha_footer = doc.add_paragraph()
+    fecha_run = fecha_footer.add_run(f"📅 {datetime.now().strftime('%d de %B de %Y - %I:%M %p')}")
+    fecha_run.font.italic = True
+    fecha_run.font.size = Pt(9)
+    fecha_run.font.color.rgb = RGBColor(128, 128, 128)
+    fecha_footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    # Guardar en memoria
+    output = io.BytesIO()
+    doc.save(output)
+    output.seek(0)
+    
+    fecha = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"Taller_{actividad['asignatura']}_{fecha}.docx"
+    
+    return send_file(
+        output,
+        mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        as_attachment=True,
+        download_name=filename
+    )
+
+
+# ==================== MIS RESULTADOS (RESUMEN) ====================
+@app.route('/mis_resultados')
+@login_required
+def mis_resultados():
+    """Vista resumen con el estado de resultados del usuario en todos los tests"""
+    r1 = ResultadoQuiz.query.filter_by(user_id=current_user.id).first()
+    r2 = ResultadoQuizDos.query.filter_by(user_id=current_user.id).first()
+    r3 = ResultadoQuizTres.query.filter_by(user_id=current_user.id).first()
+    r4 = ResultadoQuizCuatro.query.filter_by(user_id=current_user.id).first()
+    return render_template('mis_resultados.html', r1=r1, r2=r2, r3=r3, r4=r4)
 
 
 if __name__ == '__main__':

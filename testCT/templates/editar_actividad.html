@@ -1,0 +1,204 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Editar Actividad {% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <!-- Cabecera -->
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-warning shadow-warning border-radius-lg pt-4 pb-3">
+                        <div class="d-flex align-items-center justify-content-between px-3">
+                            <div class="d-flex align-items-center">
+                                <i class="material-icons text-white" style="font-size: 2rem;">edit</i>
+                                <h6 class="text-white text-capitalize ps-3 mb-0">Editar Actividad</h6>
+                            </div>
+                            <a href="{{ url_for('ver_actividad', actividad_id=actividad.id) }}" class="btn btn-sm btn-white">
+                                <i class="material-icons me-1">close</i>
+                                Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensajes flash -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="px-4 pt-4">
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                    <span class="text-sm">{{ message }}</span>
+                                    <button type="button" class="btn-close text-lg py-3 opacity-10" data-bs-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <div class="card-body px-4 pb-2">
+                    <form method="POST" action="{{ url_for('editar_actividad', actividad_id=actividad.id) }}">
+                        
+                        <!-- Sección 1: Información del Docente -->
+                        <div class="form-section mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="material-icons text-primary me-2">person</i>
+                                <h6 class="mb-0">Información del Docente</h6>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-outline mb-3 is-filled">
+                                        <label class="form-label">Nombre del Profesor</label>
+                                        <input type="text" name="nombre_profesor" class="form-control" value="{{ actividad.nombre_profesor }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-outline mb-3 is-filled">
+                                        <label class="form-label">Asignatura</label>
+                                        <input type="text" name="asignatura" class="form-control" value="{{ actividad.asignatura }}" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección 2: Información del Curso -->
+                        <div class="form-section mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="material-icons text-info me-2">school</i>
+                                <h6 class="mb-0">Información del Curso</h6>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="input-group input-group-outline mb-3 is-filled">
+                                        <label class="form-label">Grado</label>
+                                        <select name="grado" class="form-control" required>
+                                            <option value="{{ actividad.grado }}" selected>{{ actividad.grado }}</option>
+                                            <option value="1° Grado">1° Grado</option>
+                                            <option value="2° Grado">2° Grado</option>
+                                            <option value="3° Grado">3° Grado</option>
+                                            <option value="4° Grado">4° Grado</option>
+                                            <option value="5° Grado">5° Grado</option>
+                                            <option value="6° Grado">6° Grado</option>
+                                            <option value="7° Grado">7° Grado</option>
+                                            <option value="8° Grado">8° Grado</option>
+                                            <option value="9° Grado">9° Grado</option>
+                                            <option value="10° Grado">10° Grado</option>
+                                            <option value="11° Grado">11° Grado</option>
+                                            <option value="Posgrado">Posgrado</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-group input-group-outline mb-3 is-filled">
+                                        <label class="form-label">Número de Estudiantes</label>
+                                        <input type="number" name="cantidad_estudiantes" class="form-control" value="{{ actividad.cantidad_estudiantes }}" min="1" max="100" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-group input-group-outline mb-3 is-filled">
+                                        <label class="form-label">Tiempo (minutos)</label>
+                                        <input type="number" name="tiempo" class="form-control" value="{{ actividad.tiempo }}" min="5" max="300" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección 3: Contenido y Recursos -->
+                        <div class="form-section mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="material-icons text-success me-2">lightbulb</i>
+                                <h6 class="mb-0">Contenido y Recursos</h6>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-outline mb-3 is-filled">
+                                        <label class="form-label">Temática</label>
+                                        <input type="text" name="tematica" class="form-control" value="{{ actividad.tematica }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-outline mb-3 is-filled">
+                                        <label class="form-label">Recursos Disponibles</label>
+                                        <input type="text" name="recursos" class="form-control" value="{{ actividad.recursos }}" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="form-label text-sm mb-2">Tipo de Actividad:</label>
+                                    <div class="d-flex gap-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="tipo_actividad" id="individual" value="Individual" {% if actividad.tipo_actividad == 'Individual' %}checked{% endif %}>
+                                            <label class="form-check-label" for="individual">
+                                                Individual
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="tipo_actividad" id="colaborativo" value="Colaborativo" {% if actividad.tipo_actividad == 'Colaborativo' %}checked{% endif %}>
+                                            <label class="form-check-label" for="colaborativo">
+                                                Colaborativo
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección 4: Contenido de la Actividad -->
+                        <div class="form-section mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="material-icons text-warning me-2">description</i>
+                                <h6 class="mb-0">Contenido de la Actividad</h6>
+                            </div>
+                            <div class="input-group input-group-outline is-filled">
+                                <label class="form-label">Contenido (formato Markdown)</label>
+                                <textarea name="contenido" class="form-control" rows="15" required>{{ actividad.contenido }}</textarea>
+                            </div>
+                            <small class="text-muted">
+                                Puedes usar formato Markdown: **negrita**, *cursiva*, ## Títulos, - Listas
+                            </small>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="text-center mt-4 mb-3">
+                            <a href="{{ url_for('ver_actividad', actividad_id=actividad.id) }}" class="btn btn-secondary">
+                                <i class="material-icons me-2">close</i>
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="material-icons me-2">save</i>
+                                Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-section {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        border-left: 4px solid #e91e63;
+    }
+
+    .form-check-input:checked {
+        background-color: #e91e63;
+        border-color: #e91e63;
+    }
+
+    .form-check-label {
+        cursor: pointer;
+        user-select: none;
+    }
+</style>
+
+{% endblock content %}

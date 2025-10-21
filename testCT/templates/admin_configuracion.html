@@ -1,0 +1,250 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Configuración del Sistema {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Configuración del Sistema</h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <form method="POST" action="{{ url_for('configuracion_sistema') }}">
+            
+            <!-- Configuración de Tests -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <h5 class="font-weight-bold text-dark mb-3">
+                  <i class="material-icons align-middle">quiz</i> Activar/Desactivar Tests
+                </h5>
+              </div>
+              
+              <div class="col-md-6 col-lg-3 mb-3">
+                <div class="card border">
+                  <div class="card-body">
+                    <h6 class="text-info">Quiz 1 - ADAT</h6>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" 
+                             type="checkbox" 
+                             name="config_quiz1_activo" 
+                             value="true"
+                             id="quiz1Switch"
+                             {% if configs.quiz1_activo.valor == 'true' %}checked{% endif %}>
+                      <label class="form-check-label" for="quiz1Switch">
+                        Activo
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6 col-lg-3 mb-3">
+                <div class="card border">
+                  <div class="card-body">
+                    <h6 class="text-success">Quiz 2 - Estilos Aprendizaje</h6>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" 
+                             type="checkbox" 
+                             name="config_quiz2_activo" 
+                             value="true"
+                             id="quiz2Switch"
+                             {% if configs.quiz2_activo.valor == 'true' %}checked{% endif %}>
+                      <label class="form-check-label" for="quiz2Switch">
+                        Activo
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6 col-lg-3 mb-3">
+                <div class="card border">
+                  <div class="card-body">
+                    <h6 class="text-warning">Quiz 3 - Tipo Jugador</h6>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" 
+                             type="checkbox" 
+                             name="config_quiz3_activo" 
+                             value="true"
+                             id="quiz3Switch"
+                             {% if configs.quiz3_activo.valor == 'true' %}checked{% endif %}>
+                      <label class="form-check-label" for="quiz3Switch">
+                        Activo
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6 col-lg-3 mb-3">
+                <div class="card border">
+                  <div class="card-body">
+                    <h6 class="text-danger">Quiz 4 - Pensamiento Comp.</h6>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" 
+                             type="checkbox" 
+                             name="config_quiz4_activo" 
+                             value="true"
+                             id="quiz4Switch"
+                             {% if configs.quiz4_activo.valor == 'true' %}checked{% endif %}>
+                      <label class="form-check-label" for="quiz4Switch">
+                        Activo
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="horizontal dark">
+
+            <!-- Configuración de Tiempos -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <h5 class="font-weight-bold text-dark mb-3">
+                  <i class="material-icons align-middle">schedule</i> Tiempos de Tests (minutos)
+                </h5>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <div class="input-group input-group-outline is-filled">
+                  <label class="form-label">Tiempo Quiz 1 (ADAT)</label>
+                  <input type="number" 
+                         class="form-control" 
+                         name="config_tiempo_quiz1" 
+                         value="{{ configs.tiempo_quiz1.valor }}"
+                         min="1"
+                         max="180">
+                </div>
+                <small class="text-muted">Tiempo límite en minutos para completar el Quiz 1</small>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <div class="input-group input-group-outline is-filled">
+                  <label class="form-label">Tiempo Quiz 4 (Pensamiento)</label>
+                  <input type="number" 
+                         class="form-control" 
+                         name="config_tiempo_quiz4" 
+                         value="{{ configs.tiempo_quiz4.valor }}"
+                         min="1"
+                         max="180">
+                </div>
+                <small class="text-muted">Tiempo límite en minutos para completar el Quiz 4</small>
+              </div>
+            </div>
+
+            <hr class="horizontal dark">
+
+            <!-- Configuración General -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <h5 class="font-weight-bold text-dark mb-3">
+                  <i class="material-icons align-middle">settings_applications</i> Configuración General
+                </h5>
+              </div>
+              
+              <div class="col-12 mb-3">
+                <div class="input-group input-group-outline is-filled">
+                  <label class="form-label">Mensaje de Bienvenida</label>
+                  <input type="text" 
+                         class="form-control" 
+                         name="config_mensaje_bienvenida" 
+                         value="{{ configs.mensaje_bienvenida.valor }}"
+                         maxlength="200">
+                </div>
+                <small class="text-muted">Mensaje que se mostrará en la página principal</small>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <div class="card border">
+                  <div class="card-body">
+                    <h6>Permitir Nuevos Registros</h6>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" 
+                             type="checkbox" 
+                             name="config_permitir_registro" 
+                             value="true"
+                             id="registroSwitch"
+                             {% if configs.permitir_registro.valor == 'true' %}checked{% endif %}>
+                      <label class="form-check-label" for="registroSwitch">
+                        Activo
+                      </label>
+                    </div>
+                    <small class="text-muted">Permite que nuevos usuarios se registren en la plataforma</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="horizontal dark">
+
+            <!-- Botones de acción -->
+            <div class="row">
+              <div class="col-12 text-end">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary me-2">
+                  <i class="material-icons align-middle">cancel</i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                  <i class="material-icons align-middle">save</i> Guardar Configuración
+                </button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Información adicional -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h6 class="font-weight-bold mb-3">
+            <i class="material-icons align-middle text-info">info</i> Información
+          </h6>
+          <ul class="list-unstyled mb-0">
+            <li class="mb-2">
+              <i class="material-icons align-middle text-sm">check_circle</i>
+              Los cambios en la configuración se aplican inmediatamente
+            </li>
+            <li class="mb-2">
+              <i class="material-icons align-middle text-sm">check_circle</i>
+              Desactivar un test ocultará su acceso en el menú de navegación
+            </li>
+            <li class="mb-2">
+              <i class="material-icons align-middle text-sm">check_circle</i>
+              Los tiempos de tests ayudan a controlar el tiempo máximo de evaluación
+            </li>
+            <li>
+              <i class="material-icons align-middle text-sm">check_circle</i>
+              Desactivar el registro impedirá que nuevos usuarios creen cuentas
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Manejar switches para enviar false cuando no estén marcados
+  document.querySelector('form').addEventListener('submit', function(e) {
+    const switches = document.querySelectorAll('input[type="checkbox"]');
+    switches.forEach(function(sw) {
+      if (!sw.checked) {
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = sw.name;
+        hidden.value = 'false';
+        this.appendChild(hidden);
+      }
+    }.bind(this));
+  });
+</script>
+{% endblock content %}

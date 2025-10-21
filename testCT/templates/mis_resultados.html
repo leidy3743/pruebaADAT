@@ -1,0 +1,109 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Mis Resultados {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <div class="d-flex align-items-center justify-content-between px-3">
+              <div class="d-flex align-items-center">
+                <i class="material-icons text-white" style="font-size: 2rem;">insights</i>
+                <h6 class="text-white text-capitalize ps-3 mb-0">Mis Resultados</h6>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body px-4 pb-4">
+          <div class="row">
+            <!-- Quiz 1: ADAT (Pensamiento Computacional clásico) -->
+            <div class="col-md-6 col-lg-3 mb-4">
+              <div class="card h-100">
+                <div class="card-header bg-gradient-primary p-3">
+                  <h6 class="text-white mb-0"><i class="material-icons me-1">psychology</i> ADAT</h6>
+                </div>
+                <div class="card-body">
+                  {% if r1 %}
+                    <span class="badge bg-gradient-success mb-2">Completado</span>
+                    <p class="text-sm text-muted mb-2">Resultado ID: {{ r1.id }}</p>
+                    <a href="{{ url_for('quiz_results', result_id=r1.id) }}" class="btn btn-sm btn-outline-primary">Ver resultados</a>
+                  {% else %}
+                    <span class="badge bg-gradient-secondary mb-2">Pendiente</span>
+                    <p class="text-sm text-muted mb-2">Aún no has completado esta evaluación.</p>
+                    <a href="{{ url_for('quiz1') }}" class="btn btn-sm btn-primary">Iniciar</a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Quiz 2: Estilos de Aprendizaje -->
+            <div class="col-md-6 col-lg-3 mb-4">
+              <div class="card h-100">
+                <div class="card-header bg-gradient-success p-3">
+                  <h6 class="text-white mb-0"><i class="material-icons me-1">school</i> Estilos de Aprendizaje</h6>
+                </div>
+                <div class="card-body">
+                  {% if r2 %}
+                    <span class="badge bg-gradient-success mb-2">Completado</span>
+                    <p class="text-sm text-muted mb-2">Resultado ID: {{ r2.id }}</p>
+                    <a href="{{ url_for('quiz_resultsDos', result_id=r2.id) }}" class="btn btn-sm btn-outline-success">Ver resultados</a>
+                  {% else %}
+                    <span class="badge bg-gradient-secondary mb-2">Pendiente</span>
+                    <p class="text-sm text-muted mb-2">Aún no has completado esta evaluación.</p>
+                    <a href="{{ url_for('quiz2') }}" class="btn btn-sm btn-success">Iniciar</a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Quiz 3: Tipo de Jugador -->
+            <div class="col-md-6 col-lg-3 mb-4">
+              <div class="card h-100">
+                <div class="card-header bg-gradient-info p-3">
+                  <h6 class="text-white mb-0"><i class="material-icons me-1">emoji_events</i> Tipo de Jugador</h6>
+                </div>
+                <div class="card-body">
+                  {% if r3 %}
+                    <span class="badge bg-gradient-success mb-2">Completado</span>
+                    <p class="text-sm text-muted mb-2">Resultado ID: {{ r3.id }}</p>
+                    <a href="{{ url_for('quiz_resultsTres', result_id=r3.id) }}" class="btn btn-sm btn-outline-info">Ver resultados</a>
+                  {% else %}
+                    <span class="badge bg-gradient-secondary mb-2">Pendiente</span>
+                    <p class="text-sm text-muted mb-2">Aún no has completado esta evaluación.</p>
+                    <a href="{{ url_for('quiz3') }}" class="btn btn-sm btn-info">Iniciar</a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Quiz 4: CTt -->
+            <div class="col-md-6 col-lg-3 mb-4">
+              <div class="card h-100">
+                <div class="card-header bg-gradient-warning p-3">
+                  <h6 class="text-white mb-0"><i class="material-icons me-1">assignment</i> CTt</h6>
+                </div>
+                <div class="card-body">
+                  {% if r4 %}
+                    <span class="badge bg-gradient-success mb-2">Completado</span>
+                    <p class="text-sm text-muted mb-2">Resultado ID: {{ r4.id }}</p>
+                    <a href="{{ url_for('quiz4_results', result_id=r4.id) }}" class="btn btn-sm btn-outline-warning">Ver resultados</a>
+                  {% else %}
+                    <span class="badge bg-gradient-secondary mb-2">Pendiente</span>
+                    <p class="text-sm text-muted mb-2">Aún no has completado esta evaluación.</p>
+                    <a href="{{ url_for('quiz4') }}" class="btn btn-sm btn-warning">Iniciar</a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

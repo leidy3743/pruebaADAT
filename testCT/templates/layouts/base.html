@@ -98,6 +98,78 @@
       setTimeout(() => msg.remove(), 500); // Elimina el mensaje después de la animación
     });
   }, 3000);
+
+  // Fix para Material Dashboard labels - maneja automáticamente la clase is-filled y is-focused
+  document.addEventListener('DOMContentLoaded', function() {
+    // Función para actualizar el estado de los inputs
+    function updateInputState(input) {
+      const parent = input.closest('.input-group-outline');
+      if (!parent) return;
+      
+      const label = parent.querySelector('.form-label');
+      const hasValue = input.value && input.value.trim() !== '';
+      const isFocused = document.activeElement === input;
+      
+      // Manejar clases
+      if (hasValue || isFocused) {
+        parent.classList.add('is-filled');
+        if (isFocused) {
+          parent.classList.add('is-focused');
+        }
+      } else {
+        parent.classList.remove('is-filled');
+        parent.classList.remove('is-focused');
+      }
+      
+      // Ocultar/mostrar label para evitar superposición
+      if (label) {
+        if (!hasValue && !isFocused) {
+          label.style.opacity = '0';
+          label.style.pointerEvents = 'none';
+        } else {
+          label.style.opacity = '1';
+          label.style.pointerEvents = 'auto';
+        }
+      }
+    }
+
+    // Aplicar a todos los inputs y textareas
+    document.querySelectorAll('.input-group-outline input, .input-group-outline textarea').forEach(function(input) {
+      // Estado inicial
+      updateInputState(input);
+      
+      // Al escribir
+      input.addEventListener('input', function() {
+        updateInputState(this);
+      });
+      
+      // Al obtener foco
+      input.addEventListener('focus', function() {
+        updateInputState(this);
+      });
+      
+      // Al perder foco
+      input.addEventListener('blur', function() {
+        setTimeout(() => updateInputState(this), 50);
+      });
+    });
+
+    // Para selects (funcionan diferente)
+    document.querySelectorAll('.input-group-outline select').forEach(function(select) {
+      const parent = select.closest('.input-group-outline');
+      if (parent) {
+        // Los selects siempre deben tener is-filled para que la primera opción se vea bien
+        parent.classList.add('is-filled');
+      }
+      
+      select.addEventListener('change', function() {
+        const parent = this.closest('.input-group-outline');
+        if (parent && this.value) {
+          parent.classList.add('is-filled');
+        }
+      });
+    });
+  });
   </script>
 </body> 
 <style>

@@ -1,0 +1,93 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Editar Pregunta - Tipo de Jugador {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-warning shadow-warning border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Editar Pregunta - Tipo de Jugador (ID: {{ pregunta.id }})</h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="mb-3">
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          <form method="POST" action="{{ url_for('editar_quiz3', question_id=pregunta.id) }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="row">
+              <div class="col-12">
+                <div class="input-group input-group-outline my-3 is-filled">
+                  <label class="form-label">Enunciado de la pregunta</label>
+                  {{ form.statement(class="form-control") }}
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="input-group input-group-outline my-3 is-filled">
+                  <label class="form-label">Opción A</label>
+                  {{ form.option_a(class="form-control") }}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="input-group input-group-outline my-3 is-filled">
+                  <label class="form-label">Opción B</label>
+                  {{ form.option_b(class="form-control") }}
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="input-group input-group-outline my-3 is-filled">
+                  <label class="form-label">Opción C</label>
+                  {{ form.option_c(class="form-control") }}
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="input-group input-group-outline my-3 is-filled">
+                  <label class="form-label">Opción D</label>
+                  {{ form.option_d(class="form-control") }}
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="input-group input-group-outline my-3 is-filled">
+                  <label class="form-label">Opción E</label>
+                  {{ form.option_e(class="form-control") }}
+                </div>
+              </div>
+            </div>
+
+            <div class="row mt-4">
+              <div class="col-12 text-end">
+                <a href="{{ url_for('gestion_quiz3') }}" class="btn btn-outline-secondary">
+                  <i class="fas fa-times me-1"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-warning">
+                  <i class="fas fa-save me-1"></i> Guardar Cambios
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

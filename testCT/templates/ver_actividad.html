@@ -1,0 +1,160 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Ver Actividad {% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <!-- Cabecera -->
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <div class="d-flex align-items-center justify-content-between px-3">
+                            <div class="d-flex align-items-center">
+                                <i class="material-icons text-white" style="font-size: 2rem;">description</i>
+                                <h6 class="text-white text-capitalize ps-3 mb-0">{{ actividad.asignatura }} - {{ actividad.tematica }}</h6>
+                            </div>
+                            <a href="{{ url_for('mis_actividades') }}" class="btn btn-sm btn-white">
+                                <i class="material-icons me-1">arrow_back</i>
+                                Volver
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body px-4 pb-4">
+                    <!-- Información de la actividad -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <label class="text-xs text-muted">👨‍🏫 Profesor</label>
+                                <p class="text-sm fw-bold mb-0">{{ actividad.nombre_profesor }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <label class="text-xs text-muted">📚 Grado</label>
+                                <p class="text-sm fw-bold mb-0">{{ actividad.grado }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <label class="text-xs text-muted">👥 Tipo</label>
+                                <p class="text-sm fw-bold mb-0">{{ actividad.tipo_actividad }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box">
+                                <label class="text-xs text-muted">⏱️ Tiempo</label>
+                                <p class="text-sm fw-bold mb-0">{{ actividad.tiempo }} minutos</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="info-box">
+                                <label class="text-xs text-muted">🎓 Estudiantes</label>
+                                <p class="text-sm fw-bold mb-0">{{ actividad.cantidad_estudiantes }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-box">
+                                <label class="text-xs text-muted">🛠️ Recursos</label>
+                                <p class="text-sm fw-bold mb-0">{{ actividad.recursos }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="text-center mb-4">
+                        <a href="{{ url_for('editar_actividad', actividad_id=actividad.id) }}" class="btn btn-warning">
+                            <i class="material-icons me-2">edit</i>
+                            Editar Actividad
+                        </a>
+                        <a href="{{ url_for('exportar_actividad_word', actividad_id=actividad.id) }}" class="btn btn-success">
+                            <i class="material-icons me-2">download</i>
+                            Exportar a Word
+                        </a>
+                    </div>
+
+                    <hr>
+
+                    <!-- Contenido de la actividad -->
+                    <div class="activity-content p-4 mt-4">
+                        {{ actividad_html|safe }}
+                    </div>
+
+                    <!-- Información de fechas -->
+                    <div class="text-center mt-4">
+                        <p class="text-xs text-muted mb-1">
+                            <i class="material-icons text-xs">calendar_today</i>
+                            Creado: {{ actividad.fecha_creacion.strftime('%d de %B de %Y a las %H:%M') }}
+                        </p>
+                        {% if actividad.fecha_modificacion > actividad.fecha_creacion %}
+                        <p class="text-xs text-muted mb-0">
+                            <i class="material-icons text-xs">edit</i>
+                            Última modificación: {{ actividad.fecha_modificacion.strftime('%d de %B de %Y a las %H:%M') }}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .info-box {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 15px;
+        border-left: 3px solid #667eea;
+    }
+
+    .activity-content {
+        background: white;
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .activity-content h1, .activity-content h2 {
+        color: #667eea;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .activity-content h3, .activity-content h4 {
+        color: #764ba2;
+        margin-top: 1.2rem;
+        margin-bottom: 0.8rem;
+        font-weight: 500;
+    }
+
+    .activity-content ul, .activity-content ol {
+        margin-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .activity-content li {
+        margin-bottom: 0.5rem;
+    }
+
+    .activity-content p {
+        margin-bottom: 1rem;
+        text-align: justify;
+        line-height: 1.8;
+    }
+
+    .activity-content strong {
+        color: #e91e63;
+        font-weight: 600;
+    }
+</style>
+
+{% endblock content %}

@@ -285,7 +285,7 @@
                       </td>
                       <td class="align-middle text-center">
                         {% if current_user.resultados_quiz_dos %}
-                          <a href="{{ url_for('quiz_resultsDos', result_id=current_user.resultados_quiz_dos[0].id) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Ver resultados">
+                          <a href="{{ url_for('quiz_resultsDos', result_id=current_user.resultados_quiz_dos.id) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Ver resultados">
                             Ver resultados
                           </a>
                         {% else %}
@@ -351,7 +351,7 @@
                       </td>
                       <td class="align-middle text-center">
                         {% if current_user.resultado_quiz_cuatro %}
-                          <a href="{{ url_for('quiz4_results', user_id=current_user.resultado_quiz_cuatro.id) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Ver resultados">
+                          <a href="{{ url_for('quiz4_results', result_id=current_user.resultado_quiz_cuatro.id) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Ver resultados">
                             Ver resultados
                           </a>
                         {% else %}

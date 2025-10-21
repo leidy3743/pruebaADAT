@@ -1,0 +1,123 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Editar Usuario {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Editar Usuario: {{ usuario.username }}</h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="mb-3">
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          <form method="POST" action="{{ url_for('editar_usuario', user_id=usuario.id) }}">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="input-group input-group-outline my-3 is-filled">
+                  <label class="form-label">Nombre completo</label>
+                  <input type="text" name="nombres" class="form-control" value="{{ usuario.nombres }}" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="input-group input-group-outline my-3 is-filled">
+                  <label class="form-label">Nombre de usuario</label>
+                  <input type="text" name="username" class="form-control" value="{{ usuario.username }}" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="input-group input-group-outline my-3 is-filled">
+                  <label class="form-label">Correo electrónico</label>
+                  <input type="email" name="correo" class="form-control" value="{{ usuario.correo }}" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="input-group input-group-outline my-3">
+                  <label class="form-label">Nueva contraseña (dejar vacío para mantener actual)</label>
+                  <input type="password" name="password" class="form-control">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="input-group input-group-outline my-3 is-filled">
+                  <label class="form-label">Edad</label>
+                  <input type="number" name="edad" class="form-control" value="{{ usuario.edad }}" required min="1" max="120">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="input-group input-group-outline my-3 is-filled">
+                  <label class="form-label">Institución</label>
+                  <input type="text" name="institucion" class="form-control" value="{{ usuario.institucion }}" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="input-group input-group-outline my-3 is-filled">
+                  <select name="nivel_educativo" class="form-control" required>
+                    <option value="" disabled>Nivel educativo</option>
+                    <option value="Básica" {% if usuario.nivel_educativo == 'Básica' %}selected{% endif %}>Básica</option>
+                    <option value="Media" {% if usuario.nivel_educativo == 'Media' %}selected{% endif %}>Media</option>
+                    <option value="Técnica" {% if usuario.nivel_educativo == 'Técnica' %}selected{% endif %}>Técnica</option>
+                    <option value="Tecnológica" {% if usuario.nivel_educativo == 'Tecnológica' %}selected{% endif %}>Tecnológica</option>
+                    <option value="Universitaria" {% if usuario.nivel_educativo == 'Universitaria' %}selected{% endif %}>Universitaria</option>
+                    <option value="Posgrado" {% if usuario.nivel_educativo == 'Posgrado' %}selected{% endif %}>Posgrado</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="input-group input-group-outline my-3 is-filled">
+                  <label class="form-label">Años de experiencia</label>
+                  <input type="number" name="anios_experiencia" class="form-control" value="{{ usuario.anios_experiencia }}" required min="0" max="50">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="input-group input-group-outline my-3 is-filled">
+                  <select name="rol" class="form-control" required>
+                    <option value="" disabled>Rol del usuario</option>
+                    <option value="estudiante" {% if usuario.rol == 'estudiante' %}selected{% endif %}>Estudiante</option>
+                    <option value="docente" {% if usuario.rol == 'docente' %}selected{% endif %}>Docente</option>
+                    <option value="admin" {% if usuario.rol == 'admin' %}selected{% endif %}>Administrador</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mt-4">
+              <div class="col-12 text-end">
+                <a href="{{ url_for('gestion_usuarios') }}" class="btn btn-outline-secondary">
+                  <i class="fas fa-arrow-left me-1"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save me-1"></i> Guardar Cambios
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

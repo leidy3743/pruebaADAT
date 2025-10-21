@@ -6,8 +6,11 @@ services:
     container_name: adat_app
     ports:
       - "5002:5002"
+    env_file:
+      - .env
     environment:
-      - DATABASE_URL=postgresql://leidy_user:uVPTOe32sInjJYl5c1OpF3XFzKi6SKn8@dpg-d3peql2li9vc73bh2lt0-a.oregon-postgres.render.com/leidy
+      - DATABASE_URL=${DATABASE_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - FLASK_APP=app.py
       - FLASK_ENV=production
       - SECRET_KEY=mi_secreto

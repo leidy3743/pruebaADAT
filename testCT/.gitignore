@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.log
+
+# Environments
+.env
+.env.*
+.venv/
+venv/
+ENV/
+env/
+ambiente/
+
+# Flask/instance data
+# Permitimos commitear la base de datos SQLite de desarrollo si así lo deseas
+# (OJO: revisa que no contenga datos sensibles antes de subirla)
+# instance/*.log
+
+# OS & IDE
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node/npm
+node_modules/
+npm-debug.log
+
+# Coverage/pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Docker
+*.pid
