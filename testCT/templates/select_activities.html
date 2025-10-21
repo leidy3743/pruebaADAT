@@ -142,6 +142,27 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Competencias a desarrollar -->
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <label class="form-label text-sm mb-2">Competencias a desarrollar:</label>
+                                    <div class="d-flex gap-4 flex-wrap">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="competencias" id="comp-abstraccion" value="Abstracción">
+                                            <label class="form-check-label" for="comp-abstraccion">Abstracción</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="competencias" id="comp-descomposicion" value="Descomposición">
+                                            <label class="form-check-label" for="comp-descomposicion">Descomposición</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="competencias" id="comp-pensamiento" value="Pensamiento Algorítmico">
+                                            <label class="form-check-label" for="comp-pensamiento">Pensamiento Algorítmico</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Botón de Generar -->
@@ -198,6 +219,20 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Competencias seleccionadas -->
+                        {% if datos.competencias %}
+                        <div class="row px-4 mb-3">
+                            <div class="col-12">
+                                <div class="info-card">
+                                    <div class="text-muted text-xs">Competencias</div>
+                                    <div class="text-dark fw-bold">
+                                        {{ datos.competencias | join(', ') }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
 
                         <!-- Contenido de la actividad -->
                         <div class="activity-content mx-4 mb-4 p-4">

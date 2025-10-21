@@ -1993,9 +1993,13 @@ def select_activities():
         tipo_actividad = request.form.get('tipo_actividad')  # individual o colaborativo
         tiempo = request.form.get('tiempo')
         recursos = request.form.get('recursos')
+        competencias = request.form.getlist('competencias')  # lista de competencias seleccionadas
 
         # Generar actividad usando OpenAI
         try:
+            # Preparar cadena legible de competencias
+            competencias_txt = ", ".join(competencias) if competencias else "(no especificado)"
+
             prompt = f"""
 Eres un experto en pedagogía y diseño de actividades educativas. Crea un taller educativo completo con la siguiente información:
 
@@ -2007,6 +2011,7 @@ Eres un experto en pedagogía y diseño de actividades educativas. Crea un talle
 - Tipo de actividad: {tipo_actividad}
 - Tiempo disponible: {tiempo} minutos
 - Recursos disponibles: {recursos}
+ - Competencias a desarrollar: {competencias_txt}
 
 Genera un taller estructurado que incluya:
 1. Título creativo y llamativo
@@ -2065,6 +2070,7 @@ Usa un lenguaje claro y profesional. Formatea el texto usando Markdown con títu
                 'tipo_actividad': tipo_actividad,
                 'tiempo': tiempo,
                 'recursos': recursos,
+                'competencias': competencias,
                 'contenido': actividad_generada
             }
 
@@ -2079,7 +2085,8 @@ Usa un lenguaje claro y profesional. Formatea el texto usando Markdown con títu
                                      'cantidad_estudiantes': cantidad_estudiantes,
                                      'tipo_actividad': tipo_actividad,
                                      'tiempo': tiempo,
-                                     'recursos': recursos
+                                     'recursos': recursos,
+                                     'competencias': competencias
                                  })
         
         except Exception as e:
@@ -2241,8 +2248,7 @@ def exportar_actividad_word(actividad_id=None):
     doc.add_paragraph()
     
     # ========== TABLA DE INFORMACIÓN ==========
-    tabla_info = doc.add_table(rows=7, cols=2)
-    tabla_info.style = 'Light Grid Accent 1'
+    # Construir datos de tabla dinámicamente
     
     # Configurar datos de la tabla
     datos_tabla = [
@@ -2254,6 +2260,14 @@ def exportar_actividad_word(actividad_id=None):
         ('⏱️ Tiempo', f"{actividad['tiempo']} minutos"),
         ('🛠️ Recursos', actividad['recursos'])
     ]
+    # Agregar competencias si están presentes
+    if 'competencias' in actividad and actividad['competencias']:
+        comp_txt = actividad['competencias'] if isinstance(actividad['competencias'], str) else ", ".join(actividad['competencias'])
+        datos_tabla.append(('🏆 Competencias', comp_txt))
+
+    # Crear tabla con número de filas adecuado
+    tabla_info = doc.add_table(rows=len(datos_tabla), cols=2)
+    tabla_info.style = 'Light Grid Accent 1'
     
     for i, (campo, valor) in enumerate(datos_tabla):
         row_cells = tabla_info.rows[i].cells
