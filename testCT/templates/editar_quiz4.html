@@ -26,7 +26,7 @@
             {% endif %}
           {% endwith %}
 
-          <form method="POST" action="{{ url_for('editar_quiz4', question_id=pregunta.id) }}">
+          <form method="POST" action="{{ url_for('editar_quiz4', question_id=pregunta.id) }}" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
             
             <div class="row">
@@ -95,6 +95,23 @@
                   <label class="form-label">URL de Imagen (opcional)</label>
                   {{ form.image_url(class="form-control") }}
                 </div>
+                <div class="mt-2">
+                  <small class="text-muted d-block mb-1">Vista previa</small>
+                  <img id="imgPreviewQuiz4" src="{{ pregunta.image_url | image_url if pregunta.image_url }}" 
+                       alt="Vista previa" class="img-fluid border rounded"
+                       style="max-height: 240px; display: {{ 'block' if pregunta.image_url else 'none' }};"
+                       onerror="this.style.display='none'">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-12">
+                <div class="input-group input-group-outline my-3">
+                  <label class="form-label">Subir imagen (opcional)</label>
+                  {{ form.image_file(class="form-control") }}
+                </div>
+                <small class="text-muted">Si subes un archivo, se usará en lugar de la URL.</small>
               </div>
             </div>
 
@@ -114,4 +131,34 @@
     </div>
   </div>
 </div>
+<script>
+  (function() {
+    function normalizeDriveUrl(url) {
+      if (!url) return url;
+      try {
+        if (url.includes('drive.google.com')) {
+          const m = url.match(/\/file\/d\/([^/]+)\//);
+          if (m && m[1]) return `https://drive.google.com/uc?id=${m[1]}`;
+          const m2 = url.match(/[?&]id=([^&]+)/);
+          if (m2 && m2[1]) return `https://drive.google.com/uc?id=${m2[1]}`;
+        }
+      } catch(e) {}
+      return url;
+    }
+    const input = document.getElementById('image_url') || document.querySelector('input[name="image_url"]');
+    const preview = document.getElementById('imgPreviewQuiz4');
+    if (input && preview) {
+      input.addEventListener('input', function() {
+        const raw = this.value.trim();
+        const url = normalizeDriveUrl(raw);
+        if (url) {
+          preview.src = url;
+          preview.style.display = 'block';
+        } else {
+          preview.style.display = 'none';
+        }
+      });
+    }
+  })();
+</script>
 {% endblock content %}

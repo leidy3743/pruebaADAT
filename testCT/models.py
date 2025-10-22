@@ -70,7 +70,7 @@ class User(db.Model):
 
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    statement = db.Column(db.String(500), nullable=False)
+    statement = db.Column(db.Text, nullable=False)
     option_a = db.Column(db.String(100), nullable=False)
     option_b = db.Column(db.String(100), nullable=False)
     option_c = db.Column(db.String(100), nullable=False)

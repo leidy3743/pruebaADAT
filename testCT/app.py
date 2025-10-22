@@ -2,9 +2,10 @@ import json
 import os
 import openai
 import traceback
-from flask import Flask, render_template, redirect, url_for, flash, request, jsonify, session
+from flask import Flask, render_template, redirect, url_for, flash, request, jsonify, session, send_file
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from forms import RegistrationForm, QuizForm, LoginForm, QuizFormDos, QuizFormTres, CursoGradoForm, QuizFormCuatro
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -16,6 +17,9 @@ import os
 import openai
 from dotenv import load_dotenv
 from sqlalchemy import inspect, text
+import re
+import io
+import zipfile
 
 # Cargar variables de entorno desde .env
 load_dotenv()
@@ -38,12 +42,108 @@ app.jinja_env.filters['zip'] = zip
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+# Carpeta para imágenes subidas
+app.config.setdefault('UPLOAD_FOLDER', os.path.join('static', 'uploads', 'quiz4'))
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
 # Configuración de API key de OpenAI desde entorno
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+# ===== Helpers de plantillas =====
+def _normalize_image_url(url: str) -> str:
+    """Convierte URLs de Google Drive compartidas a una URL directa utilizable en <img>.
+
+    Soporta formatos de Drive:
+    - https://drive.google.com/file/d/<FILE_ID>/view?...
+    - https://drive.google.com/open?id=<FILE_ID>
+    - https://drive.google.com/uc?id=<FILE_ID>
+    - https://drive.google.com/thumbnail?id=<FILE_ID>
+
+    Devuelve: https://drive.google.com/uc?export=view&id=<FILE_ID>
+    Si no es Drive, retorna la URL original.
+    """
+    if not url:
+        return url
+    try:
+        u = url.strip()
+        if 'drive.google.com' in u:
+            # /file/d/<ID>/ ...
+            m = re.search(r"/file/d/([^/]+)", u)
+            if m:
+                file_id = m.group(1)
+                return f"https://drive.google.com/uc?export=view&id={file_id}"
+            # ...?id=<ID>
+            m2 = re.search(r"[?&]id=([^&]+)", u)
+            if m2:
+                file_id = m2.group(1)
+                return f"https://drive.google.com/uc?export=view&id={file_id}"
+            # uc?id=<ID>
+            m3 = re.search(r"/uc\?[^#]*id=([^&]+)", u)
+            if m3:
+                file_id = m3.group(1)
+                return f"https://drive.google.com/uc?export=view&id={file_id}"
+            # thumbnail?id=<ID>
+            m4 = re.search(r"/thumbnail\?[^#]*id=([^&]+)", u)
+            if m4:
+                file_id = m4.group(1)
+                return f"https://drive.google.com/uc?export=view&id={file_id}"
+        return u
+    except Exception:
+        return url
+
+# Registrar filtro para usar en Jinja: {{ url|image_url }}
+app.jinja_env.filters['image_url'] = _normalize_image_url
+
+def _drive_thumbnail_url(url: str) -> str:
+    """Devuelve una URL de miniatura de Google Drive (thumbnail) si es un enlace de Drive.
+
+    Formato de salida: https://drive.google.com/thumbnail?id=<FILE_ID>&sz=w1000
+    Si no es Drive o no se detecta ID, retorna la URL original.
+    """
+    if not url:
+        return url
+    try:
+        u = url.strip()
+        if 'drive.google.com' in u:
+            m = re.search(r"/file/d/([^/]+)", u)
+            if not m:
+                m = re.search(r"[?&]id=([^&]+)", u)
+            if not m:
+                m = re.search(r"/uc\?[^#]*id=([^&]+)", u)
+            if not m:
+                m = re.search(r"/thumbnail\?[^#]*id=([^&]+)", u)
+            if m:
+                file_id = m.group(1)
+                return f"https://drive.google.com/thumbnail?id={file_id}&sz=w1000"
+        return u
+    except Exception:
+        return url
+
+# Registrar filtro para thumbnail
+app.jinja_env.filters['drive_thumb'] = _drive_thumbnail_url
+
+def _save_uploaded_image(file_storage):
+    """Guarda una imagen subida a static/uploads/quiz4 y devuelve la ruta relativa para usar en src.
+    Devuelve None si no hay archivo o nombre vacío.
+    """
+    if not file_storage or not getattr(file_storage, 'filename', ''):
+        return None
+    filename = secure_filename(file_storage.filename)
+    if not filename:
+        return None
+    # prefijo simple para unicidad
+    base, ext = os.path.splitext(filename)
+    unique = f"{base}_{int(datetime.now().timestamp())}{ext}"
+    dest = os.path.join(app.config['UPLOAD_FOLDER'], unique)
+    # Asegurar carpeta
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
+    file_storage.save(dest)
+    # Devolver ruta relativa estática
+    return '/' + dest.replace('\\', '/')
 
 usuarios_cursos = db.Table('usuarios_cursos',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
@@ -121,7 +221,7 @@ class User(UserMixin, db.Model):
 
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    statement = db.Column(db.String(3000), nullable=False)
+    statement = db.Column(db.Text, nullable=False)
     option_a = db.Column(db.String(500), nullable=False)
     option_b = db.Column(db.String(500), nullable=False)
     option_c = db.Column(db.String(500), nullable=False)
@@ -129,7 +229,7 @@ class Question(db.Model):
     correct_answer = db.Column(db.String(500), nullable=False)
     label = db.Column(db.String(50), nullable=False)
     percentage = db.Column(db.Float, nullable=False)
-    image_url = db.Column(db.String(200))
+    image_url = db.Column(db.String(1000))
 
 
 class Answer(db.Model):
@@ -181,7 +281,7 @@ class QuizCuatro(db.Model):
     correct_answer = db.Column(db.String(1), nullable=False)
     label = db.Column(db.String(50), nullable=True)
     percentage = db.Column(db.Float, nullable=True)
-    image_url = db.Column(db.String(200), nullable=True)
+    image_url = db.Column(db.String(1000), nullable=True)
 
 class ResultadoQuizCuatro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -597,7 +697,62 @@ def eliminar_usuario(user_id):
         if usuario.id == current_user.id:
             flash('No puedes eliminar tu propio usuario', 'danger')
             return redirect(url_for('gestion_usuarios'))
-        
+
+        # 1) Eliminar dependencias explícitas para evitar violaciones de FK (NotNullViolation)
+        # Resultados de quizzes
+        try:
+            ResultadoQuiz.query.filter_by(user_id=usuario.id).delete(synchronize_session=False)
+        except Exception:
+            pass
+        try:
+            ResultadoQuizDos.query.filter_by(user_id=usuario.id).delete(synchronize_session=False)
+        except Exception:
+            pass
+        try:
+            ResultadoQuizTres.query.filter_by(user_id=usuario.id).delete(synchronize_session=False)
+        except Exception:
+            pass
+        try:
+            ResultadoQuizCuatro.query.filter_by(user_id=usuario.id).delete(synchronize_session=False)
+        except Exception:
+            pass
+        # Posible modelo alternativo legacy
+        try:
+            QuizResult.query.filter_by(user_id=usuario.id).delete(synchronize_session=False)
+        except Exception:
+            pass
+
+        # Respuestas de quizzes
+        try:
+            Answer.query.filter_by(user_id=usuario.id).delete(synchronize_session=False)
+        except Exception:
+            pass
+        try:
+            AnswerTres.query.filter_by(user_id=usuario.id).delete(synchronize_session=False)
+        except Exception:
+            pass
+
+        # Actividades generadas
+        try:
+            ActividadGenerada.query.filter_by(user_id=usuario.id).delete(synchronize_session=False)
+        except Exception:
+            pass
+
+        # 2) Limpiar tablas de asociación many-to-many
+        try:
+            db.session.execute(usuarios_cursos.delete().where(usuarios_cursos.c.user_id == usuario.id))
+        except Exception:
+            pass
+        try:
+            db.session.execute(nivel_por_grados.delete().where(nivel_por_grados.c.user_id == usuario.id))
+        except Exception:
+            pass
+        try:
+            db.session.execute(grados_dictados.delete().where(grados_dictados.c.user_id == usuario.id))
+        except Exception:
+            pass
+
+        # 3) Finalmente eliminar el usuario
         db.session.delete(usuario)
         db.session.commit()
         flash('Usuario eliminado exitosamente', 'success')
@@ -605,6 +760,77 @@ def eliminar_usuario(user_id):
         db.session.rollback()
         flash(f'Error al eliminar usuario: {str(e)}', 'danger')
     
+    return redirect(url_for('gestion_usuarios'))
+
+
+# ========== REINICIO DE TESTS POR USUARIO (ADMIN) ==========
+
+@app.route('/gestion_usuarios/reset/<int:user_id>/<quiz>', methods=['POST'])
+@login_required
+def reset_test_usuario(user_id, quiz):
+    """Permite a un admin reiniciar un test específico o todos para un usuario dado.
+    quiz puede ser: 'quiz1', 'quiz2', 'quiz3', 'quiz4' o 'all'.
+    """
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para realizar esta acción', 'danger')
+        return redirect(url_for('dashboard'))
+
+    usuario = User.query.get_or_404(user_id)
+
+    # Banderas para feedback
+    acciones = []
+
+    try:
+        objetivo = quiz.lower()
+
+        if objetivo in ('quiz1', 'all'):
+            # Eliminar resultado ADAT
+            r1 = ResultadoQuiz.query.filter_by(user_id=usuario.id).first()
+            if r1:
+                db.session.delete(r1)
+                acciones.append('Quiz 1 (ADAT)')
+            # Eliminar posible registro alternativo (compatibilidad)
+            try:
+                alt = QuizResult.query.filter_by(user_id=usuario.id).first()
+                if alt:
+                    db.session.delete(alt)
+            except Exception:
+                pass
+
+        if objetivo in ('quiz2', 'all'):
+            r2 = ResultadoQuizDos.query.filter_by(user_id=usuario.id).first()
+            if r2:
+                db.session.delete(r2)
+                acciones.append('Quiz 2 (Estilos)')
+
+        if objetivo in ('quiz3', 'all'):
+            r3 = ResultadoQuizTres.query.filter_by(user_id=usuario.id).first()
+            if r3:
+                db.session.delete(r3)
+                acciones.append('Quiz 3 (Tipo de Jugador)')
+
+        if objetivo in ('quiz4', 'all'):
+            r4 = ResultadoQuizCuatro.query.filter_by(user_id=usuario.id).first()
+            if r4:
+                db.session.delete(r4)
+                acciones.append('Quiz 4 (Pensamiento Computacional)')
+
+        db.session.commit()
+
+        if acciones:
+            if objetivo == 'all':
+                flash(f"Se reiniciaron todos los tests para el usuario {usuario.username}.", 'success')
+            else:
+                flash(f"Se reinició {', '.join(acciones)} para el usuario {usuario.username}.", 'success')
+        else:
+            if objetivo == 'all':
+                flash(f"El usuario {usuario.username} no tenía resultados para reiniciar.", 'info')
+            else:
+                flash(f"El usuario {usuario.username} no tenía resultados del {objetivo}.", 'info')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al reiniciar tests para {usuario.username}: {str(e)}', 'danger')
+
     return redirect(url_for('gestion_usuarios'))
 
 
@@ -658,7 +884,8 @@ def editar_quiz1(question_id):
     
     if form.validate_on_submit():
         try:
-            pregunta.statement = form.statement.data
+            original_text = form.statement.data or ''
+            pregunta.statement = original_text
             pregunta.option_a = form.option_a.data
             pregunta.option_b = form.option_b.data
             pregunta.option_c = form.option_c.data
@@ -666,15 +893,45 @@ def editar_quiz1(question_id):
             pregunta.correct_answer = form.correct_answer.data
             pregunta.label = form.label.data
             pregunta.percentage = form.percentage.data
-            pregunta.image_url = form.image_url.data
-            
+            pregunta.image_url = _normalize_image_url(form.image_url.data) if form.image_url.data else ''
+
+            # Intento 1: flush y verificar que no haya truncamiento por tipo de columna
+            db.session.flush()
+            saved_len = len(pregunta.statement or '')
+            if saved_len < len(original_text):
+                # Truncamiento detectado: intentar convertir columna a TEXT y reintentar
+                try:
+                    table_name = pregunta.__table__.name
+                    dialect = db.engine.name
+                    if dialect == 'postgresql':
+                        db.session.execute(text(f'ALTER TABLE {table_name} ALTER COLUMN statement TYPE TEXT'))
+                        db.session.flush()
+                        # Reasignar y volver a intentar
+                        pregunta.statement = original_text
+                        db.session.flush()
+                        saved_len = len(pregunta.statement or '')
+                except Exception:
+                    pass
+
+            if saved_len < len(original_text):
+                # Aún truncado: revertir y reportar
+                db.session.rollback()
+                flash('El enunciado es más largo que el tamaño permitido en la base de datos. He intentado ajustar la columna automáticamente sin éxito. Avísame y lo corrijo manualmente.', 'danger')
+                return render_template('editar_quiz1.html', form=form, pregunta=pregunta)
+
+            # Si todo bien, commit final
             db.session.commit()
             flash('Pregunta actualizada exitosamente', 'success')
             return redirect(url_for('gestion_quiz1'))
         except Exception as e:
             db.session.rollback()
             flash(f'Error al actualizar pregunta: {str(e)}', 'danger')
-    
+    # Si es POST pero la validación falló, mostrar errores para que el usuario sepa qué corregir
+    if request.method == 'POST' and form.errors:
+        for field, errors in form.errors.items():
+            for err in errors:
+                flash(f'{field}: {err}', 'danger')
+
     return render_template('editar_quiz1.html', form=form, pregunta=pregunta)
 
 
@@ -735,7 +992,11 @@ def editar_quiz2(question_id):
         except Exception as e:
             db.session.rollback()
             flash(f'Error al actualizar pregunta: {str(e)}', 'danger')
-    
+    if request.method == 'POST' and form.errors:
+        for field, errors in form.errors.items():
+            for err in errors:
+                flash(f'{field}: {err}', 'danger')
+
     return render_template('editar_quiz2.html', form=form, pregunta=pregunta)
 
 
@@ -799,7 +1060,11 @@ def editar_quiz3(question_id):
         except Exception as e:
             db.session.rollback()
             flash(f'Error al actualizar pregunta: {str(e)}', 'danger')
-    
+    if request.method == 'POST' and form.errors:
+        for field, errors in form.errors.items():
+            for err in errors:
+                flash(f'{field}: {err}', 'danger')
+
     return render_template('editar_quiz3.html', form=form, pregunta=pregunta)
 
 
@@ -858,15 +1123,25 @@ def editar_quiz4(question_id):
             pregunta.correct_answer = form.correct_answer.data
             pregunta.label = form.label.data
             pregunta.percentage = form.percentage.data
-            pregunta.image_url = form.image_url.data
-            
+            # Preferir imagen subida; si no, usar URL normalizada
+            uploaded = request.files.get('image_file')
+            saved_path = _save_uploaded_image(uploaded)
+            if saved_path:
+                pregunta.image_url = saved_path
+            else:
+                pregunta.image_url = _normalize_image_url(form.image_url.data) if form.image_url.data else ''
+
             db.session.commit()
             flash('Pregunta actualizada exitosamente', 'success')
             return redirect(url_for('gestion_quiz4'))
         except Exception as e:
             db.session.rollback()
             flash(f'Error al actualizar pregunta: {str(e)}', 'danger')
-    
+    if request.method == 'POST' and form.errors:
+        for field, errors in form.errors.items():
+            for err in errors:
+                flash(f'{field}: {err}', 'danger')
+
     return render_template('editar_quiz4.html', form=form, pregunta=pregunta)
 
 
@@ -1205,6 +1480,269 @@ def exportar_resultados(quiz):
     )
 
 
+# ==================== BACKUP COMPLETO DE BASE DE DATOS ====================
+
+@app.route('/admin/backup', methods=['GET'])
+@login_required
+def admin_backup():
+    """Genera una copia completa de la base de datos.
+    - Si es SQLite con archivo local: descarga el .db directamente.
+    - Para otros motores: genera un backup JSON de todas las tablas (esquema + datos) comprimido en ZIP.
+    """
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+
+    from urllib.parse import urlparse
+    from datetime import datetime as _dt
+    from sqlalchemy import MetaData, Table, select
+
+    db_url = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+    ts = _dt.now().strftime('%Y%m%d_%H%M%S')
+
+    # Caso 1: SQLite archivo local -> entregar el archivo .db
+    try:
+        if db_url.startswith('sqlite:///') or db_url.startswith('sqlite:////'):
+            # Normalizar ruta de archivo
+            path = None
+            if db_url.startswith('sqlite:////'):
+                path = '/' + db_url.replace('sqlite:////', '', 1)
+            else:  # sqlite:///
+                path = db_url.replace('sqlite:///', '', 1)
+            # Resolver a ruta absoluta si es relativa
+            if not os.path.isabs(path):
+                path = os.path.join(os.getcwd(), path)
+            if os.path.exists(path):
+                return send_file(
+                    path,
+                    as_attachment=True,
+                    download_name=f'backup_sqlite_{ts}.db'
+                )
+            else:
+                # Si no existe el archivo (p.ej., en memoria), seguir con backup JSON
+                pass
+    except Exception:
+        # Continuar con backup JSON si algo falla en la rama SQLite
+        pass
+
+    # Caso 2: Backup universal JSON (esquema + datos) comprimido en ZIP
+    payload = {
+        'database_url': db_url,
+        'generated_at': _dt.utcnow().isoformat() + 'Z',
+        'schema': {},
+        'data': {}
+    }
+
+    try:
+        inspector = inspect(db.engine)
+        tablas = inspector.get_table_names()
+        metadata = MetaData()
+
+        with db.engine.connect() as conn:
+            for tname in tablas:
+                try:
+                    # Esquema
+                    cols = inspector.get_columns(tname)
+                    payload['schema'][tname] = [
+                        {
+                            'name': c.get('name'),
+                            'type': str(c.get('type')),
+                            'nullable': c.get('nullable'),
+                            'default': str(c.get('default')) if c.get('default') is not None else None
+                        }
+                        for c in cols
+                    ]
+
+                    # Datos (usando reflexión para respetar comillas de identificadores)
+                    table_obj = Table(tname, metadata, autoload_with=db.engine)
+                    result = conn.execute(select(table_obj))
+                    rows = [dict(r._mapping) for r in result]
+                    payload['data'][tname] = rows
+                except Exception as te:
+                    # Si una tabla falla, registrar el error y continuar
+                    payload['data'][tname] = {'__error__': str(te)}
+
+        # Empaquetar en ZIP con un archivo JSON interno
+        bio = io.BytesIO()
+        with zipfile.ZipFile(bio, mode='w', compression=zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr('backup.json', json.dumps(payload, ensure_ascii=False, default=str, indent=2))
+        bio.seek(0)
+
+        return send_file(
+            bio,
+            mimetype='application/zip',
+            as_attachment=True,
+            download_name=f'backup_adat_{ts}.zip'
+        )
+    except Exception as e:
+        flash(f'Error al generar backup: {e}', 'danger')
+        return redirect(url_for('estadisticas'))
+
+
+@app.route('/admin/backup/import', methods=['POST'])
+@login_required
+def admin_backup_import():
+    """Importa una copia completa del sistema desde un archivo de backup.
+    Acepta:
+    - ZIP con backup.json (esquema+datos) -> restaura limpiando e insertando.
+    - .db (solo SQLite) -> reemplaza el archivo de BD (requiere reinicio de app para asegurar conexiones limpias).
+    """
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+
+    f = request.files.get('file')
+    if not f or not getattr(f, 'filename', ''):
+        flash('No se envió ningún archivo de backup', 'warning')
+        return redirect(url_for('estadisticas'))
+
+    filename = f.filename.lower()
+    db_url = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+
+    try:
+        # Caso A: ZIP con backup.json
+        if filename.endswith('.zip'):
+            bio = io.BytesIO(f.read())
+            with zipfile.ZipFile(bio, 'r') as zf:
+                if 'backup.json' not in zf.namelist():
+                    flash('El ZIP no contiene backup.json', 'danger')
+                    return redirect(url_for('estadisticas'))
+                payload = json.loads(zf.read('backup.json').decode('utf-8'))
+
+            data = payload.get('data', {})
+
+            # Obtener orden de dependencia entre tablas
+            inspector = inspect(db.engine)
+            tablas_presentes = [t for t in inspector.get_table_names() if t in data]
+
+            # Construir grafo de dependencias (t1 depende de t2 si t1 tiene FK a t2)
+            deps = {t: set() for t in tablas_presentes}
+            for t in tablas_presentes:
+                try:
+                    for fk in inspector.get_foreign_keys(t):
+                        ref_table = fk.get('referred_table')
+                        if ref_table in deps and ref_table != t:
+                            deps[t].add(ref_table)
+                except Exception:
+                    pass
+
+            # Orden topológico simple
+            order = []
+            deps_copy = {k: set(v) for k, v in deps.items()}
+            while deps_copy:
+                libres = [t for t, req in deps_copy.items() if not req]
+                if not libres:
+                    # Ciclo o restricciones no deferrables: caer en un orden alfabético para continuar
+                    libres = [next(iter(deps_copy))]
+                for t in libres:
+                    order.append(t)
+                    deps_copy.pop(t, None)
+                    for v in deps_copy.values():
+                        v.discard(t)
+
+            from sqlalchemy import MetaData, Table, select
+            metadata = MetaData()
+
+            with db.engine.begin() as conn:  # transaccional
+                # Desactivar FK en SQLite para facilitar borrado/carga
+                try:
+                    conn.exec_driver_sql('PRAGMA foreign_keys=OFF')
+                except Exception:
+                    pass
+
+                # Borrar datos en orden inverso
+                for t in reversed(order):
+                    try:
+                        table_obj = Table(t, metadata, autoload_with=db.engine)
+                        conn.execute(table_obj.delete())
+                    except Exception:
+                        pass
+
+                # Insertar datos en orden
+                for t in order:
+                    rows = data.get(t)
+                    if not isinstance(rows, list):
+                        # Si es un dict con error u otra forma, saltar
+                        continue
+                    if not rows:
+                        continue
+                    table_obj = Table(t, metadata, autoload_with=db.engine)
+                    # Insert batch; si falla por tipos, intentar fila a fila
+                    try:
+                        conn.execute(table_obj.insert(), rows)
+                    except Exception:
+                        for row in rows:
+                            try:
+                                conn.execute(table_obj.insert(), row)
+                            except Exception:
+                                # Último recurso: ignorar fila problemática
+                                pass
+
+                # Re-activar FK en SQLite
+                try:
+                    conn.exec_driver_sql('PRAGMA foreign_keys=ON')
+                except Exception:
+                    pass
+
+            # Intentar resetear secuencias en PostgreSQL para columnas id
+            try:
+                if db_url.startswith('postgresql'):
+                    with db.engine.begin() as conn:
+                        for t in order:
+                            try:
+                                # setval para columna id si existe
+                                conn.exec_driver_sql(
+                                    f"SELECT setval(pg_get_serial_sequence('{t}', 'id'), COALESCE((SELECT MAX(id) FROM {t}), 1), true)"
+                                )
+                            except Exception:
+                                pass
+            except Exception:
+                pass
+
+            flash('Backup importado exitosamente', 'success')
+            return redirect(url_for('estadisticas'))
+
+        # Caso B: archivo .db (solo SQLite con archivo)
+        elif filename.endswith('.db'):
+            if not (db_url.startswith('sqlite:///') or db_url.startswith('sqlite:////')):
+                flash('Importar .db solo está soportado para SQLite', 'danger')
+                return redirect(url_for('estadisticas'))
+            # Resolver ruta actual de SQLite
+            if db_url.startswith('sqlite:////'):
+                path = '/' + db_url.replace('sqlite:////', '', 1)
+            else:
+                path = db_url.replace('sqlite:///', '', 1)
+            if not os.path.isabs(path):
+                path = os.path.join(os.getcwd(), path)
+
+            # Guardar a un archivo temporal y luego reemplazar
+            tmp_dir = os.path.join('instance', 'backups')
+            os.makedirs(tmp_dir, exist_ok=True)
+            tmp_path = os.path.join(tmp_dir, 'uploaded_backup.db')
+            f.save(tmp_path)
+
+            try:
+                # Cerrar conexiones antes de reemplazar (best-effort)
+                db.session.close()
+            except Exception:
+                pass
+
+            import shutil
+            shutil.copyfile(tmp_path, path)
+
+            flash('Base de datos SQLite importada. Reinicia la aplicación para aplicar completamente los cambios.', 'success')
+            return redirect(url_for('estadisticas'))
+
+        else:
+            flash('Formato no soportado. Usa un .zip (backup.json) o .db (SQLite).', 'warning')
+            return redirect(url_for('estadisticas'))
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al importar backup: {e}', 'danger')
+        return redirect(url_for('estadisticas'))
+
+
 # ==================== CONFIGURACIÓN DEL SISTEMA ====================
 
 # Modelo para configuraciones
@@ -1262,6 +1800,36 @@ except Exception as e:
     except Exception:
         pass
     print(f'⚠️  No se pudo verificar/crear la tabla actividad_generada: {e}')
+
+
+# ====== AJUSTE AUTOMÁTICO DE TIPO PARA ENUNCIADOS LARGOS (QUESTION.statement) ======
+try:
+    with app.app_context():
+        # Solo aplicar a motores que soportan ALTER COLUMN sencillo (PostgreSQL principalmente).
+        dialect = db.engine.name  # 'postgresql', 'sqlite', etc.
+        if dialect == 'postgresql':
+            insp = inspect(db.engine)
+            tablas = insp.get_table_names()
+            for tname in ('question', 'quiz1_question'):
+                if tname in tablas:
+                    cols = insp.get_columns(tname)
+                    st = next((c for c in cols if c.get('name') == 'statement'), None)
+                    # Si es VARCHAR o tiene length limitado, migrar a TEXT
+                    if st and (str(st.get('type')).upper().startswith('VARCHAR') or 'STRING' in str(st.get('type')).upper()):
+                        try:
+                            db.session.execute(text(f'ALTER TABLE {tname} ALTER COLUMN statement TYPE TEXT'))
+                            db.session.commit()
+                            print(f'✅ Columna {tname}.statement convertida a TEXT (soporta enunciados largos)')
+                        except Exception as e2:
+                            db.session.rollback()
+                            print(f'⚠️  No se pudo convertir {tname}.statement a TEXT: {e2}')
+        # Para SQLite, no es necesario; maneja long text sin truncado práctico.
+except Exception as e:
+    try:
+        db.session.rollback()
+    except Exception:
+        pass
+    print(f'⚠️  Error en ajuste automático de statement: {e}')
 
 
 @app.route('/admin/configuracion', methods=['GET', 'POST'])
@@ -1365,7 +1933,7 @@ def register_quiz1_question():
             correct_answer=form.correct_answer.data,
             label=form.label.data,
             percentage=form.percentage.data,
-            image_url=form.image_url.data
+            image_url=_normalize_image_url(form.image_url.data) if form.image_url.data else ''
         )
         db.session.add(question)
         db.session.commit()
@@ -1580,6 +2148,11 @@ def register_quiz2_question():
 def register_quiz4_question():
     form = QuizFormCuatro()
     if form.validate_on_submit():
+        # Manejar upload o URL
+        uploaded = request.files.get('image_file')
+        saved_path = _save_uploaded_image(uploaded)
+        image_url_final = saved_path or (_normalize_image_url(form.image_url.data) if form.image_url.data else '')
+
         question = QuizCuatro(
             statement=form.statement.data,
             option_a=form.option_a.data,
@@ -1589,7 +2162,7 @@ def register_quiz4_question():
             correct_answer=form.correct_answer.data,
             label=form.label.data or 'CTt',
             percentage=form.percentage.data or 1,
-            image_url=form.image_url.data or ''
+            image_url=image_url_final
         )
         db.session.add(question)
         db.session.commit()

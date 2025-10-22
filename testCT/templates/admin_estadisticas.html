@@ -42,9 +42,20 @@
         <a href="{{ url_for('exportar_resultados', quiz='quiz4') }}" class="btn btn-sm btn-danger mb-0">
           <i class="material-icons align-middle text-sm">file_download</i> Pensamiento
         </a>
+        <a href="{{ url_for('admin_backup') }}" class="btn btn-sm btn-dark mb-0">
+          <i class="material-icons align-middle text-sm">save</i> Backup
+        </a>
+        <button class="btn btn-sm btn-secondary mb-0" id="btnImportBackup" type="button">
+          <i class="material-icons align-middle text-sm">upload</i> Importar Backup
+        </button>
       </div>
     </div>
   </div>
+
+  <!-- Formulario oculto para importar backup -->
+  <form id="importBackupForm" action="{{ url_for('admin_backup_import') }}" method="POST" enctype="multipart/form-data" style="display:none;">
+    <input type="file" name="file" id="backupFile" accept=".zip,.db,.json" />
+  </form>
 
   <!-- Tarjetas de Resumen -->
   <div class="row mb-4">
@@ -484,3 +495,22 @@ new Chart(ctxTests, {
 });
 </script>
 {% endblock content %}
+
+{% block javascripts %}
+<script>
+  (function(){
+    const btn = document.getElementById('btnImportBackup');
+    const fileInput = document.getElementById('backupFile');
+    const form = document.getElementById('importBackupForm');
+    if (!btn || !fileInput || !form) return;
+
+    btn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => {
+      if (!fileInput.files || !fileInput.files.length) return;
+      const f = fileInput.files[0];
+      const ok = confirm(`¿Importar el backup "${f.name}"?\n\nSe reemplazarán los datos actuales por el contenido del backup.`);
+      if (ok) form.submit(); else fileInput.value = '';
+    });
+  })();
+</script>
+{% endblock javascripts %}

@@ -25,8 +25,19 @@
               <div class="mb-4">
                 <p class="mb-2" style="color: black;">{{ loop.index }}. {{ question.statement }}</p>
 
-                {% if question.image_url %}
-                <img src="{{ question.image_url }}" alt="Pregunta imagen" class="img-fluid mb-2" style="max-width: 100%; height: auto;">
+       {% if question.image_url %}
+       <img src="{{ question.image_url | image_url }}"
+         data-thumb="{{ question.image_url | drive_thumb }}"
+         alt="Pregunta imagen"
+         class="img-fluid mb-3" style="max-width: 100%; height: auto; display:block;"
+         loading="lazy"
+         onerror="if(this.dataset.thumb && this.src!==this.dataset.thumb){this.src=this.dataset.thumb; this.onerror=function(){this.style.display='none'};}else{this.style.display='none'}">
+       {% endif %}
+
+                {% if current_user.is_authenticated and current_user.rol == 'admin' and question.image_url %}
+                <small class="text-muted d-block mb-2">Enlace imagen: 
+                  <a href="{{ question.image_url | image_url }}" target="_blank" rel="noopener">abrir</a>
+                </small>
                 {% endif %}
 
                 <div class="form-check mt-2">

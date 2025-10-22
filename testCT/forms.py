@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, RadioField, SubmitField, TextAreaField, PasswordField, IntegerField, SelectField, FloatField, BooleanField, FieldList, FormField, SelectMultipleField
 from wtforms.validators import DataRequired, Length, Email, URL, Optional, ValidationError
 from wtforms_sqlalchemy.fields import QuerySelectMultipleField
@@ -69,14 +70,14 @@ class QuizForm(FlaskForm):
     # Aquí puedes agregar campos para las preguntas del cuestionario
     # Ejemplo:
     statement = TextAreaField('Enunciado', validators=[DataRequired()])
-    option_a = StringField('Opción A', validators=[DataRequired(), Length(max=100)])
-    option_b = StringField('Opción B', validators=[DataRequired(), Length(max=100)])
-    option_c = StringField('Opción C', validators=[DataRequired(), Length(max=100)])
-    option_d = StringField('Opción D', validators=[DataRequired(), Length(max=100)])
+    option_a = StringField('Opción A', validators=[DataRequired(), Length(max=500)])
+    option_b = StringField('Opción B', validators=[DataRequired(), Length(max=500)])
+    option_c = StringField('Opción C', validators=[DataRequired(), Length(max=500)])
+    option_d = StringField('Opción D', validators=[DataRequired(), Length(max=500)])
     correct_answer = RadioField('Respuesta Correcta', choices=[('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D')], validators=[DataRequired()])
     label = StringField('Etiqueta', validators=[DataRequired(), Length(max=50)])
     percentage = FloatField('Porcentaje', validators=[DataRequired()])
-    image_url = StringField('URL de la Imagen (opcional)', validators=[URL(), Length(max=200)])
+    image_url = StringField('URL de la Imagen (opcional)', validators=[Optional(), URL(), Length(max=1000)])
     submit = SubmitField('Registrar Pregunta')
 
 class AdminForm(FlaskForm):
@@ -92,29 +93,29 @@ class QuizFormDos(FlaskForm):
     # Aquí puedes agregar campos para las preguntas del cuestionario
     # Ejemplo:
     statement = TextAreaField('Enunciado', validators=[DataRequired()])
-    option_a = StringField('Opción A', validators=[DataRequired(), Length(max=100)])
-    option_b = StringField('Opción B', validators=[DataRequired(), Length(max=100)])
-    option_c = StringField('Opción C', validators=[DataRequired(), Length(max=100)])
-    option_d = StringField('Opción D', validators=[DataRequired(), Length(max=100)])
+    option_a = StringField('Opción A', validators=[DataRequired(), Length(max=500)])
+    option_b = StringField('Opción B', validators=[DataRequired(), Length(max=500)])
+    option_c = StringField('Opción C', validators=[DataRequired(), Length(max=500)])
+    option_d = StringField('Opción D', validators=[DataRequired(), Length(max=500)])
     correct_answer = RadioField('Respuesta Correcta', choices=[('A','A'),('B','B'),('C','C'),('D','D')], validators=[DataRequired()])
     label = StringField('Etiqueta', validators=[DataRequired(), Length(max=50)])
     percentage = FloatField('Porcentaje', validators=[DataRequired()])
-    image_url = StringField('URL de la Imagen (opcional)', validators=[Optional(), URL(), Length(max=200)])
+    image_url = StringField('URL de la Imagen (opcional)', validators=[Optional(), URL(), Length(max=1000)])
     submit = SubmitField('Registrar Pregunta')
 
 class QuizFormTres(FlaskForm):
     # Aquí puedes agregar campos para las preguntas del cuestionario
     # Ejemplo:
     statement = TextAreaField('Enunciado', validators=[DataRequired()])
-    option_a = StringField('Opción A', validators=[DataRequired(), Length(max=100)])
-    option_b = StringField('Opción B', validators=[DataRequired(), Length(max=100)])
-    option_c = StringField('Opción C', validators=[DataRequired(), Length(max=100)])
-    option_d = StringField('Opción D', validators=[DataRequired(), Length(max=100)])
-    option_e = StringField('Opción E', validators=[DataRequired(), Length(max=100)])
+    option_a = StringField('Opción A', validators=[DataRequired(), Length(max=500)])
+    option_b = StringField('Opción B', validators=[DataRequired(), Length(max=500)])
+    option_c = StringField('Opción C', validators=[DataRequired(), Length(max=500)])
+    option_d = StringField('Opción D', validators=[DataRequired(), Length(max=500)])
+    option_e = StringField('Opción E', validators=[DataRequired(), Length(max=500)])
     correct_answer = RadioField('Respuesta Correcta', choices=[('A','A'),('B','B'),('C','C'),('D','D'),('E','E')], validators=[DataRequired()])
     label = StringField('Etiqueta', validators=[DataRequired(), Length(max=50)])
     percentage = FloatField('Porcentaje', validators=[DataRequired()])
-    image_url = StringField('URL de la Imagen (opcional)', validators=[Optional(), URL(), Length(max=200)])
+    image_url = StringField('URL de la Imagen (opcional)', validators=[Optional(), URL(), Length(max=1000)])
     submit = SubmitField('Registrar Pregunta')
 
 
@@ -122,12 +123,13 @@ class QuizFormCuatro(FlaskForm):
     # Aquí puedes agregar campos para las preguntas del cuestionario
     # Ejemplo:
     statement = TextAreaField('Enunciado', validators=[DataRequired()])
-    option_a = StringField('Opción A', validators=[DataRequired(), Length(max=100)])
-    option_b = StringField('Opción B', validators=[DataRequired(), Length(max=100)])
-    option_c = StringField('Opción C', validators=[DataRequired(), Length(max=100)])
-    option_d = StringField('Opción D', validators=[DataRequired(), Length(max=100)])
+    option_a = StringField('Opción A', validators=[DataRequired(), Length(max=500)])
+    option_b = StringField('Opción B', validators=[DataRequired(), Length(max=500)])
+    option_c = StringField('Opción C', validators=[DataRequired(), Length(max=500)])
+    option_d = StringField('Opción D', validators=[DataRequired(), Length(max=500)])
     correct_answer = RadioField('Respuesta Correcta', choices=[('A','A'),('B','B'),('C','C'),('D','D')], validators=[DataRequired()])
     label = StringField('Etiqueta', validators=[Optional(), Length(max=50)])
     percentage = FloatField('Porcentaje', validators=[Optional()])
-    image_url = StringField('URL de la Imagen (opcional)', validators=[Optional(), URL(), Length(max=200)])
+    image_url = StringField('URL de la Imagen (opcional)', validators=[Optional(), URL(), Length(max=1000)])
+    image_file = FileField('Subir imagen (opcional)', validators=[Optional(), FileAllowed(['jpg','jpeg','png','gif'], 'Solo imágenes JPG/PNG/GIF')])
     submit = SubmitField('Registrar Pregunta')

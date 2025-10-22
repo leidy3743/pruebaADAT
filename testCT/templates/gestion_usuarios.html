@@ -37,6 +37,47 @@
             {% endif %}
           {% endwith %}
           
+          <div class="px-3 mb-3">
+            <div class="row g-2 align-items-end">
+              <div class="col-md-5">
+                <label class="form-label text-xs mb-1">Buscar</label>
+                <input type="text" id="searchQuery" class="form-control form-control-sm" placeholder="Usuario, nombre, correo, institución">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label text-xs mb-1">Rol</label>
+                <select id="filterRole" class="form-select form-select-sm">
+                  <option value="">Todos</option>
+                  {% set _roles = [] %}
+                  {% for u in usuarios %}
+                    {% if u.rol and u.rol not in _roles %}
+                      <option value="{{ u.rol }}">{{ u.rol }}</option>
+                      {% set _ = _roles.append(u.rol) %}
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label text-xs mb-1">Institución</label>
+                <select id="filterInst" class="form-select form-select-sm">
+                  <option value="">Todas</option>
+                  {% set _insts = [] %}
+                  {% for u in usuarios %}
+                    {% if u.institucion and u.institucion not in _insts %}
+                      <option value="{{ u.institucion }}">{{ u.institucion }}</option>
+                      {% set _ = _insts.append(u.institucion) %}
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-1 d-grid">
+                <button class="btn btn-sm btn-outline-secondary" id="clearFilters" type="button">Limpiar</button>
+              </div>
+            </div>
+            <div class="mt-2">
+              <small class="text-muted">Mostrando <span id="visibleCount"></span> de {{ usuarios|length }}</small>
+            </div>
+          </div>
+
           <div class="table-responsive p-0">
             <table class="table align-items-center mb-0" id="usersTable">
               <thead>
@@ -54,7 +95,7 @@
               </thead>
               <tbody>
                 {% for usuario in usuarios %}
-                <tr>
+                <tr data-username="{{ usuario.username|lower }}" data-nombre="{{ usuario.nombres|lower }}" data-correo="{{ (usuario.correo or '')|lower }}" data-rol="{{ (usuario.rol or '')|lower }}" data-institucion="{{ (usuario.institucion or '')|lower }}">
                   <td class="ps-4">
                     <p class="text-xs font-weight-bold mb-0">{{ usuario.id }}</p>
                   </td>
@@ -96,6 +137,20 @@
                     <a href="{{ url_for('editar_usuario', user_id=usuario.id) }}" class="btn btn-link text-info text-gradient px-2 mb-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar usuario">
                       <i class="fas fa-edit text-info" aria-hidden="true"></i>
                     </a>
+                    <!-- Dropdown Reiniciar Tests -->
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-link text-warning text-gradient px-2 mb-0 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Reiniciar tests del usuario">
+                        <i class="fas fa-undo" aria-hidden="true"></i>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li><button class="dropdown-item" type="button" onclick="reiniciarTest({{ usuario.id }}, 'quiz1', '{{ usuario.username }}')">Reiniciar Quiz 1 (ADAT)</button></li>
+                        <li><button class="dropdown-item" type="button" onclick="reiniciarTest({{ usuario.id }}, 'quiz2', '{{ usuario.username }}')">Reiniciar Quiz 2 (Estilos)</button></li>
+                        <li><button class="dropdown-item" type="button" onclick="reiniciarTest({{ usuario.id }}, 'quiz3', '{{ usuario.username }}')">Reiniciar Quiz 3 (Tipo de Jugador)</button></li>
+                        <li><button class="dropdown-item" type="button" onclick="reiniciarTest({{ usuario.id }}, 'quiz4', '{{ usuario.username }}')">Reiniciar Quiz 4 (Pensamiento)</button></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><button class="dropdown-item text-danger" type="button" onclick="reiniciarTest({{ usuario.id }}, 'all', '{{ usuario.username }}')">Reiniciar TODOS</button></li>
+                      </ul>
+                    </div>
                     {% if usuario.id != current_user.id %}
                     <button type="button" class="btn btn-link text-danger text-gradient px-2 mb-0" onclick="confirmarEliminacion({{ usuario.id }}, '{{ usuario.username }}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar usuario">
                       <i class="fas fa-trash text-danger" aria-hidden="true"></i>
@@ -121,6 +176,9 @@
   <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token }}"/>
 </form>
 
+<!-- Form oculto para reiniciar tests -->
+<form id="resetForm" method="POST" style="display: none;"></form>
+
 <script>
 function confirmarEliminacion(userId, username) {
   if (confirm(`¿Estás seguro de que deseas eliminar al usuario "${username}"?\n\nEsta acción no se puede deshacer y eliminará también todos los resultados de quiz asociados.`)) {
@@ -130,10 +188,87 @@ function confirmarEliminacion(userId, username) {
   }
 }
 
+function reiniciarTest(userId, quiz, username) {
+  const nombres = {
+    quiz1: 'Quiz 1 (ADAT)',
+    quiz2: 'Quiz 2 (Estilos de Aprendizaje)',
+    quiz3: 'Quiz 3 (Tipo de Jugador)',
+    quiz4: 'Quiz 4 (Pensamiento Computacional)',
+    all: 'TODOS los tests'
+  };
+  const nombre = nombres[quiz] || quiz;
+  if (confirm(`¿Reiniciar ${nombre} para "${username}"?\n\nSe eliminarán sus resultados para que pueda volver a intentarlo.`)) {
+    const form = document.getElementById('resetForm');
+    form.action = `/gestion_usuarios/reset/${userId}/${quiz}`;
+    form.submit();
+  }
+}
+
 // Inicializar tooltips
-var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-  return new bootstrap.Tooltip(tooltipTriggerEl)
-})
+try {
+  if (window.bootstrap && bootstrap.Tooltip) {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+  }
+} catch (e) {
+  console.warn('Tooltips no inicializados:', e);
+}
+
+// Filtros de tabla
+(function(){
+  const search = document.getElementById('searchQuery');
+  const role = document.getElementById('filterRole');
+  const inst = document.getElementById('filterInst');
+  const clearBtn = document.getElementById('clearFilters');
+  const tbody = document.querySelector('#usersTable tbody');
+  if (!search || !role || !inst || !clearBtn || !tbody) {
+    console.warn('Filtros no inicializados: elementos no encontrados');
+    return;
+  }
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const visibleCountEl = document.getElementById('visibleCount');
+
+  function text(v){ return (v || '').toString().toLowerCase(); }
+
+  function applyFilters(){
+    const q = text(search.value).trim();
+    const r = text(role.value).trim();
+    const i = text(inst.value).trim();
+    let visible = 0;
+
+    rows.forEach(tr => {
+      const du = tr.dataset.username || '';
+      const dn = tr.dataset.nombre || '';
+      const dc = tr.dataset.correo || '';
+      const dr = tr.dataset.rol || '';
+      const di = tr.dataset.institucion || '';
+
+      const matchesQuery = !q || du.includes(q) || dn.includes(q) || dc.includes(q) || di.includes(q);
+      const matchesRole = !r || dr === r;
+      const matchesInst = !i || di === i;
+
+      const show = matchesQuery && matchesRole && matchesInst;
+      tr.style.display = show ? '' : 'none';
+      if (show) visible += 1;
+    });
+
+    if (visibleCountEl) visibleCountEl.textContent = visible;
+  }
+
+  if (visibleCountEl) visibleCountEl.textContent = rows.length;
+  ['input','change'].forEach(evt => {
+    search.addEventListener(evt, applyFilters);
+    role.addEventListener(evt, applyFilters);
+    inst.addEventListener(evt, applyFilters);
+  });
+  clearBtn.addEventListener('click', () => {
+    search.value = '';
+    role.value = '';
+    inst.value = '';
+    applyFilters();
+  });
+})();
 </script>
 {% endblock content %}

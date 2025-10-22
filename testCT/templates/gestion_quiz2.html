@@ -34,6 +34,7 @@
               <thead>
                 <tr>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Imagen</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pregunta</th>
                   <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Acciones</th>
                 </tr>
@@ -42,6 +43,15 @@
                 {% for pregunta in preguntas %}
                 <tr>
                   <td class="ps-4"><p class="text-xs font-weight-bold mb-0">{{ pregunta.id }}</p></td>
+                  <td class="align-middle text-center" style="width: 110px;">
+                    {% if pregunta.image_url %}
+                      <img src="{{ pregunta.image_url | image_url }}" alt="Imagen"
+                           class="border rounded" style="max-height:56px; max-width:100px; object-fit:cover;"
+                           onerror="this.style.display='none'">
+                    {% else %}
+                      <span class="text-secondary text-xs">—</span>
+                    {% endif %}
+                  </td>
                   <td>
                     <p class="text-xs font-weight-bold mb-0" style="max-width: 500px;">
                       {{ pregunta.statement[:150] }}{% if pregunta.statement|length > 150 %}...{% endif %}
@@ -51,8 +61,8 @@
                     <a href="{{ url_for('editar_quiz2', question_id=pregunta.id) }}" class="btn btn-link text-success px-2 mb-0">
                       <i class="fas fa-edit"></i>
                     </a>
-                    <button type="button" class="btn btn-link text-danger px-2 mb-0" 
-                            onclick="confirmarEliminacion({{ pregunta.id }})">
+        <button type="button" class="btn btn-link text-danger px-2 mb-0" 
+          onclick="openDeleteModal({{ pregunta.id }})">
                       <i class="fas fa-trash"></i>
                     </button>
                   </td>
@@ -75,13 +85,52 @@
 
 <form id="deleteForm" method="POST" style="display: none;"></form>
 
+<!-- Modal de confirmación de eliminación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDeleteLabel">Eliminar pregunta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body" id="confirmDeleteText">
+        ¿Estás seguro de que deseas eliminar esta pregunta? Esta acción no se puede deshacer.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" onclick="submitDelete()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+  </div>
+
 <script>
-function confirmarEliminacion(questionId) {
-  if (confirm('¿Estás seguro de que deseas eliminar esta pregunta?\n\nEsta acción no se puede deshacer.')) {
-    const form = document.getElementById('deleteForm');
-    form.action = `/gestion_tests/quiz2/eliminar/${questionId}`;
-    form.submit();
+  const deleteForm = document.getElementById('deleteForm');
+  const modalEl = document.getElementById('confirmDeleteModal');
+  let modalInstance = null;
+  if (window.bootstrap && bootstrap.Modal) {
+    modalInstance = new bootstrap.Modal(modalEl);
   }
-}
+
+  function openDeleteModal(questionId) {
+    const actionUrl = `/gestion_tests/quiz2/eliminar/${questionId}`;
+    if (modalInstance) {
+      deleteForm.action = actionUrl;
+      const textEl = document.getElementById('confirmDeleteText');
+      if (textEl) textEl.textContent = '¿Estás seguro de que deseas eliminar esta pregunta? Esta acción no se puede deshacer.';
+      modalInstance.show();
+    } else {
+      if (confirm('¿Estás seguro de que deseas eliminar esta pregunta?\n\nEsta acción no se puede deshacer.')) {
+        deleteForm.action = actionUrl;
+        deleteForm.submit();
+      }
+    }
+  }
+
+  function submitDelete() {
+    if (deleteForm && deleteForm.action) {
+      deleteForm.submit();
+    }
+  }
 </script>
 {% endblock content %}

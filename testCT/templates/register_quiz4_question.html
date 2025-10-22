@@ -6,7 +6,7 @@
 </head>
 <body>
     <h1>Registrar Pregunta de Quiz 4</h1>
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <p>
             {{ form.statement.label }}<br>
@@ -66,8 +66,18 @@
         </p>
         <p>
             {{ form.image_url.label }}<br>
-            {{ form.image_url(size=50) }}<br>
+                        {{ form.image_url(size=50) }}<br>
+                        <small style="color:#666">Vista previa</small><br>
+                        <img id="imgPreviewNewQ4" src="" alt="Vista previa" style="max-width: 100%; max-height: 240px; display:none; border:1px solid #ddd; border-radius:6px; padding:2px;" onerror="this.style.display='none'">
             {% for error in form.image_url.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.image_file.label }}<br>
+            {{ form.image_file() }}<br>
+            <small style="color:#666">Si subes un archivo, se usará en lugar de la URL.</small>
+            {% for error in form.image_file.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
@@ -75,5 +85,35 @@
             {{ form.submit() }}
         </p>
     </form>
+        <script>
+            (function(){
+                function normalizeDriveUrl(url) {
+                    if (!url) return url;
+                    try {
+                        if (url.includes('drive.google.com')) {
+                            const m = url.match(/\/file\/d\/([^/]+)\//);
+                            if (m && m[1]) return `https://drive.google.com/uc?id=${m[1]}`;
+                            const m2 = url.match(/[?&]id=([^&]+)/);
+                            if (m2 && m2[1]) return `https://drive.google.com/uc?id=${m2[1]}`;
+                        }
+                    } catch(e) {}
+                    return url;
+                }
+                const input = document.getElementById('image_url') || document.querySelector('input[name="image_url"]');
+                const preview = document.getElementById('imgPreviewNewQ4');
+                if (input && preview) {
+                    input.addEventListener('input', function(){
+                        const raw = this.value.trim();
+                        const url = normalizeDriveUrl(raw);
+                        if (url) {
+                            preview.src = url;
+                            preview.style.display = 'block';
+                        } else {
+                            preview.style.display = 'none';
+                        }
+                    });
+                }
+            })();
+        </script>
 </body>
 </html>

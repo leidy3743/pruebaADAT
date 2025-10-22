@@ -88,7 +88,7 @@
   <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="/static/assets/js/material-dashboard.min.js?v=3.0.0"></script>
   <script>
-  // Espera 3 segundos y luego oculta los mensajes flash suavemente
+  // Espera 5 segundos y luego oculta los mensajes flash suavemente
   setTimeout(function() {
     let flashMessages = document.querySelectorAll('.flash-message');
     flashMessages.forEach(function(msg) {
@@ -97,7 +97,7 @@
       msg.style.transform = "translateY(-20px)";
       setTimeout(() => msg.remove(), 500); // Elimina el mensaje después de la animación
     });
-  }, 3000);
+  }, 5000);
 
   // Fix para Material Dashboard labels - maneja automáticamente la clase is-filled y is-focused
   document.addEventListener('DOMContentLoaded', function() {
