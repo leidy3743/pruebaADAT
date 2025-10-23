@@ -383,11 +383,12 @@
           <form method="POST" action="{{ url_for('actualizar_cedula') }}">
             <div class="modal-body">
               <p class="text-sm mb-3">
-                Para completar tu perfil, por favor ingresa tu número de cédula.
+                Para completar tu perfil, por favor ingresa tu número de cédula. 
+                Este dato se utilizará para generar tu certificado de participación.
               </p>
               <div class="input-group input-group-outline">
                 <label class="form-label">Número de Cédula</label>
-                <input type="text" class="form-control" name="cedula" required placeholder="Ej: 8-123-4567">
+                <input type="text" class="form-control" name="cedula" required placeholder="Ej: 81234567">
               </div>
             </div>
             <div class="modal-footer">
