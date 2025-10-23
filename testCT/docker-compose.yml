@@ -1,6 +1,22 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:17
+    container_name: adat_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: leidy
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    restart: unless-stopped
+    networks:
+      - adat_network
+
   web:
     build: .
     container_name: adat_app
@@ -9,7 +25,8 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=${DATABASE_URL}
+      # For local development, point to the Postgres container
+      - DATABASE_URL=postgresql+psycopg://postgres:postgres@db:5432/leidy
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - FLASK_APP=app.py
       - FLASK_ENV=production
@@ -17,6 +34,8 @@ services:
     volumes:
       - .:/app
       - ./instance:/app/instance
+    depends_on:
+      - db
     restart: unless-stopped
     networks:
       - adat_network
@@ -24,3 +43,6 @@ services:
 networks:
   adat_network:
     driver: bridge
+
+volumes:
+  postgres_data:
