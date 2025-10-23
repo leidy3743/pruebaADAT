@@ -200,6 +200,7 @@ class User(UserMixin, db.Model):
     nombres = db.Column(db.String(100), nullable=False)
     correo = db.Column(db.String(120), unique=True, nullable=False)
     edad = db.Column(db.Integer, nullable=False)
+    cedula = db.Column(db.String(20), nullable=True)
     colegio_id = db.Column(db.Integer, db.ForeignKey('colegio.id'), nullable=True)
     colegio = db.relationship('Colegio', backref='usuarios', lazy="select")
     institucion = db.Column(db.String(120), nullable=True)
