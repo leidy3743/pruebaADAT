@@ -20,6 +20,15 @@ from sqlalchemy import inspect, text
 import re
 import io
 import zipfile
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.units import inch, cm
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as RLImage
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 
 # Cargar variables de entorno desde .env
 load_dotenv()
@@ -832,6 +841,142 @@ def reset_test_usuario(user_id, quiz):
         flash(f'Error al reiniciar tests para {usuario.username}: {str(e)}', 'danger')
 
     return redirect(url_for('gestion_usuarios'))
+
+
+# ==================== GENERADOR DE CERTIFICADOS ====================
+
+@app.route('/admin/generar_certificado/<int:user_id>')
+@login_required
+def generar_certificado(user_id):
+    """Generar certificado PDF para un usuario específico"""
+    if current_user.rol != 'admin':
+        flash('No tienes permisos para acceder a esta página', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    usuario = User.query.get_or_404(user_id)
+    
+    # Crear buffer para el PDF
+    buffer = io.BytesIO()
+    
+    # Crear PDF en orientación horizontal (landscape)
+    c = canvas.Canvas(buffer, pagesize=landscape(A4))
+    width, height = landscape(A4)
+    
+    # Colores elegantes
+    color_principal = colors.HexColor('#1a237e')  # Azul oscuro
+    color_acento = colors.HexColor('#0d47a1')     # Azul medio
+    color_dorado = colors.HexColor('#b8860b')     # Dorado
+    
+    # ===== BORDE DECORATIVO =====
+    c.setStrokeColor(color_dorado)
+    c.setLineWidth(3)
+    c.rect(30, 30, width-60, height-60, stroke=1, fill=0)
+    
+    c.setStrokeColor(color_principal)
+    c.setLineWidth(1)
+    c.rect(40, 40, width-80, height-80, stroke=1, fill=0)
+    
+    # ===== ENCABEZADO =====
+    c.setFont("Helvetica-Bold", 28)
+    c.setFillColor(color_principal)
+    c.drawCentredString(width/2, height-100, "CERTIFICADO DE PARTICIPACIÓN")
+    
+    # Línea decorativa debajo del título
+    c.setStrokeColor(color_dorado)
+    c.setLineWidth(2)
+    c.line(width/2-200, height-115, width/2+200, height-115)
+    
+    # ===== TEXTO PRINCIPAL =====
+    c.setFont("Helvetica", 14)
+    c.setFillColor(colors.black)
+    c.drawCentredString(width/2, height-160, "Se otorga el presente certificado a:")
+    
+    # Nombre del usuario (destacado)
+    c.setFont("Helvetica-Bold", 32)
+    c.setFillColor(color_acento)
+    c.drawCentredString(width/2, height-220, usuario.nombres.upper())
+    
+    # Línea decorativa debajo del nombre
+    c.setStrokeColor(color_dorado)
+    c.setLineWidth(1)
+    c.line(width/2-250, height-235, width/2+250, height-235)
+    
+    # ===== CUERPO DEL CERTIFICADO =====
+    c.setFont("Helvetica", 13)
+    c.setFillColor(colors.black)
+    
+    # Texto de participación (justificado visualmente)
+    texto_linea1 = "Por su destacada participación en la plataforma ADAT"
+    texto_linea2 = "(Análisis de Datos para el Aprendizaje y Tecnología),"
+    texto_linea3 = "completando exitosamente las evaluaciones de diagnóstico y"
+    texto_linea4 = "contribuyendo al fortalecimiento de competencias educativas digitales."
+    
+    y_pos = height - 290
+    c.drawCentredString(width/2, y_pos, texto_linea1)
+    c.drawCentredString(width/2, y_pos-25, texto_linea2)
+    c.drawCentredString(width/2, y_pos-50, texto_linea3)
+    c.drawCentredString(width/2, y_pos-75, texto_linea4)
+    
+    # ===== INFORMACIÓN ADICIONAL =====
+    c.setFont("Helvetica", 11)
+    c.setFillColor(colors.grey)
+    
+    # Institución
+    if usuario.institucion:
+        c.drawCentredString(width/2, height-420, f"Institución: {usuario.institucion}")
+    
+    # Nivel educativo
+    if usuario.nivel_educativo:
+        nivel_texto = usuario.nivel_educativo.capitalize()
+        c.drawCentredString(width/2, height-440, f"Nivel Educativo: {nivel_texto}")
+    
+    # ===== FECHA =====
+    fecha_actual = datetime.now().strftime("%d de %B de %Y")
+    # Traducir mes al español
+    meses = {
+        'January': 'enero', 'February': 'febrero', 'March': 'marzo',
+        'April': 'abril', 'May': 'mayo', 'June': 'junio',
+        'July': 'julio', 'August': 'agosto', 'September': 'septiembre',
+        'October': 'octubre', 'November': 'noviembre', 'December': 'diciembre'
+    }
+    for eng, esp in meses.items():
+        fecha_actual = fecha_actual.replace(eng, esp)
+    
+    c.setFont("Helvetica-Oblique", 12)
+    c.setFillColor(colors.black)
+    c.drawCentredString(width/2, 120, f"Fecha de emisión: {fecha_actual}")
+    
+    # ===== FIRMA/SELLO (decorativo) =====
+    c.setFont("Helvetica", 10)
+    c.setFillColor(colors.grey)
+    
+    # Línea de firma izquierda
+    c.line(150, 160, 300, 160)
+    c.drawCentredString(225, 145, "Administrador ADAT")
+    
+    # Línea de firma derecha
+    c.line(width-300, 160, width-150, 160)
+    c.drawCentredString(width-225, 145, "Plataforma ADAT")
+    
+    # ===== PIE DE PÁGINA =====
+    c.setFont("Helvetica", 8)
+    c.setFillColor(colors.lightgrey)
+    c.drawCentredString(width/2, 70, "Este certificado ha sido generado digitalmente por la plataforma ADAT")
+    c.drawCentredString(width/2, 55, f"ID de verificación: ADAT-{usuario.id:05d}-{datetime.now().strftime('%Y%m%d')}")
+    
+    # Guardar PDF
+    c.save()
+    
+    # Preparar descarga
+    buffer.seek(0)
+    nombre_archivo = f"certificado_{usuario.username}_{datetime.now().strftime('%Y%m%d')}.pdf"
+    
+    return send_file(
+        buffer,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=nombre_archivo
+    )
 
 
 # ==================== GESTIÓN DE CONTENIDO DE TESTS ====================

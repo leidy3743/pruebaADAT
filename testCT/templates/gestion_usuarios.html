@@ -151,6 +151,9 @@
                         <li><button class="dropdown-item text-danger" type="button" onclick="reiniciarTest({{ usuario.id }}, 'all', '{{ usuario.username }}')">Reiniciar TODOS</button></li>
                       </ul>
                     </div>
+                    <a href="{{ url_for('generar_certificado', user_id=usuario.id) }}" class="btn btn-link text-success text-gradient px-2 mb-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Generar certificado">
+                      <i class="fas fa-certificate text-success" aria-hidden="true"></i>
+                    </a>
                     {% if usuario.id != current_user.id %}
                     <button type="button" class="btn btn-link text-danger text-gradient px-2 mb-0" onclick="confirmarEliminacion({{ usuario.id }}, '{{ usuario.username }}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar usuario">
                       <i class="fas fa-trash text-danger" aria-hidden="true"></i>
