@@ -18,6 +18,7 @@ class RegistrationForm(FlaskForm):
     nombres = StringField('Nombre', validators=[DataRequired(), Length(min=2, max=50)])
     correo = StringField('Correo', validators=[DataRequired(), Email()])
     edad = SelectField('Edad', choices=[(str(i), str(i)) for i in range(18, 101)], validators=[DataRequired()])
+    cedula = StringField('Número de Cédula', validators=[Optional(), Length(max=20)])
     colegio = SelectField('Grupo', coerce=int, validators=[DataRequired()])
     institucion = StringField('Institución', validators=[Optional(), Length(max=120)])
     rol = SelectField('Tipo', choices=[('estudiante', 'Estudiante'), ('docente', 'Docente'), ('coordinador', 'Coordinador')], validators=[DataRequired()])

@@ -443,8 +443,11 @@ def profile():
 
     if request.method == 'POST':
         try:
-            # Solo actualizar nombre
+            # Actualizar nombre y cédula
             current_user.nombres = request.form.get('nombres')
+            cedula = request.form.get('cedula')
+            if cedula:
+                current_user.cedula = cedula
             
             # Cambiar contraseña si se proporcionó
             new_password = request.form.get('new_password')
@@ -502,6 +505,7 @@ def register():
                     nombres=form.nombres.data,
                     correo=form.correo.data,
                     edad=form.edad.data,
+                    cedula=form.cedula.data if form.cedula.data else None,
                     colegio_id=int(form.colegio.data),
                     institucion=form.institucion.data,
                     anios_experiencia=form.anios_experiencia.data,
@@ -583,6 +587,11 @@ def login():
                 # Limpiar mensajes flash anteriores y agregar solo el de bienvenida
                 session.pop('_flashes', None)
                 flash(f'¡Bienvenido/a {user.nombres}!', 'success')
+                
+                # Verificar si el usuario no tiene cédula registrada
+                if not user.cedula:
+                    session['show_cedula_modal'] = True
+                
                 return redirect(url_for('dashboard'))  # Redirige a la página principal después de iniciar sesión
             else:
                 print("Contraseña incorrecta")
@@ -592,6 +601,24 @@ def login():
             print(f"Usuario '{username}' no encontrado en la base de datos")
             flash('Usuario o contraseña incorrectos', 'danger')
     return render_template('login.html', form=form)
+
+
+@app.route('/actualizar_cedula', methods=['POST'])
+@login_required
+def actualizar_cedula():
+    """Actualizar cédula del usuario desde el modal"""
+    cedula = request.form.get('cedula')
+    if cedula:
+        try:
+            current_user.cedula = cedula
+            db.session.commit()
+            # Limpiar la flag del modal
+            session.pop('show_cedula_modal', None)
+            flash('Cédula actualizada exitosamente', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar cédula: {str(e)}', 'danger')
+    return redirect(url_for('dashboard'))
 
 
 @app.route('/logout')
@@ -1975,6 +2002,28 @@ except Exception as e:
     except Exception:
         pass
     print(f'⚠️  Error en ajuste automático de statement: {e}')
+
+# ====== AGREGAR COLUMNA CEDULA SI NO EXISTE ======
+try:
+    with app.app_context():
+        insp = inspect(db.engine)
+        if 'user' in insp.get_table_names():
+            cols = insp.get_columns('user')
+            col_names = [c.get('name') for c in cols]
+            if 'cedula' not in col_names:
+                try:
+                    db.session.execute(text('ALTER TABLE "user" ADD COLUMN cedula VARCHAR(20)'))
+                    db.session.commit()
+                    print('✅ Columna cedula agregada a la tabla user')
+                except Exception as e2:
+                    db.session.rollback()
+                    print(f'⚠️  No se pudo agregar columna cedula: {e2}')
+except Exception as e:
+    try:
+        db.session.rollback()
+    except Exception:
+        pass
+    print(f'⚠️  Error al verificar/agregar columna cedula: {e}')
 
 
 @app.route('/admin/configuracion', methods=['GET', 'POST'])

@@ -52,11 +52,17 @@
                     <label class="form-label">Usuario</label>
                     <input type="text" class="form-control" name="username" value="{{ current_user.username }}" readonly>
                   </div>
-                </div>
+              <div class="row">
                 <div class="col-md-6">
                   <div class="input-group input-group-outline mb-3 is-filled">
                     <label class="form-label">Edad</label>
                     <input type="number" class="form-control" name="edad" value="{{ current_user.edad }}" readonly>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="input-group input-group-outline mb-3 {% if current_user.cedula %}is-filled{% endif %}">
+                    <label class="form-label">Número de Cédula</label>
+                    <input type="text" class="form-control" name="cedula" value="{{ current_user.cedula or '' }}" placeholder="Ingrese su cédula">
                   </div>
                 </div>
               </div>

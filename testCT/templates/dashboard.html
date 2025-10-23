@@ -370,8 +370,48 @@
       </div>
     </div>
 
+    <!-- Modal para actualizar cédula -->
+    {% if session.get('show_cedula_modal') %}
+    <div class="modal fade" id="cedulaModal" tabindex="-1" aria-labelledby="cedulaModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-gradient-primary">
+            <h5 class="modal-title text-white" id="cedulaModalLabel">
+              <i class="material-icons align-middle">assignment_ind</i> Actualiza tu Cédula
+            </h5>
+          </div>
+          <form method="POST" action="{{ url_for('actualizar_cedula') }}">
+            <div class="modal-body">
+              <p class="text-sm mb-3">
+                Para completar tu perfil, por favor ingresa tu número de cédula.
+              </p>
+              <div class="input-group input-group-outline">
+                <label class="form-label">Número de Cédula</label>
+                <input type="text" class="form-control" name="cedula" required placeholder="Ej: 8-123-4567">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">
+                <i class="material-icons text-sm">save</i>&nbsp;Guardar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+  {% if session.get('show_cedula_modal') %}
+  <script>
+    // Mostrar modal automáticamente al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+      var cedulaModal = new bootstrap.Modal(document.getElementById('cedulaModal'));
+      cedulaModal.show();
+    });
+  </script>
+  {% endif %}
 {% endblock javascripts %}
