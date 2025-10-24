@@ -698,11 +698,17 @@ def editar_usuario(user_id):
             usuario.nombres = request.form.get('nombres')
             usuario.correo = request.form.get('correo')
             usuario.edad = int(request.form.get('edad'))
+            usuario.cedula = request.form.get('cedula') if request.form.get('cedula') else None
             usuario.username = request.form.get('username')
             usuario.nivel_educativo = request.form.get('nivel_educativo')
             usuario.anios_experiencia = int(request.form.get('anios_experiencia'))
             usuario.rol = request.form.get('rol')
             usuario.institucion = request.form.get('institucion')
+            
+            # Actualizar colegio si se proporciona
+            colegio_id = request.form.get('colegio_id')
+            if colegio_id:
+                usuario.colegio_id = int(colegio_id) if colegio_id != '' else None
             
             # Cambiar contraseña solo si se proporciona
             new_password = request.form.get('password')
@@ -716,7 +722,9 @@ def editar_usuario(user_id):
             db.session.rollback()
             flash(f'Error al actualizar usuario: {str(e)}', 'danger')
     
-    return render_template('editar_usuario.html', usuario=usuario)
+    # Obtener colegios para el dropdown
+    colegios = Colegio.query.order_by(Colegio.nombre).all()
+    return render_template('editar_usuario.html', usuario=usuario, colegios=colegios)
 
 
 @app.route('/gestion_usuarios/eliminar/<int:user_id>', methods=['POST'])

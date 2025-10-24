@@ -65,9 +65,30 @@
                 </div>
               </div>
               <div class="col-md-6">
+                <div class="input-group input-group-outline my-3 {% if usuario.cedula %}is-filled{% endif %}">
+                  <label class="form-label">Número de Cédula</label>
+                  <input type="text" name="cedula" class="form-control" value="{{ usuario.cedula if usuario.cedula else '' }}" maxlength="20">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
                 <div class="input-group input-group-outline my-3 is-filled">
                   <label class="form-label">Institución</label>
                   <input type="text" name="institucion" class="form-control" value="{{ usuario.institucion }}" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="input-group input-group-outline my-3 is-filled">
+                  <select name="colegio_id" class="form-control">
+                    <option value="">Seleccionar Colegio (opcional)</option>
+                    {% for colegio in colegios %}
+                      <option value="{{ colegio.id }}" {% if usuario.colegio_id == colegio.id %}selected{% endif %}>
+                        {{ colegio.nombre }}
+                      </option>
+                    {% endfor %}
+                  </select>
                 </div>
               </div>
             </div>
