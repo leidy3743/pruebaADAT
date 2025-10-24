@@ -10,6 +10,7 @@ from forms import RegistrationForm, QuizForm, LoginForm, QuizFormDos, QuizFormTr
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from models import Curso, Colegio, User, Question, QuestionDos, QuestionTres, ResultadoQuiz, ResultadoQuizDos, ResultadoQuizTres  # Asegúrate de que tienes tus modelos configurados
+from cache_utils import get_cached_colegios, get_cached_cursos, get_cached_niveles, get_cached_grados
 from datetime import datetime
 from rich import print
 from sqlalchemy.exc import IntegrityError
@@ -487,10 +488,12 @@ def register():
     print("Método de la solicitud:", request.method)
     form = RegistrationForm()
 
-    form.colegio.choices = [(c.id, c.nombre) for c in Colegio.query.all()]
-    form.cursos.query_factory = lambda: Curso.query.all()
-    form.nivel_grados.query_factory = lambda: Nivel.query.all()
-    form.grados.query_factory = lambda: Grado.query.all()
+    # Usar catálogos cacheados (30 min) para reducir queries a DB
+    # Ya vienen ordenados alfabéticamente
+    form.colegio.choices = [(c.id, c.nombre) for c in get_cached_colegios()]
+    form.cursos.query_factory = lambda: get_cached_cursos()
+    form.nivel_grados.query_factory = lambda: get_cached_niveles()
+    form.grados.query_factory = lambda: get_cached_grados()
 
 
     if request.method == "POST":
@@ -651,12 +654,21 @@ def gestion_usuarios():
         flash('No tienes permisos para acceder a esta página', 'danger')
         return redirect(url_for('dashboard'))
     
+    # Paginación para mejorar rendimiento
+    page = request.args.get('page', 1, type=int)
+    per_page = 20  # Mostrar 20 usuarios por página
+    
     # Eager loading para evitar N+1 queries
     from sqlalchemy.orm import joinedload
-    usuarios = User.query.options(
+    pagination = User.query.options(
         joinedload(User.colegio)
-    ).all()
-    return render_template('gestion_usuarios.html', usuarios=usuarios)
+    ).order_by(User.id.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    
+    return render_template('gestion_usuarios.html', 
+                         usuarios=pagination.items,
+                         pagination=pagination)
 
 
 @app.route('/gestion_usuarios/crear', methods=['GET', 'POST'])
@@ -730,8 +742,8 @@ def editar_usuario(user_id):
             db.session.rollback()
             flash(f'Error al actualizar usuario: {str(e)}', 'danger')
     
-    # Obtener colegios para el dropdown
-    colegios = Colegio.query.order_by(Colegio.nombre).all()
+    # Obtener colegios desde caché (ordenados alfabéticamente)
+    colegios = get_cached_colegios()
     return render_template('editar_usuario.html', usuario=usuario, colegios=colegios)
 
 

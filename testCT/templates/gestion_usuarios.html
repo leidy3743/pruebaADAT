@@ -165,9 +165,65 @@
               </tbody>
             </table>
           </div>
-          <div class="px-3 mt-3">
-            <p class="text-sm mb-0">Total de usuarios: <strong>{{ usuarios|length }}</strong></p>
+          
+          <!-- Paginación -->
+          {% if pagination.pages > 1 %}
+          <div class="px-3 mt-3 d-flex justify-content-between align-items-center">
+            <div>
+              <p class="text-sm mb-0">
+                Mostrando {{ pagination.per_page * (pagination.page - 1) + 1 }} - 
+                {{ [pagination.per_page * pagination.page, pagination.total]|min }} 
+                de <strong>{{ pagination.total }}</strong> usuarios
+              </p>
+            </div>
+            <nav aria-label="Paginación de usuarios">
+              <ul class="pagination pagination-sm mb-0">
+                <!-- Botón anterior -->
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                  {% if pagination.has_prev %}
+                  <a class="page-link" href="{{ url_for('gestion_usuarios', page=pagination.prev_num) }}" aria-label="Anterior">
+                    <span aria-hidden="true">&laquo;</span>
+                  </a>
+                  {% else %}
+                  <span class="page-link" aria-label="Anterior">
+                    <span aria-hidden="true">&laquo;</span>
+                  </span>
+                  {% endif %}
+                </li>
+                
+                <!-- Números de página -->
+                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                  {% if page_num %}
+                    <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                      <a class="page-link" href="{{ url_for('gestion_usuarios', page=page_num) }}">{{ page_num }}</a>
+                    </li>
+                  {% else %}
+                    <li class="page-item disabled">
+                      <span class="page-link">...</span>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+                
+                <!-- Botón siguiente -->
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                  {% if pagination.has_next %}
+                  <a class="page-link" href="{{ url_for('gestion_usuarios', page=pagination.next_num) }}" aria-label="Siguiente">
+                    <span aria-hidden="true">&raquo;</span>
+                  </a>
+                  {% else %}
+                  <span class="page-link" aria-label="Siguiente">
+                    <span aria-hidden="true">&raquo;</span>
+                  </span>
+                  {% endif %}
+                </li>
+              </ul>
+            </nav>
           </div>
+          {% else %}
+          <div class="px-3 mt-3">
+            <p class="text-sm mb-0">Total de usuarios: <strong>{{ pagination.total }}</strong></p>
+          </div>
+          {% endif %}
         </div>
       </div>
     </div>
