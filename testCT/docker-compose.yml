@@ -21,7 +21,7 @@ services:
     build: .
     container_name: adat_app
     ports:
-      - "80:5002"
+      - "5052:5002"
     env_file:
       - .env
     environment:
