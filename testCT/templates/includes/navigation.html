@@ -4,9 +4,9 @@
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5 d-none d-md-flex">
             <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Bienvenid@</a></li>
-            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Akila</li>
+            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">{{ (current_user.nombres or current_user.username) if current_user.is_authenticated else 'Akila' }}</li>
           </ol>
-          <h6 class="font-weight-bolder mb-0">Akila</h6>
+          <h6 class="font-weight-bolder mb-0">{{ (current_user.nombres or current_user.username) if current_user.is_authenticated else 'Akila' }}</h6>
         </nav>
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
           <div class="ms-md-auto pe-md-3 d-flex align-items-center d-none d-md-flex">
