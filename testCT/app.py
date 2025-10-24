@@ -1378,107 +1378,109 @@ def estadisticas():
     
     from sqlalchemy import func
     from datetime import datetime, timedelta
+    from cache_utils import cache_get_or_set
     
-    # === ESTADÍSTICAS GENERALES ===
-    total_usuarios = User.query.count()
+    # Cachear todas las métricas 5 minutos para aliviar carga de agregaciones
+    def _compute_stats():
+        # === ESTADÍSTICAS GENERALES ===
+        total_usuarios = User.query.count()
+
+        # Completitud por test
+        quiz1_completados = ResultadoQuiz.query.count()
+        quiz2_completados = ResultadoQuizDos.query.count()
+        quiz3_completados = ResultadoQuizTres.query.count()
+        quiz4_completados = ResultadoQuizCuatro.query.count()
+
+        total_tests_completados = quiz1_completados + quiz2_completados + quiz3_completados + quiz4_completados
+
+        # Porcentajes de completitud
+        quiz1_porcentaje = round((quiz1_completados / total_usuarios * 100) if total_usuarios > 0 else 0, 1)
+        quiz2_porcentaje = round((quiz2_completados / total_usuarios * 100) if total_usuarios > 0 else 0, 1)
+        quiz3_porcentaje = round((quiz3_completados / total_usuarios * 100) if total_usuarios > 0 else 0, 1)
+        quiz4_porcentaje = round((quiz4_completados / total_usuarios * 100) if total_usuarios > 0 else 0, 1)
+
+        # === ESTADÍSTICAS QUIZ 4 (Pensamiento Computacional) ===
+        quiz4_promedio = db.session.query(func.avg(ResultadoQuizCuatro.score)).scalar() or 0
+        quiz4_promedio = round(quiz4_promedio, 1)
+
+        quiz4_max = db.session.query(func.max(ResultadoQuizCuatro.score)).scalar() or 0
+        quiz4_min = db.session.query(func.min(ResultadoQuizCuatro.score)).scalar() or 0
+
+        # Top 5 usuarios en Quiz 4
+        top_quiz4 = db.session.query(
+            User.nombres, 
+            ResultadoQuizCuatro.score,
+            ResultadoQuizCuatro.correct_count
+        ).join(ResultadoQuizCuatro).order_by(ResultadoQuizCuatro.score.desc()).limit(5).all()
+
+        # === ESTADÍSTICAS POR INSTITUCIÓN ===
+        stats_institucion = db.session.query(
+            User.institucion,
+            func.count(User.id).label('total_usuarios')
+        ).group_by(User.institucion).order_by(func.count(User.id).desc()).all()
+
+        # === ESTADÍSTICAS POR NIVEL EDUCATIVO ===
+        stats_nivel = db.session.query(
+            User.nivel_educativo,
+            func.count(User.id).label('total')
+        ).group_by(User.nivel_educativo).order_by(func.count(User.id).desc()).all()
+
+        # === ESTADÍSTICAS POR ROL ===
+        stats_rol = db.session.query(
+            User.rol,
+            func.count(User.id).label('total')
+        ).group_by(User.rol).all()
+
+        # === DISTRIBUCIÓN DE EDADES ===
+        edad_promedio = db.session.query(func.avg(User.edad)).scalar() or 0
+        edad_promedio = round(edad_promedio, 1)
+
+        # Rangos de edad
+        rango_18_25 = User.query.filter(User.edad >= 18, User.edad <= 25).count()
+        rango_26_35 = User.query.filter(User.edad >= 26, User.edad <= 35).count()
+        rango_36_45 = User.query.filter(User.edad >= 36, User.edad <= 45).count()
+        rango_46_mas = User.query.filter(User.edad >= 46).count()
+
+        # === USUARIOS RECIENTES ===
+        usuarios_recientes = User.query.order_by(User.id.desc()).limit(10).all()
+
+        # === RESULTADOS RECIENTES ===
+        resultados_recientes_quiz4 = db.session.query(
+            User.nombres,
+            ResultadoQuizCuatro.score,
+            ResultadoQuizCuatro.id
+        ).join(ResultadoQuizCuatro).order_by(ResultadoQuizCuatro.id.desc()).limit(5).all()
+
+        return {
+            'total_usuarios': total_usuarios,
+            'quiz1_completados': quiz1_completados,
+            'quiz2_completados': quiz2_completados,
+            'quiz3_completados': quiz3_completados,
+            'quiz4_completados': quiz4_completados,
+            'total_tests_completados': total_tests_completados,
+            'quiz1_porcentaje': quiz1_porcentaje,
+            'quiz2_porcentaje': quiz2_porcentaje,
+            'quiz3_porcentaje': quiz3_porcentaje,
+            'quiz4_porcentaje': quiz4_porcentaje,
+            'quiz4_promedio': quiz4_promedio,
+            'quiz4_max': quiz4_max,
+            'quiz4_min': quiz4_min,
+            'top_quiz4': top_quiz4,
+            'stats_institucion': stats_institucion,
+            'stats_nivel': stats_nivel,
+            'stats_rol': stats_rol,
+            'edad_promedio': edad_promedio,
+            'rango_18_25': rango_18_25,
+            'rango_26_35': rango_26_35,
+            'rango_36_45': rango_36_45,
+            'rango_46_mas': rango_46_mas,
+            'usuarios_recientes': usuarios_recientes,
+            'resultados_recientes_quiz4': resultados_recientes_quiz4,
+        }
+
+    stats = cache_get_or_set('admin_estadisticas', _compute_stats, ttl=300)
     
-    # Completitud por test
-    quiz1_completados = ResultadoQuiz.query.count()
-    quiz2_completados = ResultadoQuizDos.query.count()
-    quiz3_completados = ResultadoQuizTres.query.count()
-    quiz4_completados = ResultadoQuizCuatro.query.count()
-    
-    total_tests_completados = quiz1_completados + quiz2_completados + quiz3_completados + quiz4_completados
-    
-    # Porcentajes de completitud
-    quiz1_porcentaje = round((quiz1_completados / total_usuarios * 100) if total_usuarios > 0 else 0, 1)
-    quiz2_porcentaje = round((quiz2_completados / total_usuarios * 100) if total_usuarios > 0 else 0, 1)
-    quiz3_porcentaje = round((quiz3_completados / total_usuarios * 100) if total_usuarios > 0 else 0, 1)
-    quiz4_porcentaje = round((quiz4_completados / total_usuarios * 100) if total_usuarios > 0 else 0, 1)
-    
-    # === ESTADÍSTICAS QUIZ 4 (Pensamiento Computacional) ===
-    quiz4_promedio = db.session.query(func.avg(ResultadoQuizCuatro.score)).scalar() or 0
-    quiz4_promedio = round(quiz4_promedio, 1)
-    
-    quiz4_max = db.session.query(func.max(ResultadoQuizCuatro.score)).scalar() or 0
-    quiz4_min = db.session.query(func.min(ResultadoQuizCuatro.score)).scalar() or 0
-    
-    # Top 5 usuarios en Quiz 4
-    top_quiz4 = db.session.query(
-        User.nombres, 
-        ResultadoQuizCuatro.score,
-        ResultadoQuizCuatro.correct_count
-    ).join(ResultadoQuizCuatro).order_by(ResultadoQuizCuatro.score.desc()).limit(5).all()
-    
-    # === ESTADÍSTICAS POR INSTITUCIÓN ===
-    stats_institucion = db.session.query(
-        User.institucion,
-        func.count(User.id).label('total_usuarios')
-    ).group_by(User.institucion).order_by(func.count(User.id).desc()).all()
-    
-    # === ESTADÍSTICAS POR NIVEL EDUCATIVO ===
-    stats_nivel = db.session.query(
-        User.nivel_educativo,
-        func.count(User.id).label('total')
-    ).group_by(User.nivel_educativo).order_by(func.count(User.id).desc()).all()
-    
-    # === ESTADÍSTICAS POR ROL ===
-    stats_rol = db.session.query(
-        User.rol,
-        func.count(User.id).label('total')
-    ).group_by(User.rol).all()
-    
-    # === DISTRIBUCIÓN DE EDADES ===
-    edad_promedio = db.session.query(func.avg(User.edad)).scalar() or 0
-    edad_promedio = round(edad_promedio, 1)
-    
-    # Rangos de edad
-    rango_18_25 = User.query.filter(User.edad >= 18, User.edad <= 25).count()
-    rango_26_35 = User.query.filter(User.edad >= 26, User.edad <= 35).count()
-    rango_36_45 = User.query.filter(User.edad >= 36, User.edad <= 45).count()
-    rango_46_mas = User.query.filter(User.edad >= 46).count()
-    
-    # === USUARIOS RECIENTES ===
-    # Aproximación: últimos 10 usuarios por ID
-    usuarios_recientes = User.query.order_by(User.id.desc()).limit(10).all()
-    
-    # === RESULTADOS RECIENTES ===
-    resultados_recientes_quiz4 = db.session.query(
-        User.nombres,
-        ResultadoQuizCuatro.score,
-        ResultadoQuizCuatro.id
-    ).join(ResultadoQuizCuatro).order_by(ResultadoQuizCuatro.id.desc()).limit(5).all()
-    
-    return render_template('admin_estadisticas.html',
-                         # Generales
-                         total_usuarios=total_usuarios,
-                         total_tests_completados=total_tests_completados,
-                         # Completitud
-                         quiz1_completados=quiz1_completados,
-                         quiz2_completados=quiz2_completados,
-                         quiz3_completados=quiz3_completados,
-                         quiz4_completados=quiz4_completados,
-                         quiz1_porcentaje=quiz1_porcentaje,
-                         quiz2_porcentaje=quiz2_porcentaje,
-                         quiz3_porcentaje=quiz3_porcentaje,
-                         quiz4_porcentaje=quiz4_porcentaje,
-                         # Quiz 4 detalle
-                         quiz4_promedio=quiz4_promedio,
-                         quiz4_max=quiz4_max,
-                         quiz4_min=quiz4_min,
-                         top_quiz4=top_quiz4,
-                         # Demografía
-                         stats_institucion=stats_institucion,
-                         stats_nivel=stats_nivel,
-                         stats_rol=stats_rol,
-                         edad_promedio=edad_promedio,
-                         rango_18_25=rango_18_25,
-                         rango_26_35=rango_26_35,
-                         rango_36_45=rango_36_45,
-                         rango_46_mas=rango_46_mas,
-                         # Recientes
-                         usuarios_recientes=usuarios_recientes,
-                         resultados_recientes_quiz4=resultados_recientes_quiz4)
+    return render_template('admin_estadisticas.html', **stats)
 
 
 # ==================== EXPORTACIÓN DE DATOS ====================

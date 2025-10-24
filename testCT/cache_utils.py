@@ -11,24 +11,35 @@ from datetime import datetime, timedelta
 CACHE_TIMEOUT = 1800
 
 class SimpleCache:
-    """Cache simple basado en diccionario con timestamps"""
+    """Cache simple basado en diccionario con timestamps y TTL por clave"""
     def __init__(self):
         self._cache = {}
     
     def get(self, key):
         """Obtiene un valor del caché si no ha expirado"""
         if key in self._cache:
-            value, timestamp = self._cache[key]
-            if datetime.now() - timestamp < timedelta(seconds=CACHE_TIMEOUT):
+            entry = self._cache[key]
+            # Compatibilidad hacia atrás: (value, ts) o nuevo formato (value, ts, ttl)
+            if len(entry) == 2:
+                value, timestamp = entry
+                ttl = CACHE_TIMEOUT
+            else:
+                value, timestamp, ttl = entry
+            if datetime.now() - timestamp < timedelta(seconds=ttl):
                 return value
             else:
                 # Caché expirado, eliminar
                 del self._cache[key]
         return None
     
-    def set(self, key, value):
-        """Guarda un valor en el caché con timestamp"""
-        self._cache[key] = (value, datetime.now())
+    def set(self, key, value, ttl: int | None = None):
+        """Guarda un valor en el caché con timestamp y un TTL opcional (segundos)"""
+        ttl_val = ttl if ttl is not None else CACHE_TIMEOUT
+        self._cache[key] = (value, datetime.now(), ttl_val)
+    
+    def delete(self, key):
+        if key in self._cache:
+            del self._cache[key]
     
     def clear(self):
         """Limpia todo el caché"""
@@ -89,6 +100,19 @@ def get_cached_grados():
 def clear_catalogs_cache():
     """Limpia el caché de catálogos (llamar al crear/editar/eliminar)"""
     app_cache.clear()
+
+def cache_get_or_set(key: str, loader, ttl: int | None = None):
+    """Obtiene un valor del caché o lo calcula con `loader` y lo guarda.
+    - key: clave única del caché
+    - loader: función sin argumentos que retorna el valor a cachear
+    - ttl: tiempo de vida en segundos (si None toma CACHE_TIMEOUT)
+    """
+    val = app_cache.get(key)
+    if val is not None:
+        return val
+    data = loader()
+    app_cache.set(key, data, ttl=ttl)
+    return data
 
 # Ejemplo de uso en app.py:
 # 
