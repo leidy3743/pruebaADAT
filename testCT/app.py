@@ -42,11 +42,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'mi_secreto'
 # Ajustes de pool de conexiones para producción (deben definirse ANTES de crear 'db')
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_size': int(os.getenv('DB_POOL_SIZE', '5')),
-    'max_overflow': int(os.getenv('DB_MAX_OVERFLOW', '10')),
+    'pool_size': int(os.getenv('DB_POOL_SIZE', '20')),  # Aumentado de 5 a 20
+    'max_overflow': int(os.getenv('DB_MAX_OVERFLOW', '30')),  # Aumentado de 10 a 30
     'pool_pre_ping': True,
     'pool_recycle': int(os.getenv('DB_POOL_RECYCLE', '1800'))
 }
+# Compresión y optimizaciones
+app.config['COMPRESS_MIMETYPES'] = ['text/html', 'text/css', 'text/xml', 'application/json', 'application/javascript']
+app.config['COMPRESS_LEVEL'] = 6
+app.config['COMPRESS_MIN_SIZE'] = 500
 app.jinja_env.filters['zip'] = zip
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -647,7 +651,11 @@ def gestion_usuarios():
         flash('No tienes permisos para acceder a esta página', 'danger')
         return redirect(url_for('dashboard'))
     
-    usuarios = User.query.all()
+    # Eager loading para evitar N+1 queries
+    from sqlalchemy.orm import joinedload
+    usuarios = User.query.options(
+        joinedload(User.colegio)
+    ).all()
     return render_template('gestion_usuarios.html', usuarios=usuarios)
 
 
