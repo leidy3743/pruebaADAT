@@ -15,3 +15,16 @@ Flask-Minify==0.37
 
 # flask_mysqldb
 # psycopg2-binary
+
+# ==== Added for new features used in app.py ====
+# Console formatting/logs
+rich>=13.0
+# OpenAI API client
+openai>=1.0
+# Reports/exports
+reportlab>=4.0
+openpyxl>=3.1
+# PostgreSQL driver (psycopg v3)
+psycopg[binary]>=3.1
+# Optional HTTP compression (enable once venv is healthy)
+# Flask-Compress>=1.14
