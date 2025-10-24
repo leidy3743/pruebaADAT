@@ -32,7 +32,7 @@ class SimpleCache:
                 del self._cache[key]
         return None
     
-    def set(self, key, value, ttl: int | None = None):
+    def set(self, key, value, ttl=None):
         """Guarda un valor en el caché con timestamp y un TTL opcional (segundos)"""
         ttl_val = ttl if ttl is not None else CACHE_TIMEOUT
         self._cache[key] = (value, datetime.now(), ttl_val)
@@ -101,7 +101,7 @@ def clear_catalogs_cache():
     """Limpia el caché de catálogos (llamar al crear/editar/eliminar)"""
     app_cache.clear()
 
-def cache_get_or_set(key: str, loader, ttl: int | None = None):
+def cache_get_or_set(key, loader, ttl=None):
     """Obtiene un valor del caché o lo calcula con `loader` y lo guarda.
     - key: clave única del caché
     - loader: función sin argumentos que retorna el valor a cachear
