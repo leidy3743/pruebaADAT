@@ -1,314 +1,48 @@
+
 import json
 import os
 import openai
 import traceback
 from flask import Flask, render_template, redirect, url_for, flash, request, jsonify, session, send_file
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
-from forms import RegistrationForm, QuizForm, LoginForm, QuizFormDos, QuizFormTres, CursoGradoForm, QuizFormCuatro
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from models import Curso, Colegio, User, Question, QuestionDos, QuestionTres, ResultadoQuiz, ResultadoQuizDos, ResultadoQuizTres  # Asegúrate de que tienes tus modelos configurados
-from cache_utils import get_cached_colegios, get_cached_cursos, get_cached_niveles, get_cached_grados
-from datetime import datetime
-from rich import print
-from sqlalchemy.exc import IntegrityError
-import os
-import openai
-from dotenv import load_dotenv
-from sqlalchemy import inspect, text
-import re
-import io
-import zipfile
-from reportlab.lib.pagesizes import A4, landscape
-from reportlab.lib.units import inch, cm
-from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as RLImage
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
-from reportlab.pdfgen import canvas
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 
-# Cargar variables de entorno desde .env
-load_dotenv()
+from werkzeug.security import generate_password_hash, check_password_hash
+# Utilidades y librerías estándar/faltantes
+import io
+from datetime import datetime
+import zipfile
+from sqlalchemy import text, inspect
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import landscape, A4
+import markdown
+from reportlab.lib import colors
+
+# Inicialización de la app Flask y LoginManager
 
 app = Flask(__name__)
-# Sugerencia: usar el driver de psycopg v3 para evitar problemas de arquitectura en macOS ARM
-# Permite sobreescribir la BD por variable de entorno en pruebas: export DATABASE_URL=sqlite:///instance/dev.db
-# Usa DATABASE_URL desde el entorno; por defecto, SQLite local para desarrollo (sin credenciales)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///instance/dev.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'mi_secreto'
-# Ajustes de pool de conexiones para producción (deben definirse ANTES de crear 'db')
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_size': int(os.getenv('DB_POOL_SIZE', '20')),  # Aumentado de 5 a 20
-    'max_overflow': int(os.getenv('DB_MAX_OVERFLOW', '30')),  # Aumentado de 10 a 30
-    'pool_pre_ping': True,
-    'pool_recycle': int(os.getenv('DB_POOL_RECYCLE', '1800'))
-}
-# Compresión y optimizaciones
-app.config['COMPRESS_MIMETYPES'] = ['text/html', 'text/css', 'text/xml', 'application/json', 'application/javascript']
-app.config['COMPRESS_LEVEL'] = 6
-app.config['COMPRESS_MIN_SIZE'] = 500
-app.jinja_env.filters['zip'] = zip
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+if os.path.exists('config.py'):
+    app.config.from_object('config.Config')
+else:
+    app.config['SECRET_KEY'] = 'dev-secret-key'
 
-# Carpeta para imágenes subidas
-app.config.setdefault('UPLOAD_FOLDER', os.path.join('static', 'uploads', 'quiz4'))
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+# Registrar la extensión de SQLAlchemy
+from models import db
+db.init_app(app)
 
-# Configuración de API key de OpenAI desde entorno
-openai.api_key = os.getenv('OPENAI_API_KEY')
-
-login_manager = LoginManager()
-login_manager.init_app(app)
+login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# ===== Helpers de plantillas =====
-def _normalize_image_url(url: str) -> str:
-    """Convierte URLs de Google Drive compartidas a una URL directa utilizable en <img>.
+# Importar modelos y utilidades desde models.py
+from models import db, User, QuestionCuatro, ResultadoQuizCuatro, Curso, Nivel, Grado, Answer, QuestionTres, usuarios_cursos, nivel_por_grados, grados_dictados, Question, QuestionDos, ResultadoQuiz, ResultadoQuizDos, ResultadoQuizTres
 
-    Soporta formatos de Drive:
-    - https://drive.google.com/file/d/<FILE_ID>/view?...
-    - https://drive.google.com/open?id=<FILE_ID>
-    - https://drive.google.com/uc?id=<FILE_ID>
-    - https://drive.google.com/thumbnail?id=<FILE_ID>
-
-    Devuelve: https://drive.google.com/uc?export=view&id=<FILE_ID>
-    Si no es Drive, retorna la URL original.
-    """
-    if not url:
-        return url
-    try:
-        u = url.strip()
-        if 'drive.google.com' in u:
-            # /file/d/<ID>/ ...
-            m = re.search(r"/file/d/([^/]+)", u)
-            if m:
-                file_id = m.group(1)
-                return f"https://drive.google.com/uc?export=view&id={file_id}"
-            # ...?id=<ID>
-            m2 = re.search(r"[?&]id=([^&]+)", u)
-            if m2:
-                file_id = m2.group(1)
-                return f"https://drive.google.com/uc?export=view&id={file_id}"
-            # uc?id=<ID>
-            m3 = re.search(r"/uc\?[^#]*id=([^&]+)", u)
-            if m3:
-                file_id = m3.group(1)
-                return f"https://drive.google.com/uc?export=view&id={file_id}"
-            # thumbnail?id=<ID>
-            m4 = re.search(r"/thumbnail\?[^#]*id=([^&]+)", u)
-            if m4:
-                file_id = m4.group(1)
-                return f"https://drive.google.com/uc?export=view&id={file_id}"
-        return u
-    except Exception:
-        return url
-
-# Registrar filtro para usar en Jinja: {{ url|image_url }}
-app.jinja_env.filters['image_url'] = _normalize_image_url
-
-def _drive_thumbnail_url(url: str) -> str:
-    """Devuelve una URL de miniatura de Google Drive (thumbnail) si es un enlace de Drive.
-
-    Formato de salida: https://drive.google.com/thumbnail?id=<FILE_ID>&sz=w1000
-    Si no es Drive o no se detecta ID, retorna la URL original.
-    """
-    if not url:
-        return url
-    try:
-        u = url.strip()
-        if 'drive.google.com' in u:
-            m = re.search(r"/file/d/([^/]+)", u)
-            if not m:
-                m = re.search(r"[?&]id=([^&]+)", u)
-            if not m:
-                m = re.search(r"/uc\?[^#]*id=([^&]+)", u)
-            if not m:
-                m = re.search(r"/thumbnail\?[^#]*id=([^&]+)", u)
-            if m:
-                file_id = m.group(1)
-                return f"https://drive.google.com/thumbnail?id={file_id}&sz=w1000"
-        return u
-    except Exception:
-        return url
-
-# Registrar filtro para thumbnail
-app.jinja_env.filters['drive_thumb'] = _drive_thumbnail_url
-
-def _save_uploaded_image(file_storage):
-    """Guarda una imagen subida a static/uploads/quiz4 y devuelve la ruta relativa para usar en src.
-    Devuelve None si no hay archivo o nombre vacío.
-    """
-    if not file_storage or not getattr(file_storage, 'filename', ''):
-        return None
-    filename = secure_filename(file_storage.filename)
-    if not filename:
-        return None
-    # prefijo simple para unicidad
-    base, ext = os.path.splitext(filename)
-    unique = f"{base}_{int(datetime.now().timestamp())}{ext}"
-    dest = os.path.join(app.config['UPLOAD_FOLDER'], unique)
-    # Asegurar carpeta
-    os.makedirs(os.path.dirname(dest), exist_ok=True)
-    file_storage.save(dest)
-    # Devolver ruta relativa estática
-    return '/' + dest.replace('\\', '/')
-
-usuarios_cursos = db.Table('usuarios_cursos',
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-    db.Column('curso_id', db.Integer, db.ForeignKey('curso.id'), primary_key=True)
-)
-
-nivel_por_grados = db.Table('nivel_por_grados',
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-    db.Column('nivel_id', db.Integer, db.ForeignKey('nivel.id'), primary_key=True)
-)
-
-grados_dictados = db.Table('grados_dictados',
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-    db.Column('grado_id', db.Integer, db.ForeignKey('grado.id'), primary_key=True)
-)
-
-"""usuarios_cursos_grados = db.Table('usuarios_cursos_grados',
-    db.Column('usuario_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-    db.Column('curso_id', db.Integer, db.ForeignKey('curso.id'), primary_key=True),
-    db.Column('grado_id', db.Integer, db.ForeignKey('grado.id'), primary_key=True)
-)"""
-
-class Nivel(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), unique=True, nullable=False)
-
-    def __repr__(self):
-        return f'<Nivel {self.nombre}>'
-
-class Curso(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), unique=True, nullable=False)
-
-    def __repr__(self):
-        return f'<Curso {self.nombre}>'
-
-class Colegio(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), unique=True, nullable=False)
-
-
-class User(UserMixin, db.Model):
-    __tablename__='user'
-    id = db.Column(db.Integer, primary_key=True)
-    nombres = db.Column(db.String(100), nullable=False)
-    correo = db.Column(db.String(120), unique=True, nullable=False)
-    edad = db.Column(db.Integer, nullable=False)
-    cedula = db.Column(db.String(20), nullable=True)
-    colegio_id = db.Column(db.Integer, db.ForeignKey('colegio.id'), nullable=True)
-    colegio = db.relationship('Colegio', backref='usuarios', lazy="select")
-    institucion = db.Column(db.String(120), nullable=True)
-    nivel_grados_id = db.Column(db.Integer, db.ForeignKey('nivel.id'), nullable=True)
-    nivel_educativo = db.Column(db.String(50), nullable=False)
-    rol = db.Column(db.String(100), nullable=True)
-    anios_experiencia = db.Column(db.Integer, nullable=False)
-    cursos = db.relationship('Curso', secondary=usuarios_cursos, backref=db.backref('usuarios', lazy='dynamic'))
-    nivel_grados = db.relationship('Nivel', secondary=nivel_por_grados, backref=db.backref('usuarios', lazy='dynamic'))
-    grados = db.relationship('Grado', secondary=grados_dictados, backref=db.backref('usuario_grados', lazy='dynamic'))   
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)
-    
-    def __repr__(self):
-        return f'<User {self.username}>' 
-    
-    def set_password(self, password):
-        self.password = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password, password)
-
-    
-    @login_manager.user_loader
-    def load_user(user_id):
-        return User.query.get(int(user_id))
-
-
-class Question(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    statement = db.Column(db.Text, nullable=False)
-    option_a = db.Column(db.String(500), nullable=False)
-    option_b = db.Column(db.String(500), nullable=False)
-    option_c = db.Column(db.String(500), nullable=False)
-    option_d = db.Column(db.String(500), nullable=False)
-    correct_answer = db.Column(db.String(500), nullable=False)
-    label = db.Column(db.String(50), nullable=False)
-    percentage = db.Column(db.Float, nullable=False)
-    image_url = db.Column(db.String(1000))
-
-
-class Answer(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
-    selected_answer = db.Column(db.String(1), nullable=False)
-
-
-class QuizResult(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    score = db.Column(db.PickleType, nullable=False)  # Para almacenar un diccionario con los puntajes por etiqueta
-
-
-class QuestionDos(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    statement = db.Column(db.String(3000), nullable=False)
-    option_a = db.Column(db.String(500), nullable=False)
-    option_b = db.Column(db.String(500), nullable=False)
-
-
-class QuestionTres(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    statement = db.Column(db.String(3000), nullable=False)
-    option_a = db.Column(db.String(500), nullable=False)
-    option_b = db.Column(db.String(500), nullable=False)
-    option_c = db.Column(db.String(500), nullable=False)
-    option_d = db.Column(db.String(500), nullable=False)
-    option_e = db.Column(db.String(500), nullable=False)
-
-
-class AnswerTres(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
-    selected_answer = db.Column(db.String(500), nullable=False)
-
-
-
-# Modelo para preguntas del test Marco Roman
-class QuizCuatro(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    statement = db.Column(db.String(1000), nullable=False)
-    option_a = db.Column(db.String(500), nullable=False)
-    option_b = db.Column(db.String(500), nullable=False)
-    option_c = db.Column(db.String(500), nullable=False)
-    option_d = db.Column(db.String(500), nullable=False)
-    correct_answer = db.Column(db.String(1), nullable=False)
-    label = db.Column(db.String(50), nullable=True)
-    percentage = db.Column(db.Float, nullable=True)
-    image_url = db.Column(db.String(1000), nullable=True)
-
-class ResultadoQuizCuatro(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
-    score = db.Column(db.Integer, nullable=False)
-    correct_count = db.Column(db.Integer, nullable=False)
-    incorrect_count = db.Column(db.Integer, nullable=False)
-    usuario = db.relationship('User', backref=db.backref('resultado_quiz_cuatro', uselist=False))
-
-class Grado(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), nullable=False)
+# Inicializar Flask-Migrate
+from flask_migrate import Migrate
+migrate = Migrate(app, db)
+from cache_utils import get_cached_colegios, get_cached_cursos, get_cached_niveles, get_cached_grados
+# Importar formularios desde forms.py
+from forms import RegistrationForm, LoginForm, QuizForm, QuizFormDos, QuizFormTres, QuizFormCuatro
+# Importar IntegrityError para manejo de errores de integridad
+from sqlalchemy.exc import IntegrityError
 
 
 # Ruta para el test Marco Roman
@@ -331,7 +65,7 @@ def quiz4():
         flash("Ya has completado este cuestionario. Aquí están tus resultados.", "success")
         return redirect(url_for('quiz4_results', result_id=resultado.id))
 
-    questions = QuizCuatro.query.order_by(QuizCuatro.id).all()
+    questions = QuestionCuatro.query.order_by(QuestionCuatro.id).all()
 
     if request.method == 'POST':
         user_answers = request.form.to_dict()
@@ -364,57 +98,6 @@ def quiz4_results(result_id):
     return render_template('quiz4_results.html', resultado=resultado)
 
 
-class Asignatura(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
-
-
-class Tematica(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
-
-
-class Habilidad(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False)
-
-
-class Recurso(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(200), nullable=False)
-
-
-class ResultadoQuiz(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
-    abstraccion = db.Column(db.Float, nullable=False)
-    descomposicion = db.Column(db.Float, nullable=False)
-    pensamiento_algoritmico = db.Column(db.Float, nullable=False)
-    respuestas_correctas = db.Column(db.Integer, nullable=False)
-    respuestas_incorrectas =db.Column(db.Integer, nullable=False)
-    usuario = db.relationship('User', backref=db.backref('resultado_quiz', uselist=False))
-
-
-class ResultadoQuizDos(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
-    sensorial_intuitivo = db.Column(db.JSON, nullable=False)
-    visual_verbal = db.Column(db.JSON, nullable=False)
-    activo_reflexivo = db.Column(db.JSON, nullable=False)
-    secuencial_global = db.Column(db.JSON, nullable=False)
-    usuario = db.relationship('User', backref=db.backref('resultados_quiz_dos', uselist=False))
-
-
-class ResultadoQuizTres(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
-    filantropo = db.Column(db.Float, nullable=False)
-    socializador = db.Column(db.Float, nullable=False)
-    triunfador = db.Column(db.Float, nullable=False)
-    jugador = db.Column(db.Float, nullable=False)
-    espiritu_libre = db.Column(db.Float, nullable=False)
-    disruptor = db.Column(db.Float, nullable=False)
-    usuario = db.relationship('User', backref=db.backref('resultado_quiz_tres', uselist=False))
 
 
 
@@ -486,11 +169,14 @@ def load_user(user_id):
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     print("Método de la solicitud:", request.method)
-    form = RegistrationForm()
 
-    # Usar catálogos cacheados (30 min) para reducir queries a DB
-    # Ya vienen ordenados alfabéticamente
-    form.colegio.choices = [(c.id, c.nombre) for c in get_cached_colegios()]
+    import os
+    print('=== DEBUG /register ===')
+    print('SQLALCHEMY_DATABASE_URI:', app.config.get('SQLALCHEMY_DATABASE_URI'))
+    colegios = get_cached_colegios()
+    print('Colegios encontrados:', [(c.id, c.nombre) for c in colegios])
+    form = RegistrationForm()
+    form.colegio.choices = [(c.id, c.nombre) for c in colegios]
     form.cursos.query_factory = lambda: get_cached_cursos()
     form.nivel_grados.query_factory = lambda: get_cached_niveles()
     form.grados.query_factory = lambda: get_cached_grados()
@@ -781,19 +467,10 @@ def eliminar_usuario(user_id):
             ResultadoQuizCuatro.query.filter_by(user_id=usuario.id).delete(synchronize_session=False)
         except Exception:
             pass
-        # Posible modelo alternativo legacy
-        try:
-            QuizResult.query.filter_by(user_id=usuario.id).delete(synchronize_session=False)
-        except Exception:
-            pass
 
         # Respuestas de quizzes
         try:
             Answer.query.filter_by(user_id=usuario.id).delete(synchronize_session=False)
-        except Exception:
-            pass
-        try:
-            AnswerTres.query.filter_by(user_id=usuario.id).delete(synchronize_session=False)
         except Exception:
             pass
 
@@ -854,13 +531,6 @@ def reset_test_usuario(user_id, quiz):
             if r1:
                 db.session.delete(r1)
                 acciones.append('Quiz 1 (ADAT)')
-            # Eliminar posible registro alternativo (compatibilidad)
-            try:
-                alt = QuizResult.query.filter_by(user_id=usuario.id).first()
-                if alt:
-                    db.session.delete(alt)
-            except Exception:
-                pass
 
         if objetivo in ('quiz2', 'all'):
             r2 = ResultadoQuizDos.query.filter_by(user_id=usuario.id).first()
@@ -1049,7 +719,7 @@ def gestion_tests():
     total_quiz1 = Question.query.count()
     total_quiz2 = QuestionDos.query.count()
     total_quiz3 = QuestionTres.query.count()
-    total_quiz4 = QuizCuatro.query.count()
+    total_quiz4 = QuestionCuatro.query.count()
     
     return render_template('gestion_tests.html', 
                          total_quiz1=total_quiz1,
@@ -1094,7 +764,7 @@ def editar_quiz1(question_id):
             pregunta.correct_answer = form.correct_answer.data
             pregunta.label = form.label.data
             pregunta.percentage = form.percentage.data
-            pregunta.image_url = _normalize_image_url(form.image_url.data) if form.image_url.data else ''
+            pregunta.image_url = form.image_url.data if form.image_url.data else ''
 
             # Intento 1: flush y verificar que no haya truncamiento por tipo de columna
             db.session.flush()
@@ -1299,7 +969,7 @@ def gestion_quiz4():
         flash('No tienes permisos para acceder a esta página', 'danger')
         return redirect(url_for('dashboard'))
     
-    preguntas = QuizCuatro.query.all()
+    preguntas = QuestionCuatro.query.all()
     return render_template('gestion_quiz4.html', preguntas=preguntas)
 
 
@@ -1311,7 +981,7 @@ def editar_quiz4(question_id):
         flash('No tienes permisos para acceder a esta página', 'danger')
         return redirect(url_for('dashboard'))
     
-    pregunta = QuizCuatro.query.get_or_404(question_id)
+    pregunta = QuestionCuatro.query.get_or_404(question_id)
     form = QuizFormCuatro(obj=pregunta)
     
     if form.validate_on_submit():
@@ -1326,11 +996,7 @@ def editar_quiz4(question_id):
             pregunta.percentage = form.percentage.data
             # Preferir imagen subida; si no, usar URL normalizada
             uploaded = request.files.get('image_file')
-            saved_path = _save_uploaded_image(uploaded)
-            if saved_path:
-                pregunta.image_url = saved_path
-            else:
-                pregunta.image_url = _normalize_image_url(form.image_url.data) if form.image_url.data else ''
+            pregunta.image_url = form.image_url.data if form.image_url.data else ''
 
             db.session.commit()
             flash('Pregunta actualizada exitosamente', 'success')
@@ -1355,7 +1021,7 @@ def eliminar_quiz4(question_id):
         return redirect(url_for('dashboard'))
     
     try:
-        pregunta = QuizCuatro.query.get_or_404(question_id)
+        pregunta = QuestionCuatro.query.get_or_404(question_id)
         db.session.delete(pregunta)
         db.session.commit()
         flash('Pregunta eliminada exitosamente', 'success')
@@ -2158,7 +1824,7 @@ def register_quiz1_question():
             correct_answer=form.correct_answer.data,
             label=form.label.data,
             percentage=form.percentage.data,
-            image_url=_normalize_image_url(form.image_url.data) if form.image_url.data else ''
+            image_url=form.image_url.data if form.image_url.data else ''
         )
         db.session.add(question)
         db.session.commit()
@@ -2294,7 +1960,7 @@ def submit_quiz4():
 
     for question_id, user_answer in user_responses.items():
         # Aquí debes obtener la pregunta desde la base de datos
-        question = QuizCuatro.query.get(int(question_id))
+        question = QuestionCuatro.query.get(int(question_id))
         if question is not None:
             # Comprobar si la respuesta del usuario es correcta
             if question.correct_answer == user_answer:
@@ -2375,10 +2041,9 @@ def register_quiz4_question():
     if form.validate_on_submit():
         # Manejar upload o URL
         uploaded = request.files.get('image_file')
-        saved_path = _save_uploaded_image(uploaded)
-        image_url_final = saved_path or (_normalize_image_url(form.image_url.data) if form.image_url.data else '')
+        image_url_final = form.image_url.data if form.image_url.data else ''
 
-        question = QuizCuatro(
+        question = QuestionCuatro(
             statement=form.statement.data,
             option_a=form.option_a.data,
             option_b=form.option_b.data,
@@ -2766,27 +2431,21 @@ def quiz_resultsTres(result_id):
 @app.route('/get_form_data', methods=['GET'])
 def get_form_data():
     grados = Grado.query.all()
-    asignaturas = Asignatura.query.all()
-    tematicas = Tematica.query.all()
-    habilidades = Habilidad.query.all()
-    
+    # Modelos eliminados: Asignatura, Tematica, Habilidad. Retornar listas vacías.
     form_data = {
         'grados': [{'id': g.id, 'nombre': g.nombre} for g in grados],
-        'asignaturas': [{'id': a.id, 'nombre': a.nombre} for a in asignaturas],
-        'tematicas': [{'id': t.id, 'nombre': t.nombre} for t in tematicas],
-        'habilidades': [{'id': h.id, 'nombre': h.nombre} for h in habilidades]
+        'asignaturas': [],
+        'tematicas': [],
+        'habilidades': []
     }
-    
     return jsonify(form_data)
 
 
 # Ruta para el autocompletar de recursos
 @app.route('/autocomplete_recursos', methods=['GET'])
 def autocomplete_recursos():
-    search_term = request.args.get('q', '')
-    recursos = Recurso.query.filter(Recurso.nombre.ilike(f'%{search_term}%')).all()
-    
-    return jsonify([{'id': r.id, 'nombre': r.nombre} for r in recursos])
+    # Modelo Recurso eliminado. Retornar lista vacía.
+    return jsonify([])
 
 # Función para generar actividades dinámicas usando ChatGPT
 def generate_activity(grade, subject, topic, skill, students, time, resources):
@@ -2818,13 +2477,9 @@ def generate_activity(grade, subject, topic, skill, students, time, resources):
 @app.route('/crear_actividad', methods=['GET', 'POST'])
 def crear_actividad():
     grados = Grado.query.all()  # Consulta todos los grados
-    asignaturas = Asignatura.query.all()  # Consulta todas las asignaturas
-    habilidades = Habilidad.query.all()  # Consulta todas las habilidades
-
-    # Imprimir para verificar los datos
-    print("Grados:", grados)
-    print("Asignaturas:", asignaturas)
-    print("Habilidades:", habilidades)
+    # Modelos eliminados: Asignatura, Habilidad. Usar listas vacías.
+    asignaturas = []
+    habilidades = []
 
     if request.method == 'POST':
         grado = request.form.get('grado')
@@ -2856,9 +2511,9 @@ def crear_actividad():
             return f"Error al generar actividades: {e}"
 
     grados = Grado.query.all()
-    asignaturas = Asignatura.query.all()
-    habilidades = Habilidad.query.all()
-
+    # Modelos eliminados: Asignatura, Habilidad. Usar listas vacías.
+    asignaturas = []
+    habilidades = []
     return render_template('select_activities.html', grados=grados, asignaturas=asignaturas, habilidades=habilidades)
 
 
@@ -2985,7 +2640,11 @@ Usa un lenguaje claro y profesional. Formatea el texto usando Markdown con títu
             flash(f'Error al generar actividad: {str(e)}', 'danger')
             return render_template('select_activities.html')
 
-    return render_template('select_activities.html')
+    # Modelos eliminados: Asignatura, Habilidad. Usar listas vacías.
+    grados = Grado.query.all()
+    asignaturas = []
+    habilidades = []
+    return render_template('select_activities.html', grados=grados, asignaturas=asignaturas, habilidades=habilidades)
 
 
 @app.route('/mis_actividades')

@@ -1,20 +1,22 @@
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from extensions import db
 
-db = SQLAlchemy()
 
 usuarios_cursos = db.Table('usuarios_cursos',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-    db.Column('curso_id', db.Integer, db.ForeignKey('curso.id'), primary_key=True)
+    db.Column('curso_id', db.Integer, db.ForeignKey('curso.id'), primary_key=True),
+    extend_existing=True
 )
 
 nivel_por_grados = db.Table('nivel_por_grados',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-    db.Column('nivel_id', db.Integer, db.ForeignKey('nivel.id'), primary_key=True)
+    db.Column('nivel_id', db.Integer, db.ForeignKey('nivel.id'), primary_key=True),
+    extend_existing=True
 )
 grados_dictados = db.Table('grados_dictados',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-    db.Column('grado_id', db.Integer, db.ForeignKey('grado.id'), primary_key=True)
+    db.Column('grado_id', db.Integer, db.ForeignKey('grado.id'), primary_key=True),
+    extend_existing=True
 )
 
 """usuarios_cursos_grados = db.Table('usuarios_cursos_grados',
@@ -102,7 +104,7 @@ class QuestionTres(db.Model):
 class Answer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey('quiz1_question.id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     selected_answer = db.Column(db.String(1), nullable=False)
 
 

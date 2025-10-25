@@ -25,12 +25,12 @@ services:
     env_file:
       - .env
     environment:
-      # For local development, point to the Postgres container
-      - DATABASE_URL=postgresql+psycopg://postgres:postgres@db:5432/leidy
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - FLASK_APP=app.py
-      - FLASK_ENV=production
-      - SECRET_KEY=mi_secreto
+      # Usar la variable DATABASE_URL del archivo .env (base remota)
+      DATABASE_URL: ${DATABASE_URL}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      FLASK_APP: app.py
+      FLASK_ENV: production
+      SECRET_KEY: mi_secreto
     volumes:
       - .:/app
       - ./instance:/app/instance
