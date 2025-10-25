@@ -1085,12 +1085,18 @@ def estadisticas():
         quiz4_max = db.session.query(func.max(ResultadoQuizCuatro.score)).scalar() or 0
         quiz4_min = db.session.query(func.min(ResultadoQuizCuatro.score)).scalar() or 0
 
-        # Top 5 usuarios en Quiz 4
-        top_quiz4 = db.session.query(
-            User.nombres, 
-            ResultadoQuizCuatro.score,
-            ResultadoQuizCuatro.respuestas_correctas
-        ).join(ResultadoQuizCuatro).order_by(ResultadoQuizCuatro.score.desc()).limit(5).all()
+        # Top 10 usuarios en Quiz 4 por respuestas correctas
+        top_quiz4 = (
+            db.session.query(
+                User.nombres, 
+                ResultadoQuizCuatro.score,
+                ResultadoQuizCuatro.respuestas_correctas
+            )
+            .join(ResultadoQuizCuatro)
+            .order_by(ResultadoQuizCuatro.respuestas_correctas.desc(), ResultadoQuizCuatro.score.desc())
+            .limit(10)
+            .all()
+        )
 
         # === ESTADÍSTICAS POR INSTITUCIÓN ===
         stats_institucion = db.session.query(
