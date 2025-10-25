@@ -47,7 +47,7 @@
               <div class="text-end pt-1">
                 <p class="text-sm mb-0 text-capitalize">Estilos de Aprendizaje</p>
                 <h4 class="mb-0">
-                  {% if current_user.resultados_quiz_dos %}
+                  {% if current_user.resultado_quiz_dos %}
                     Completado
                   {% else %}
                     Pendiente
@@ -57,7 +57,7 @@
             </div>
             <hr class="dark horizontal my-0">
             <div class="card-footer p-3">
-              {% if current_user.resultados_quiz_dos %}
+              {% if current_user.resultado_quiz_dos %}
                 <p class="mb-0"><span class="text-success text-sm font-weight-bolder"><i class="material-icons text-sm">check_circle</i></span> Test completado</p>
               {% else %}
                 <p class="mb-0"><a href="{{ url_for('quiz2') }}" class="text-primary text-sm font-weight-bolder">Iniciar test <i class="material-icons text-sm">arrow_forward</i></a></p>

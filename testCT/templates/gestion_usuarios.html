@@ -24,19 +24,7 @@
           </div>
         </div>
         <div class="card-body px-0 pb-2">
-          {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-              <div class="px-3">
-                {% for category, message in messages %}
-                  <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>
-                {% endfor %}
-              </div>
-            {% endif %}
-          {% endwith %}
-          
+
           <div class="px-3 mb-3">
             <div class="row g-2 align-items-end">
               <div class="col-md-5">
@@ -47,12 +35,8 @@
                 <label class="form-label text-xs mb-1">Rol</label>
                 <select id="filterRole" class="form-select form-select-sm">
                   <option value="">Todos</option>
-                  {% set _roles = [] %}
-                  {% for u in usuarios %}
-                    {% if u.rol and u.rol not in _roles %}
-                      <option value="{{ u.rol }}">{{ u.rol }}</option>
-                      {% set _ = _roles.append(u.rol) %}
-                    {% endif %}
+                  {% for rol in all_roles %}
+                    <option value="{{ rol }}">{{ rol }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -83,8 +67,8 @@
               <thead>
                 <tr>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Usuario</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nombre</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Usuario</th>
+                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nombre</th>
                   <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Correo</th>
                   <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Edad</th>
                   <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Rol</th>
@@ -143,19 +127,19 @@
                         <i class="fas fa-undo" aria-hidden="true"></i>
                       </button>
                       <ul class="dropdown-menu dropdown-menu-end">
-                        <li><button class="dropdown-item" type="button" onclick="reiniciarTest({{ usuario.id }}, 'quiz1', '{{ usuario.username }}')">Reiniciar Quiz 1 (ADAT)</button></li>
-                        <li><button class="dropdown-item" type="button" onclick="reiniciarTest({{ usuario.id }}, 'quiz2', '{{ usuario.username }}')">Reiniciar Quiz 2 (Estilos)</button></li>
-                        <li><button class="dropdown-item" type="button" onclick="reiniciarTest({{ usuario.id }}, 'quiz3', '{{ usuario.username }}')">Reiniciar Quiz 3 (Tipo de Jugador)</button></li>
-                        <li><button class="dropdown-item" type="button" onclick="reiniciarTest({{ usuario.id }}, 'quiz4', '{{ usuario.username }}')">Reiniciar Quiz 4 (Pensamiento)</button></li>
+                        <li><button class="dropdown-item" type="button" onclick="reiniciarTest({{ usuario.id }}, 'quiz1', '{{ usuario.username|replace("'", "\\'") }}')">Reiniciar Quiz 1 (ADAT)</button></li>
+                        <li><button class="dropdown-item" type="button" onclick="reiniciarTest({{ usuario.id }}, 'quiz2', '{{ usuario.username|replace("'", "\\'") }}')">Reiniciar Quiz 2 (Estilos)</button></li>
+                        <li><button class="dropdown-item" type="button" onclick="reiniciarTest({{ usuario.id }}, 'quiz3', '{{ usuario.username|replace("'", "\\'") }}')">Reiniciar Quiz 3 (Tipo de Jugador)</button></li>
+                        <li><button class="dropdown-item" type="button" onclick="reiniciarTest({{ usuario.id }}, 'quiz4', '{{ usuario.username|replace("'", "\\'") }}')">Reiniciar Quiz 4 (Pensamiento)</button></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><button class="dropdown-item text-danger" type="button" onclick="reiniciarTest({{ usuario.id }}, 'all', '{{ usuario.username }}')">Reiniciar TODOS</button></li>
+                        <li><button class="dropdown-item text-danger" type="button" onclick="reiniciarTest({{ usuario.id }}, 'all', '{{ usuario.username|replace("'", "\\'") }}')">Reiniciar TODOS</button></li>
                       </ul>
                     </div>
                     <a href="{{ url_for('generar_certificado', user_id=usuario.id) }}" class="btn btn-link text-success text-gradient px-2 mb-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Generar certificado">
                       <i class="fas fa-certificate text-success" aria-hidden="true"></i>
                     </a>
                     {% if usuario.id != current_user.id %}
-                    <button type="button" class="btn btn-link text-danger text-gradient px-2 mb-0" onclick="confirmarEliminacion({{ usuario.id }}, '{{ usuario.username }}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar usuario">
+                    <button type="button" class="btn btn-link text-danger text-gradient px-2 mb-0" onclick="confirmarEliminacion({{ usuario.id }}, '{{ usuario.username|replace("'", "\\'") }}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar usuario">
                       <i class="fas fa-trash text-danger" aria-hidden="true"></i>
                     </button>
                     {% endif %}
@@ -165,14 +149,14 @@
               </tbody>
             </table>
           </div>
-          
+
           <!-- Paginación -->
           {% if pagination.pages > 1 %}
           <div class="px-3 mt-3 d-flex justify-content-between align-items-center">
             <div>
               <p class="text-sm mb-0">
-                Mostrando {{ pagination.per_page * (pagination.page - 1) + 1 }} - 
-                {{ [pagination.per_page * pagination.page, pagination.total]|min }} 
+                Mostrando {{ pagination.per_page * (pagination.page - 1) + 1 }} -
+                {{ [pagination.per_page * pagination.page, pagination.total]|min }}
                 de <strong>{{ pagination.total }}</strong> usuarios
               </p>
             </div>
@@ -190,7 +174,7 @@
                   </span>
                   {% endif %}
                 </li>
-                
+
                 <!-- Números de página -->
                 {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
                   {% if page_num %}
@@ -203,7 +187,7 @@
                     </li>
                   {% endif %}
                 {% endfor %}
-                
+
                 <!-- Botón siguiente -->
                 <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
                   {% if pagination.has_next %}
@@ -235,8 +219,11 @@
   <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token }}"/>
 </form>
 
+
 <!-- Form oculto para reiniciar tests -->
-<form id="resetForm" method="POST" style="display: none;"></form>
+<form id="resetForm" method="POST" style="display: none;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token }}"/>
+</form>
 
 <script>
 function confirmarEliminacion(userId, username) {
@@ -248,6 +235,20 @@ function confirmarEliminacion(userId, username) {
 }
 
 function reiniciarTest(userId, quiz, username) {
+  console.log('reiniciarTest called with:', userId, quiz, username);
+  var form = document.getElementById('resetForm');
+  if (!form) {
+    alert('No se encontró el formulario oculto con id=resetForm');
+    return;
+  }
+  console.log('Form found:', form);
+  // Limpia el formulario antes de usarlo
+  form.action = `/gestion_usuarios/reset/${userId}/${quiz}`;
+  console.log('Form action set to:', form.action);
+  // Elimina todos los hijos excepto el CSRF
+  Array.from(form.elements).forEach(function(el) {
+    if (el.name !== 'csrf_token') el.remove();
+  });
   const nombres = {
     quiz1: 'Quiz 1 (ADAT)',
     quiz2: 'Quiz 2 (Estilos de Aprendizaje)',
@@ -256,10 +257,12 @@ function reiniciarTest(userId, quiz, username) {
     all: 'TODOS los tests'
   };
   const nombre = nombres[quiz] || quiz;
+  console.log('Confirm dialog for:', nombre, username);
   if (confirm(`¿Reiniciar ${nombre} para "${username}"?\n\nSe eliminarán sus resultados para que pueda volver a intentarlo.`)) {
-    const form = document.getElementById('resetForm');
-    form.action = `/gestion_usuarios/reset/${userId}/${quiz}`;
+    console.log('User confirmed, submitting form');
     form.submit();
+  } else {
+    console.log('User cancelled');
   }
 }
 

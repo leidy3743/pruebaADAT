@@ -343,7 +343,7 @@ def gestion_usuarios():
     # Paginación para mejorar rendimiento
     page = request.args.get('page', 1, type=int)
     per_page = 20  # Mostrar 20 usuarios por página
-    
+
     # Eager loading para evitar N+1 queries
     from sqlalchemy.orm import joinedload
     pagination = User.query.options(
@@ -352,15 +352,16 @@ def gestion_usuarios():
         page=page, per_page=per_page, error_out=False
     )
 
+    # Obtener todos los roles únicos de la base de datos
+    all_roles = [r[0] for r in db.session.query(User.rol).distinct().all() if r[0]]
+
     # DEBUG: Mostrar los primeros usuarios y su institucion
-    print("=== DEBUG USUARIOS ===")
-    for u in pagination.items[:10]:
-        print(f"ID: {u.id}, Nombre: {u.nombres}, Institucion: {u.institucion}")
     print("======================")
 
     return render_template('gestion_usuarios.html', 
                          usuarios=pagination.items,
-                         pagination=pagination)
+                         pagination=pagination,
+                         all_roles=all_roles)
 
 
 @app.route('/gestion_usuarios/crear', methods=['GET', 'POST'])
@@ -525,6 +526,9 @@ def reset_test_usuario(user_id, quiz):
 
     usuario = User.query.get_or_404(user_id)
 
+    if quiz.lower() == 'all':
+        print(f"[DEPURACION] Reiniciando TODOS los tests para el usuario: {usuario.username} (ID: {usuario.id})")
+
     # Banderas para feedback
     acciones = []
 
@@ -532,7 +536,6 @@ def reset_test_usuario(user_id, quiz):
         objetivo = quiz.lower()
 
         if objetivo in ('quiz1', 'all'):
-            # Eliminar resultado ADAT
             r1 = ResultadoQuiz.query.filter_by(user_id=usuario.id).first()
             if r1:
                 db.session.delete(r1)
@@ -557,6 +560,10 @@ def reset_test_usuario(user_id, quiz):
                 acciones.append('Quiz 4 (Pensamiento Computacional)')
 
         db.session.commit()
+
+        # Verificar después de commit
+        if objetivo in ('quiz4', 'all'):
+            r4_post = ResultadoQuizCuatro.query.filter_by(user_id=usuario.id).first()
 
         if acciones:
             if objetivo == 'all':
@@ -1953,12 +1960,12 @@ def submit_quiz():
 @login_required
 def submit_quiz4():
     user_responses = request.form.to_dict()
-    resultado = ResultadoQuizCuatro.query.filter_by(user_id=current_user.id).first()
-    print("Respuestas del usuario:", user_responses)
-
-    if resultado:
+    
+    # Verificar si el usuario ya tiene un resultado - hacer esto de manera más robusta
+    resultado_existente = ResultadoQuizCuatro.query.filter_by(user_id=current_user.id).first()
+    if resultado_existente:
         flash("Ya has completado este cuestionario. Aquí están tus resultados.", "warning")
-        return redirect(url_for('quiz4_results', result_id=resultado.id))
+        return redirect(url_for('quiz4_results', result_id=resultado_existente.id))
 
     correct_count = 0
     incorrect_count = 0
@@ -1978,16 +1985,32 @@ def submit_quiz4():
             print(f"Pregunta con ID {question_id} no encontrada en la base de datos.")
 
     # Guardar en la base de datos del Quiz 4
-    resultado = ResultadoQuizCuatro(
-        user_id=current_user.id,
-        score=int(score),
-        respuestas_correctas=correct_count,
-        respuestas_incorrectas=incorrect_count,
-    )
-    db.session.add(resultado)
-    db.session.commit()
-
-    return redirect(url_for('quiz4_results', result_id=resultado.id))
+    try:
+        resultado = ResultadoQuizCuatro(
+            user_id=current_user.id,
+            score=int(score),
+            respuestas_correctas=correct_count,
+            respuestas_incorrectas=incorrect_count,
+        )
+        db.session.add(resultado)
+        db.session.commit()
+        return redirect(url_for('quiz4_results', result_id=resultado.id))
+    except IntegrityError as e:
+        db.session.rollback()
+        # Verificar nuevamente si ya existe un resultado (por si fue creado por otra transacción)
+        resultado_existente = ResultadoQuizCuatro.query.filter_by(user_id=current_user.id).first()
+        if resultado_existente:
+            flash("Ya has completado este cuestionario. Aquí están tus resultados.", "warning")
+            return redirect(url_for('quiz4_results', result_id=resultado_existente.id))
+        else:
+            # Si no existe pero aún así hay error de integridad, es un problema diferente
+            flash("Error al guardar los resultados. Por favor, intenta nuevamente.", "danger")
+            return redirect(url_for('quiz4'))
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error inesperado al guardar resultado del quiz 4: {e}")
+        flash("Error al guardar los resultados. Por favor, intenta nuevamente.", "danger")
+        return redirect(url_for('quiz4'))
 
 
 @app.route('/quiz_results/<int:result_id>')

@@ -10,9 +10,13 @@
           <h6>Resultados</h6>
         </div>
         <div class="card-body px-3 pt-3 pb-2">
-          <p class="mb-1"><strong>Correctas:</strong> {{ resultado.correct_count }}</p>
-          <p class="mb-1"><strong>Incorrectas:</strong> {{ resultado.incorrect_count }}</p>
-          <p class="mb-3"><strong>Puntaje:</strong> {{ resultado.score }}</p>
+          {% if resultado %}
+            <p class="mb-1"><strong>Correctas:</strong> {{ resultado.respuestas_correctas }}</p>
+            <p class="mb-1"><strong>Incorrectas:</strong> {{ resultado.respuestas_incorrectas }}</p>
+            <p class="mb-3"><strong>Puntaje:</strong> {{ resultado.score }}</p>
+          {% else %}
+            <div class="alert alert-info text-center mb-3">No has presentado este test.</div>
+          {% endif %}
           <a href="{{ url_for('dashboard') }}" class="btn btn-secondary w-100">Volver al inicio</a>
         </div>
       </div>
