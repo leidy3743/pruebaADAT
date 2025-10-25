@@ -75,7 +75,7 @@
               <div class="text-end pt-1">
                 <p class="text-sm mb-0 text-capitalize">Tipos de Jugador</p>
                 <h4 class="mb-0">
-                  {% if current_user.resultado_quiz_tres %}
+                  {% if current_user.resultados_quiz_tres %}
                     Completado
                   {% else %}
                     Pendiente
@@ -85,7 +85,7 @@
             </div>
             <hr class="dark horizontal my-0">
             <div class="card-footer p-3">
-              {% if current_user.resultado_quiz_tres %}
+              {% if current_user.resultados_quiz_tres %}
                 <p class="mb-0"><span class="text-success text-sm font-weight-bolder"><i class="material-icons text-sm">check_circle</i></span> Test completado</p>
               {% else %}
                 <p class="mb-0"><a href="{{ url_for('quiz3') }}" class="text-primary text-sm font-weight-bolder">Iniciar test <i class="material-icons text-sm">arrow_forward</i></a></p>
@@ -277,15 +277,15 @@
                         <p class="text-xs text-secondary mb-0">Identifica tu estilo de aprendizaje</p>
                       </td>
                       <td class="align-middle text-center text-sm">
-                        {% if current_user.resultados_quiz_dos %}
+                        {% if current_user.resultado_quiz_dos %}
                           <span class="badge badge-sm bg-gradient-success">Completado</span>
                         {% else %}
                           <span class="badge badge-sm bg-gradient-secondary">Pendiente</span>
                         {% endif %}
                       </td>
                       <td class="align-middle text-center">
-                        {% if current_user.resultados_quiz_dos %}
-                          <a href="{{ url_for('quiz_resultsDos', result_id=current_user.resultados_quiz_dos.id) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Ver resultados">
+                        {% if current_user.resultado_quiz_dos %}
+                          <a href="{{ url_for('quiz_resultsDos', result_id=current_user.resultado_quiz_dos.id) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Ver resultados">
                             Ver resultados
                           </a>
                         {% else %}
@@ -310,15 +310,15 @@
                         <p class="text-xs text-secondary mb-0">Descubre tu perfil según el modelo Hexad-12</p>
                       </td>
                       <td class="align-middle text-center text-sm">
-                        {% if current_user.resultado_quiz_tres %}
+                        {% if current_user.resultados_quiz_tres %}
                           <span class="badge badge-sm bg-gradient-success">Completado</span>
                         {% else %}
                           <span class="badge badge-sm bg-gradient-secondary">Pendiente</span>
                         {% endif %}
                       </td>
                       <td class="align-middle text-center">
-                        {% if current_user.resultado_quiz_tres %}
-                          <a href="{{ url_for('quiz_resultsTres', result_id=current_user.resultado_quiz_tres.id) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Ver resultados">
+                        {% if current_user.resultados_quiz_tres %}
+                          <a href="{{ url_for('quiz_resultsTres', result_id=current_user.resultados_quiz_tres.id) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Ver resultados">
                             Ver resultados
                           </a>
                         {% else %}

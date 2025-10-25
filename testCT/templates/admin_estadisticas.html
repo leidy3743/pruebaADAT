@@ -331,6 +331,127 @@
     </div>
   </div>
 
+  <!-- Usuarios y Tests Completados -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header pb-0">
+          <h6>Usuarios y Tests Completados</h6>
+          <p class="text-sm text-secondary">Estado de completitud de tests por usuario</p>
+          
+          <!-- Controles de Filtro -->
+          <form method="GET" class="row g-3 mt-3">
+            <div class="col-md-3">
+              <input type="text" class="form-control form-control-sm" name="buscar_nombre" 
+                     placeholder="Buscar por nombre..." value="{{ request.args.get('buscar_nombre', '') }}">
+            </div>
+            <div class="col-md-2">
+              <select class="form-select form-select-sm" name="filtro_test1">
+                <option value="">Test 1 (Todos)</option>
+                <option value="completado" {% if request.args.get('filtro_test1') == 'completado' %}selected{% endif %}>Completado</option>
+                <option value="no_completado" {% if request.args.get('filtro_test1') == 'no_completado' %}selected{% endif %}>No Completado</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select class="form-select form-select-sm" name="filtro_test2">
+                <option value="">Test 2 (Todos)</option>
+                <option value="completado" {% if request.args.get('filtro_test2') == 'completado' %}selected{% endif %}>Completado</option>
+                <option value="no_completado" {% if request.args.get('filtro_test2') == 'no_completado' %}selected{% endif %}>No Completado</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select class="form-select form-select-sm" name="filtro_test3">
+                <option value="">Test 3 (Todos)</option>
+                <option value="completado" {% if request.args.get('filtro_test3') == 'completado' %}selected{% endif %}>Completado</option>
+                <option value="no_completado" {% if request.args.get('filtro_test3') == 'no_completado' %}selected{% endif %}>No Completado</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select class="form-select form-select-sm" name="filtro_test4">
+                <option value="">Test 4 (Todos)</option>
+                <option value="completado" {% if request.args.get('filtro_test4') == 'completado' %}selected{% endif %}>Completado</option>
+                <option value="no_completado" {% if request.args.get('filtro_test4') == 'no_completado' %}selected{% endif %}>No Completado</option>
+              </select>
+            </div>
+            <div class="col-md-1">
+              <button type="submit" class="btn btn-primary btn-sm w-100">
+                <i class="material-icons text-sm">search</i>
+              </button>
+            </div>
+            <div class="col-md-1">
+              <a href="{{ url_for('estadisticas') }}" class="btn btn-secondary btn-sm w-100">
+                <i class="material-icons text-sm">clear</i>
+              </a>
+            </div>
+          </form>
+          
+          {% if usuarios_tests %}
+          <div class="mt-2">
+            <small class="text-muted">Mostrando {{ usuarios_tests|length }} usuario{{ 's' if usuarios_tests|length != 1 else '' }}</small>
+          </div>
+          {% endif %}
+        </div>
+        <div class="card-body px-0 pt-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table align-items-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nombre</th>
+                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Test 1<br><small>ADAT</small></th>
+                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Test 2<br><small>Estilos</small></th>
+                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Test 3<br><small>Jugador</small></th>
+                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Test 4<br><small>Pensamiento</small></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for usuario in usuarios_tests %}
+                <tr>
+                  <td>
+                    <div class="d-flex px-2 py-1">
+                      <div class="d-flex flex-column justify-content-center">
+                        <h6 class="mb-0 text-sm">{{ usuario[0] }}</h6>
+                        <p class="text-xs text-secondary mb-0">{{ usuario[1] }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="align-middle text-center">
+                    {% if usuario[5] > 0 %}
+                      <span class="badge badge-sm bg-gradient-success">✓</span>
+                    {% else %}
+                      <span class="badge badge-sm bg-gradient-secondary">✗</span>
+                    {% endif %}
+                  </td>
+                  <td class="align-middle text-center">
+                    {% if usuario[6] > 0 %}
+                      <span class="badge badge-sm bg-gradient-success">✓</span>
+                    {% else %}
+                      <span class="badge badge-sm bg-gradient-secondary">✗</span>
+                    {% endif %}
+                  </td>
+                  <td class="align-middle text-center">
+                    {% if usuario[7] > 0 %}
+                      <span class="badge badge-sm bg-gradient-success">✓</span>
+                    {% else %}
+                      <span class="badge badge-sm bg-gradient-secondary">✗</span>
+                    {% endif %}
+                  </td>
+                  <td class="align-middle text-center">
+                    {% if usuario[8] > 0 %}
+                      <span class="badge badge-sm bg-gradient-success">✓</span>
+                    {% else %}
+                      <span class="badge badge-sm bg-gradient-secondary">✗</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Usuarios Recientes -->
   <div class="row">
     <div class="col-12">

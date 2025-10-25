@@ -1,4 +1,3 @@
-
 import json
 import os
 import openai
@@ -1139,6 +1138,56 @@ def estadisticas():
             ResultadoQuizCuatro.id
         ).join(ResultadoQuizCuatro).order_by(ResultadoQuizCuatro.id.desc()).limit(5).all()
 
+        # === USUARIOS Y TESTS COMPLETADOS ===
+        # Obtener parámetros de filtro
+        buscar_nombre = request.args.get('buscar_nombre', '').strip()
+        filtro_test1 = request.args.get('filtro_test1', '')
+        filtro_test2 = request.args.get('filtro_test2', '')
+        filtro_test3 = request.args.get('filtro_test3', '')
+        filtro_test4 = request.args.get('filtro_test4', '')
+        
+        # Consulta base
+        query = db.session.query(
+            User.nombres,
+            User.username,
+            User.institucion,
+            User.nivel_educativo,
+            User.rol,
+            func.coalesce(ResultadoQuiz.id, 0).label('quiz1_completado'),
+            func.coalesce(ResultadoQuizDos.id, 0).label('quiz2_completado'),
+            func.coalesce(ResultadoQuizTres.id, 0).label('quiz3_completado'),
+            func.coalesce(ResultadoQuizCuatro.id, 0).label('quiz4_completado')
+        ).outerjoin(ResultadoQuiz, User.id == ResultadoQuiz.user_id)\
+         .outerjoin(ResultadoQuizDos, User.id == ResultadoQuizDos.user_id)\
+         .outerjoin(ResultadoQuizTres, User.id == ResultadoQuizTres.user_id)\
+         .outerjoin(ResultadoQuizCuatro, User.id == ResultadoQuizCuatro.user_id)
+        
+        # Aplicar filtros
+        if buscar_nombre:
+            query = query.filter(User.nombres.ilike(f'%{buscar_nombre}%'))
+        
+        if filtro_test1 == 'completado':
+            query = query.filter(ResultadoQuiz.id.isnot(None))
+        elif filtro_test1 == 'no_completado':
+            query = query.filter(ResultadoQuiz.id.is_(None))
+            
+        if filtro_test2 == 'completado':
+            query = query.filter(ResultadoQuizDos.id.isnot(None))
+        elif filtro_test2 == 'no_completado':
+            query = query.filter(ResultadoQuizDos.id.is_(None))
+            
+        if filtro_test3 == 'completado':
+            query = query.filter(ResultadoQuizTres.id.isnot(None))
+        elif filtro_test3 == 'no_completado':
+            query = query.filter(ResultadoQuizTres.id.is_(None))
+            
+        if filtro_test4 == 'completado':
+            query = query.filter(ResultadoQuizCuatro.id.isnot(None))
+        elif filtro_test4 == 'no_completado':
+            query = query.filter(ResultadoQuizCuatro.id.is_(None))
+        
+        usuarios_tests = query.order_by(User.nombres).all()
+
         return {
             'total_usuarios': total_usuarios,
             'quiz1_completados': quiz1_completados,
@@ -1164,6 +1213,7 @@ def estadisticas():
             'rango_46_mas': rango_46_mas,
             'usuarios_recientes': usuarios_recientes,
             'resultados_recientes_quiz4': resultados_recientes_quiz4,
+            'usuarios_tests': usuarios_tests,
         }
 
     stats = cache_get_or_set('admin_estadisticas', _compute_stats, ttl=300)
@@ -1829,6 +1879,7 @@ def inject_config_flags():
             return 'Nunca'
         # Bogotá está en UTC-5
         bogota_time = dt - timedelta(hours=5)
+
         return bogota_time.strftime('%d/%m/%Y %H:%M')
 
     # Bandera para generador de actividades (por defecto True)
@@ -2039,7 +2090,7 @@ def quiz_results(result_id):
     etiqueta_scores = {
         "Abstracción": resultado.abstraccion,
         "Descomposición": resultado.descomposicion,
-        "Pensamiento Algorítmico": resultado.pensamiento_algoritmico
+        "Pensamiento Algoritmico": resultado.pensamiento_algoritmico
     }
     
     # Convertir el string de etiqueta_scores a un diccionario
@@ -3120,7 +3171,3 @@ def mis_resultados():
     r3 = ResultadoQuizTres.query.filter_by(user_id=current_user.id).first()
     r4 = ResultadoQuizCuatro.query.filter_by(user_id=current_user.id).first()
     return render_template('mis_resultados.html', r1=r1, r2=r2, r3=r3, r4=r4)
-
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5002)
