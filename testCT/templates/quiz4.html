@@ -26,8 +26,8 @@
                 <p class="mb-2" style="color: black;">{{ loop.index }}. {{ question.statement }}</p>
 
        {% if question.image_url %}
-       <img src="{{ question.image_url | image_url }}"
-         data-thumb="{{ question.image_url | drive_thumb }}"
+  <img src="{{ question.image_url }}"
+    data-thumb="{{ question.image_url }}"
          alt="Pregunta imagen"
          class="img-fluid mb-3" style="max-width: 100%; height: auto; display:block;"
          loading="lazy"
@@ -36,7 +36,7 @@
 
                 {% if current_user.is_authenticated and current_user.rol == 'admin' and question.image_url %}
                 <small class="text-muted d-block mb-2">Enlace imagen: 
-                  <a href="{{ question.image_url | image_url }}" target="_blank" rel="noopener">abrir</a>
+                  <a href="{{ question.image_url }}" target="_blank" rel="noopener">abrir</a>
                 </small>
                 {% endif %}
 

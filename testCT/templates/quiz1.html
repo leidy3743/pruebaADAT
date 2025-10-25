@@ -28,7 +28,7 @@
                       <br>
                         <p style="color: black;">{{ question.statement }}</p>
                         {% if question.image_url %}
-                        <img src="{{ question.image_url | image_url }}" alt="Pregunta imagen"
+                        <img src="{{ question.image_url }}" alt="Pregunta imagen"
                              class="img-fluid mb-2" style="max-width: 100%; height: auto;"
                              loading="lazy" onerror="this.style.display='none'">
                         {% endif %}

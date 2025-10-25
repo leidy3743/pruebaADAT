@@ -46,7 +46,7 @@
                   <td class="ps-4"><p class="text-xs font-weight-bold mb-0">{{ pregunta.id }}</p></td>
                   <td class="align-middle text-center" style="width: 110px;">
                     {% if pregunta.image_url %}
-                      <img src="{{ pregunta.image_url | image_url }}" alt="Imagen"
+                      <img src="{{ pregunta.image_url }}" alt="Imagen"
                            class="border rounded" style="max-height:56px; max-width:100px; object-fit:cover;"
                            onerror="this.style.display='none'">
                     {% else %}

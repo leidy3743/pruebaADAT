@@ -82,8 +82,8 @@ def quiz4():
         resultado = ResultadoQuizCuatro(
             user_id=current_user.id,
             score=score,
-            correct_count=correct_count,
-            incorrect_count=incorrect_count
+            respuestas_correctas=correct_count,
+            respuestas_incorrectas=incorrect_count
         )
         db.session.add(resultado)
         db.session.commit()
@@ -1076,14 +1076,14 @@ def estadisticas():
         top_quiz4 = db.session.query(
             User.nombres, 
             ResultadoQuizCuatro.score,
-            ResultadoQuizCuatro.correct_count
+            ResultadoQuizCuatro.respuestas_correctas
         ).join(ResultadoQuizCuatro).order_by(ResultadoQuizCuatro.score.desc()).limit(5).all()
 
         # === ESTADÍSTICAS POR INSTITUCIÓN ===
         stats_institucion = db.session.query(
-            User.institucion,
+            User.colegio_id,
             func.count(User.id).label('total_usuarios')
-        ).group_by(User.institucion).order_by(func.count(User.id).desc()).all()
+    ).group_by(User.colegio_id).order_by(func.count(User.id).desc()).all()
 
         # === ESTADÍSTICAS POR NIVEL EDUCATIVO ===
         stats_nivel = db.session.query(
@@ -1256,7 +1256,7 @@ def exportar_resultados(quiz):
         ws.append(headers)
         
         resultados = db.session.query(
-            User.id, User.nombres, User.username, User.institucion, ResultadoQuiz.score
+            User.id, User.nombres, User.username, User.colegio_id, ResultadoQuiz.score
         ).join(ResultadoQuiz).all()
         
         for resultado in resultados:
@@ -1269,7 +1269,7 @@ def exportar_resultados(quiz):
         ws.append(headers)
         
         resultados = db.session.query(
-            User.id, User.nombres, User.username, User.institucion,
+            User.id, User.nombres, User.username, User.colegio_id,
             ResultadoQuizDos.sensorial_intuitivo,
             ResultadoQuizDos.visual_verbal,
             ResultadoQuizDos.activo_reflexivo,
@@ -1287,7 +1287,7 @@ def exportar_resultados(quiz):
         ws.append(headers)
         
         resultados = db.session.query(
-            User.id, User.nombres, User.username, User.institucion,
+            User.id, User.nombres, User.username, User.colegio_id,
             ResultadoQuizTres.filantropo, ResultadoQuizTres.socializador,
             ResultadoQuizTres.triunfador, ResultadoQuizTres.jugador,
             ResultadoQuizTres.espiritu_libre, ResultadoQuizTres.disruptor
@@ -1303,8 +1303,8 @@ def exportar_resultados(quiz):
         ws.append(headers)
         
         resultados = db.session.query(
-            User.id, User.nombres, User.username, User.institucion,
-            ResultadoQuizCuatro.score, ResultadoQuizCuatro.correct_count,
+            User.id, User.nombres, User.username, User.colegio_id,
+            ResultadoQuizCuatro.score, ResultadoQuizCuatro.respuestas_correctas,
             ResultadoQuizCuatro.incorrect_count
         ).join(ResultadoQuizCuatro).all()
         
@@ -1975,8 +1975,8 @@ def submit_quiz4():
     resultado = ResultadoQuizCuatro(
         user_id=current_user.id,
         score=int(score),
-        correct_count=correct_count,
-        incorrect_count=incorrect_count,
+        respuestas_correctas=correct_count,
+        respuestas_incorrectas=incorrect_count,
     )
     db.session.add(resultado)
     db.session.commit()

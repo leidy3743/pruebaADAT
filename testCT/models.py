@@ -157,6 +157,7 @@ class ResultadoQuizTres(db.Model):
 
 # Modelo para preguntas del test CTt (QuestionCuatro)
 class QuestionCuatro(db.Model):
+    __tablename__ = 'quiz_cuatro'
     id = db.Column(db.Integer, primary_key=True)
     statement = db.Column(db.String(1000), nullable=False)
     option_a = db.Column(db.String(500), nullable=False)
@@ -169,14 +170,15 @@ class QuestionCuatro(db.Model):
     image_url = db.Column(db.String(200), nullable=True)
 
 class ResultadoQuizCuatro(db.Model):
-    
+    __tablename__ = 'resultado_quiz_cuatro'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
-    abstraccion = db.Column(db.Float, nullable=False)
-    descomposicion = db.Column(db.Float, nullable=False)
-    pensamiento_algoritmico = db.Column(db.Float, nullable=False)
+    score = db.Column(db.Integer, nullable=False)
+    abstraccion = db.Column(db.Float, nullable=True)
+    descomposicion = db.Column(db.Float, nullable=True)
+    pensamiento_algoritmico = db.Column(db.Float, nullable=True)
     respuestas_correctas = db.Column(db.Integer, nullable=False)
-    respuestas_incorrectas =db.Column(db.Integer, nullable=False)
+    respuestas_incorrectas = db.Column(db.Integer, nullable=False)
     usuario = db.relationship('User', backref=db.backref('resultado_quiz_cuatro', uselist=False))
 
 class Grado(db.Model):
