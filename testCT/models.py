@@ -62,6 +62,7 @@ class User(db.Model):
     colegio_id = db.Column(db.Integer, db.ForeignKey('colegio.id'), nullable=True)
     colegio = db.relationship('Colegio', backref='usuarios', lazy="select")
     nivel_grados_id = db.Column(db.Integer, db.ForeignKey('nivel.id'), nullable=True)
+    institucion = db.Column(db.String(120), nullable=True)
     nivel_educativo = db.Column(db.String(50), nullable=False)
     rol = db.Column(db.String(100), nullable=True)
     anios_experiencia = db.Column(db.Integer, nullable=False)

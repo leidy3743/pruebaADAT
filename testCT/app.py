@@ -351,7 +351,13 @@ def gestion_usuarios():
     ).order_by(User.id.desc()).paginate(
         page=page, per_page=per_page, error_out=False
     )
-    
+
+    # DEBUG: Mostrar los primeros usuarios y su institucion
+    print("=== DEBUG USUARIOS ===")
+    for u in pagination.items[:10]:
+        print(f"ID: {u.id}, Nombre: {u.nombres}, Institucion: {u.institucion}")
+    print("======================")
+
     return render_template('gestion_usuarios.html', 
                          usuarios=pagination.items,
                          pagination=pagination)
