@@ -47,12 +47,8 @@
                 <label class="form-label text-xs mb-1">Rol</label>
                 <select id="filterRole" class="form-select form-select-sm">
                   <option value="">Todos</option>
-                  {% set _roles = [] %}
-                  {% for u in usuarios %}
-                    {% if u.rol and u.rol not in _roles %}
-                      <option value="{{ u.rol }}">{{ u.rol }}</option>
-                      {% set _ = _roles.append(u.rol) %}
-                    {% endif %}
+                  {% for rol in all_roles %}
+                    <option value="{{ rol }}">{{ rol }}</option>
                   {% endfor %}
                 </select>
               </div>

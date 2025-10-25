@@ -352,6 +352,9 @@ def gestion_usuarios():
         page=page, per_page=per_page, error_out=False
     )
 
+    # Obtener todos los roles únicos de la base de datos
+    all_roles = [r[0] for r in db.session.query(User.rol).distinct().all() if r[0]]
+
     # DEBUG: Mostrar los primeros usuarios y su institucion
     print("=== DEBUG USUARIOS ===")
     for u in pagination.items[:10]:
@@ -360,7 +363,8 @@ def gestion_usuarios():
 
     return render_template('gestion_usuarios.html', 
                          usuarios=pagination.items,
-                         pagination=pagination)
+                         pagination=pagination,
+                         all_roles=all_roles)
 
 
 @app.route('/gestion_usuarios/crear', methods=['GET', 'POST'])
