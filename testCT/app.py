@@ -9,7 +9,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, U
 from werkzeug.security import generate_password_hash, check_password_hash
 # Utilidades y librerías estándar/faltantes
 import io
-from datetime import datetime
+from datetime import datetime, timedelta
 import zipfile
 from sqlalchemy import text, inspect
 from reportlab.pdfgen import canvas
@@ -278,6 +278,9 @@ def login():
                 # Si el usuario existe y la contraseña es correcta
                 print("user autenticado")
                 login_user(user)
+                # Actualizar fecha de último login
+                user.last_login = datetime.utcnow()
+                db.session.commit()
                 # Limpiar mensajes flash anteriores y agregar solo el de bienvenida
                 session.pop('_flashes', None)
                 flash(f'¡Bienvenido/a {user.nombres}!', 'success')
@@ -1127,7 +1130,7 @@ def estadisticas():
         rango_46_mas = User.query.filter(User.edad >= 46).count()
 
         # === USUARIOS RECIENTES ===
-        usuarios_recientes = User.query.order_by(User.id.desc()).limit(10).all()
+        usuarios_recientes = User.query.filter(User.last_login.isnot(None)).order_by(User.last_login.desc()).limit(10).all()
 
         # === RESULTADOS RECIENTES ===
         resultados_recientes_quiz4 = db.session.query(
@@ -1820,6 +1823,14 @@ def inject_config_flags():
         except Exception:
             return default
 
+    # Función para convertir fecha UTC a hora de Bogotá (UTC-5)
+    def format_datetime_bogota(dt):
+        if not dt:
+            return 'Nunca'
+        # Bogotá está en UTC-5
+        bogota_time = dt - timedelta(hours=5)
+        return bogota_time.strftime('%d/%m/%Y %H:%M')
+
     # Bandera para generador de actividades (por defecto True)
     try:
         c = ConfiguracionSistema.query.filter_by(clave='generador_actividades_activo').first()
@@ -1827,7 +1838,7 @@ def inject_config_flags():
     except Exception:
         generador_activo = True
 
-    return dict(cfg=cfg, generador_actividades_activo=generador_activo)
+    return dict(cfg=cfg, format_datetime_bogota=format_datetime_bogota, generador_actividades_activo=generador_activo)
 
 
 @app.route('/register_quiz1_question', methods=['GET', 'POST'])
