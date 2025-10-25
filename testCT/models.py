@@ -48,6 +48,11 @@ class Colegio(db.Model):
 
 
 class User(db.Model):
+    @property
+    def is_authenticated(self):
+        return True
+    def get_id(self):
+        return str(self.id)
     __tablename__='user'
     id = db.Column(db.Integer, primary_key=True)
     nombres = db.Column(db.String(100), nullable=False)
@@ -69,6 +74,11 @@ class User(db.Model):
     
     def __repr__(self):
         return f'<User {self.username}>'
+
+    @property
+    def is_active(self):
+        # Puedes personalizar esta lógica si tienes un campo de estado
+        return True
 
 
 class Question(db.Model):
