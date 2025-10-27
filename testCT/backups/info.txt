@@ -1,0 +1,26 @@
+Información sobre backups de la base de datos ADAT
+
+=== BACKUP AUTOMÁTICO ===
+- Se ejecuta automáticamente cada 24 horas a las 2:00 AM
+- Usa pg_dump para crear un backup completo en formato SQL
+- Solo mantiene el backup más reciente (elimina los anteriores)
+- Archivo: backup_YYYYMMDD_HHMMSS.sql
+
+=== BACKUP MANUAL ===
+Para crear un backup manual, ejecuta:
+./backup.sh
+
+=== RESTAURACIÓN ===
+Para restaurar un backup:
+PGPASSWORD=uVPTOe32sInjJYl5c1OpF3XFzKi6SKn8 psql -h dpg-d3peql2li9vc73bh2lt0-a.oregon-postgres.render.com -U leidy_user -d leidy < backups/nombre_del_archivo.sql
+
+=== CONFIGURACIÓN ===
+- Base de datos: PostgreSQL en Render
+- Host: dpg-d3peql2li9vc73bh2lt0-a.oregon-postgres.render.com
+- Usuario: leidy_user
+- Base: leidy
+
+=== NOTAS ===
+- Los backups se almacenan en este directorio
+- El script usa Docker para pg_dump, no requiere instalación local
+- En caso de error, el backup fallido se elimina automáticamente

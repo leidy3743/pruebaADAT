@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict Vyhgsz5aLXXzllBNloYi3rHPcWbKeLoxn1Ka3NvmcIEGCBXgRFgK0yhY0r1IlQN
+\restrict PqlMDxGJPOHX3pEEYfNgkoGW6eGvYZdtvJlsgGPxWiX4TV0ANR9lcepIehfVHkS
 
 -- Dumped from database version 17.6 (Debian 17.6-1.pgdg12+1)
 -- Dumped by pg_dump version 17.6 (Debian 17.6-2.pgdg13+1)
@@ -20,18 +20,56 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
+-- Name: public; Type: SCHEMA; Schema: -; Owner: leidy_user
 --
 
 -- *not* creating schema, since initdb creates it
 
+
+ALTER SCHEMA public OWNER TO leidy_user;
 
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- Name: actividad_generada; Type: TABLE; Schema: public; Owner: -
+-- Name: Users; Type: TABLE; Schema: public; Owner: leidy_user
+--
+
+CREATE TABLE public."Users" (
+    id integer NOT NULL,
+    username character varying(64),
+    email character varying(64),
+    password bytea
+);
+
+
+ALTER TABLE public."Users" OWNER TO leidy_user;
+
+--
+-- Name: Users_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
+--
+
+CREATE SEQUENCE public."Users_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."Users_id_seq" OWNER TO leidy_user;
+
+--
+-- Name: Users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
+--
+
+ALTER SEQUENCE public."Users_id_seq" OWNED BY public."Users".id;
+
+
+--
+-- Name: actividad_generada; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.actividad_generada (
@@ -51,8 +89,10 @@ CREATE TABLE public.actividad_generada (
 );
 
 
+ALTER TABLE public.actividad_generada OWNER TO leidy_user;
+
 --
--- Name: actividad_generada_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: actividad_generada_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.actividad_generada_id_seq
@@ -64,15 +104,17 @@ CREATE SEQUENCE public.actividad_generada_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.actividad_generada_id_seq OWNER TO leidy_user;
+
 --
--- Name: actividad_generada_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: actividad_generada_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.actividad_generada_id_seq OWNED BY public.actividad_generada.id;
 
 
 --
--- Name: alembic_version; Type: TABLE; Schema: public; Owner: -
+-- Name: alembic_version; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.alembic_version (
@@ -80,8 +122,10 @@ CREATE TABLE public.alembic_version (
 );
 
 
+ALTER TABLE public.alembic_version OWNER TO leidy_user;
+
 --
--- Name: answer; Type: TABLE; Schema: public; Owner: -
+-- Name: answer; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.answer (
@@ -92,8 +136,10 @@ CREATE TABLE public.answer (
 );
 
 
+ALTER TABLE public.answer OWNER TO leidy_user;
+
 --
--- Name: answer_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: answer_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.answer_id_seq
@@ -105,15 +151,17 @@ CREATE SEQUENCE public.answer_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.answer_id_seq OWNER TO leidy_user;
+
 --
--- Name: answer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: answer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.answer_id_seq OWNED BY public.answer.id;
 
 
 --
--- Name: answer_tres; Type: TABLE; Schema: public; Owner: -
+-- Name: answer_tres; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.answer_tres (
@@ -124,8 +172,10 @@ CREATE TABLE public.answer_tres (
 );
 
 
+ALTER TABLE public.answer_tres OWNER TO leidy_user;
+
 --
--- Name: answer_tres_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: answer_tres_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.answer_tres_id_seq
@@ -137,15 +187,17 @@ CREATE SEQUENCE public.answer_tres_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.answer_tres_id_seq OWNER TO leidy_user;
+
 --
--- Name: answer_tres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: answer_tres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.answer_tres_id_seq OWNED BY public.answer_tres.id;
 
 
 --
--- Name: asignatura; Type: TABLE; Schema: public; Owner: -
+-- Name: asignatura; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.asignatura (
@@ -154,8 +206,10 @@ CREATE TABLE public.asignatura (
 );
 
 
+ALTER TABLE public.asignatura OWNER TO leidy_user;
+
 --
--- Name: asignatura_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: asignatura_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.asignatura_id_seq
@@ -167,15 +221,17 @@ CREATE SEQUENCE public.asignatura_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.asignatura_id_seq OWNER TO leidy_user;
+
 --
--- Name: asignatura_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: asignatura_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.asignatura_id_seq OWNED BY public.asignatura.id;
 
 
 --
--- Name: colegio; Type: TABLE; Schema: public; Owner: -
+-- Name: colegio; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.colegio (
@@ -184,8 +240,10 @@ CREATE TABLE public.colegio (
 );
 
 
+ALTER TABLE public.colegio OWNER TO leidy_user;
+
 --
--- Name: colegio_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: colegio_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.colegio_id_seq
@@ -197,15 +255,55 @@ CREATE SEQUENCE public.colegio_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.colegio_id_seq OWNER TO leidy_user;
+
 --
--- Name: colegio_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: colegio_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.colegio_id_seq OWNED BY public.colegio.id;
 
 
 --
--- Name: configuracion_sistema; Type: TABLE; Schema: public; Owner: -
+-- Name: configuracion_notificaciones; Type: TABLE; Schema: public; Owner: leidy_user
+--
+
+CREATE TABLE public.configuracion_notificaciones (
+    id integer NOT NULL,
+    notif_login boolean NOT NULL,
+    notif_registro boolean NOT NULL,
+    notif_test_completado boolean NOT NULL,
+    email_destino character varying(120) NOT NULL,
+    actualizado_at timestamp without time zone
+);
+
+
+ALTER TABLE public.configuracion_notificaciones OWNER TO leidy_user;
+
+--
+-- Name: configuracion_notificaciones_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
+--
+
+CREATE SEQUENCE public.configuracion_notificaciones_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.configuracion_notificaciones_id_seq OWNER TO leidy_user;
+
+--
+-- Name: configuracion_notificaciones_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
+--
+
+ALTER SEQUENCE public.configuracion_notificaciones_id_seq OWNED BY public.configuracion_notificaciones.id;
+
+
+--
+-- Name: configuracion_sistema; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.configuracion_sistema (
@@ -216,8 +314,10 @@ CREATE TABLE public.configuracion_sistema (
 );
 
 
+ALTER TABLE public.configuracion_sistema OWNER TO leidy_user;
+
 --
--- Name: configuracion_sistema_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: configuracion_sistema_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.configuracion_sistema_id_seq
@@ -229,15 +329,17 @@ CREATE SEQUENCE public.configuracion_sistema_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.configuracion_sistema_id_seq OWNER TO leidy_user;
+
 --
--- Name: configuracion_sistema_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: configuracion_sistema_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.configuracion_sistema_id_seq OWNED BY public.configuracion_sistema.id;
 
 
 --
--- Name: curso; Type: TABLE; Schema: public; Owner: -
+-- Name: curso; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.curso (
@@ -246,8 +348,10 @@ CREATE TABLE public.curso (
 );
 
 
+ALTER TABLE public.curso OWNER TO leidy_user;
+
 --
--- Name: curso_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: curso_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.curso_id_seq
@@ -259,15 +363,17 @@ CREATE SEQUENCE public.curso_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.curso_id_seq OWNER TO leidy_user;
+
 --
--- Name: curso_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: curso_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.curso_id_seq OWNED BY public.curso.id;
 
 
 --
--- Name: grado; Type: TABLE; Schema: public; Owner: -
+-- Name: grado; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.grado (
@@ -276,8 +382,10 @@ CREATE TABLE public.grado (
 );
 
 
+ALTER TABLE public.grado OWNER TO leidy_user;
+
 --
--- Name: grado_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: grado_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.grado_id_seq
@@ -289,15 +397,17 @@ CREATE SEQUENCE public.grado_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.grado_id_seq OWNER TO leidy_user;
+
 --
--- Name: grado_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: grado_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.grado_id_seq OWNED BY public.grado.id;
 
 
 --
--- Name: grados_dictados; Type: TABLE; Schema: public; Owner: -
+-- Name: grados_dictados; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.grados_dictados (
@@ -306,8 +416,10 @@ CREATE TABLE public.grados_dictados (
 );
 
 
+ALTER TABLE public.grados_dictados OWNER TO leidy_user;
+
 --
--- Name: habilidad; Type: TABLE; Schema: public; Owner: -
+-- Name: habilidad; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.habilidad (
@@ -316,8 +428,10 @@ CREATE TABLE public.habilidad (
 );
 
 
+ALTER TABLE public.habilidad OWNER TO leidy_user;
+
 --
--- Name: habilidad_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: habilidad_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.habilidad_id_seq
@@ -329,15 +443,17 @@ CREATE SEQUENCE public.habilidad_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.habilidad_id_seq OWNER TO leidy_user;
+
 --
--- Name: habilidad_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: habilidad_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.habilidad_id_seq OWNED BY public.habilidad.id;
 
 
 --
--- Name: nivel; Type: TABLE; Schema: public; Owner: -
+-- Name: nivel; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.nivel (
@@ -346,8 +462,10 @@ CREATE TABLE public.nivel (
 );
 
 
+ALTER TABLE public.nivel OWNER TO leidy_user;
+
 --
--- Name: nivel_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: nivel_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.nivel_id_seq
@@ -359,15 +477,17 @@ CREATE SEQUENCE public.nivel_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.nivel_id_seq OWNER TO leidy_user;
+
 --
--- Name: nivel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: nivel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.nivel_id_seq OWNED BY public.nivel.id;
 
 
 --
--- Name: nivel_por_grados; Type: TABLE; Schema: public; Owner: -
+-- Name: nivel_por_grados; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.nivel_por_grados (
@@ -376,8 +496,10 @@ CREATE TABLE public.nivel_por_grados (
 );
 
 
+ALTER TABLE public.nivel_por_grados OWNER TO leidy_user;
+
 --
--- Name: question; Type: TABLE; Schema: public; Owner: -
+-- Name: question; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.question (
@@ -394,8 +516,52 @@ CREATE TABLE public.question (
 );
 
 
+ALTER TABLE public.question OWNER TO leidy_user;
+
 --
--- Name: question_dos; Type: TABLE; Schema: public; Owner: -
+-- Name: question_cuatro; Type: TABLE; Schema: public; Owner: leidy_user
+--
+
+CREATE TABLE public.question_cuatro (
+    id integer NOT NULL,
+    statement character varying(1000) NOT NULL,
+    option_a character varying(500) NOT NULL,
+    option_b character varying(500) NOT NULL,
+    option_c character varying(500) NOT NULL,
+    option_d character varying(500) NOT NULL,
+    correct_answer character varying(1) NOT NULL,
+    label character varying(50),
+    percentage double precision,
+    image_url character varying(200)
+);
+
+
+ALTER TABLE public.question_cuatro OWNER TO leidy_user;
+
+--
+-- Name: question_cuatro_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
+--
+
+CREATE SEQUENCE public.question_cuatro_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.question_cuatro_id_seq OWNER TO leidy_user;
+
+--
+-- Name: question_cuatro_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
+--
+
+ALTER SEQUENCE public.question_cuatro_id_seq OWNED BY public.question_cuatro.id;
+
+
+--
+-- Name: question_dos; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.question_dos (
@@ -406,8 +572,10 @@ CREATE TABLE public.question_dos (
 );
 
 
+ALTER TABLE public.question_dos OWNER TO leidy_user;
+
 --
--- Name: question_dos_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: question_dos_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.question_dos_id_seq
@@ -419,15 +587,17 @@ CREATE SEQUENCE public.question_dos_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.question_dos_id_seq OWNER TO leidy_user;
+
 --
--- Name: question_dos_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: question_dos_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.question_dos_id_seq OWNED BY public.question_dos.id;
 
 
 --
--- Name: question_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: question_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.question_id_seq
@@ -439,15 +609,17 @@ CREATE SEQUENCE public.question_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.question_id_seq OWNER TO leidy_user;
+
 --
--- Name: question_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: question_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.question_id_seq OWNED BY public.question.id;
 
 
 --
--- Name: question_tres; Type: TABLE; Schema: public; Owner: -
+-- Name: question_tres; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.question_tres (
@@ -461,8 +633,10 @@ CREATE TABLE public.question_tres (
 );
 
 
+ALTER TABLE public.question_tres OWNER TO leidy_user;
+
 --
--- Name: question_tres_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: question_tres_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.question_tres_id_seq
@@ -474,15 +648,17 @@ CREATE SEQUENCE public.question_tres_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.question_tres_id_seq OWNER TO leidy_user;
+
 --
--- Name: question_tres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: question_tres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.question_tres_id_seq OWNED BY public.question_tres.id;
 
 
 --
--- Name: quiz_cuatro; Type: TABLE; Schema: public; Owner: -
+-- Name: quiz_cuatro; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.quiz_cuatro (
@@ -499,8 +675,10 @@ CREATE TABLE public.quiz_cuatro (
 );
 
 
+ALTER TABLE public.quiz_cuatro OWNER TO leidy_user;
+
 --
--- Name: quiz_cuatro_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: quiz_cuatro_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.quiz_cuatro_id_seq
@@ -512,15 +690,17 @@ CREATE SEQUENCE public.quiz_cuatro_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.quiz_cuatro_id_seq OWNER TO leidy_user;
+
 --
--- Name: quiz_cuatro_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: quiz_cuatro_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.quiz_cuatro_id_seq OWNED BY public.quiz_cuatro.id;
 
 
 --
--- Name: quiz_result; Type: TABLE; Schema: public; Owner: -
+-- Name: quiz_result; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.quiz_result (
@@ -530,8 +710,10 @@ CREATE TABLE public.quiz_result (
 );
 
 
+ALTER TABLE public.quiz_result OWNER TO leidy_user;
+
 --
--- Name: quiz_result_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: quiz_result_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.quiz_result_id_seq
@@ -543,15 +725,17 @@ CREATE SEQUENCE public.quiz_result_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.quiz_result_id_seq OWNER TO leidy_user;
+
 --
--- Name: quiz_result_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: quiz_result_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.quiz_result_id_seq OWNED BY public.quiz_result.id;
 
 
 --
--- Name: recurso; Type: TABLE; Schema: public; Owner: -
+-- Name: recurso; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.recurso (
@@ -560,8 +744,10 @@ CREATE TABLE public.recurso (
 );
 
 
+ALTER TABLE public.recurso OWNER TO leidy_user;
+
 --
--- Name: recurso_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: recurso_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.recurso_id_seq
@@ -573,15 +759,17 @@ CREATE SEQUENCE public.recurso_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.recurso_id_seq OWNER TO leidy_user;
+
 --
--- Name: recurso_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: recurso_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.recurso_id_seq OWNED BY public.recurso.id;
 
 
 --
--- Name: resultado_quiz; Type: TABLE; Schema: public; Owner: -
+-- Name: resultado_quiz; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.resultado_quiz (
@@ -595,21 +783,28 @@ CREATE TABLE public.resultado_quiz (
 );
 
 
+ALTER TABLE public.resultado_quiz OWNER TO leidy_user;
+
 --
--- Name: resultado_quiz_cuatro; Type: TABLE; Schema: public; Owner: -
+-- Name: resultado_quiz_cuatro; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.resultado_quiz_cuatro (
     id integer NOT NULL,
     user_id integer NOT NULL,
     score integer NOT NULL,
-    correct_count integer NOT NULL,
-    incorrect_count integer NOT NULL
+    abstraccion double precision,
+    descomposicion double precision,
+    pensamiento_algoritmico double precision,
+    respuestas_correctas integer,
+    respuestas_incorrectas integer
 );
 
 
+ALTER TABLE public.resultado_quiz_cuatro OWNER TO leidy_user;
+
 --
--- Name: resultado_quiz_cuatro_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: resultado_quiz_cuatro_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.resultado_quiz_cuatro_id_seq
@@ -621,15 +816,17 @@ CREATE SEQUENCE public.resultado_quiz_cuatro_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.resultado_quiz_cuatro_id_seq OWNER TO leidy_user;
+
 --
--- Name: resultado_quiz_cuatro_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: resultado_quiz_cuatro_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.resultado_quiz_cuatro_id_seq OWNED BY public.resultado_quiz_cuatro.id;
 
 
 --
--- Name: resultado_quiz_dos; Type: TABLE; Schema: public; Owner: -
+-- Name: resultado_quiz_dos; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.resultado_quiz_dos (
@@ -642,8 +839,10 @@ CREATE TABLE public.resultado_quiz_dos (
 );
 
 
+ALTER TABLE public.resultado_quiz_dos OWNER TO leidy_user;
+
 --
--- Name: resultado_quiz_dos_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: resultado_quiz_dos_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.resultado_quiz_dos_id_seq
@@ -655,15 +854,17 @@ CREATE SEQUENCE public.resultado_quiz_dos_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.resultado_quiz_dos_id_seq OWNER TO leidy_user;
+
 --
--- Name: resultado_quiz_dos_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: resultado_quiz_dos_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.resultado_quiz_dos_id_seq OWNED BY public.resultado_quiz_dos.id;
 
 
 --
--- Name: resultado_quiz_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: resultado_quiz_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.resultado_quiz_id_seq
@@ -675,15 +876,17 @@ CREATE SEQUENCE public.resultado_quiz_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.resultado_quiz_id_seq OWNER TO leidy_user;
+
 --
--- Name: resultado_quiz_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: resultado_quiz_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.resultado_quiz_id_seq OWNED BY public.resultado_quiz.id;
 
 
 --
--- Name: resultado_quiz_tres; Type: TABLE; Schema: public; Owner: -
+-- Name: resultado_quiz_tres; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.resultado_quiz_tres (
@@ -698,8 +901,10 @@ CREATE TABLE public.resultado_quiz_tres (
 );
 
 
+ALTER TABLE public.resultado_quiz_tres OWNER TO leidy_user;
+
 --
--- Name: resultado_quiz_tres_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: resultado_quiz_tres_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.resultado_quiz_tres_id_seq
@@ -711,15 +916,17 @@ CREATE SEQUENCE public.resultado_quiz_tres_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.resultado_quiz_tres_id_seq OWNER TO leidy_user;
+
 --
--- Name: resultado_quiz_tres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: resultado_quiz_tres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.resultado_quiz_tres_id_seq OWNED BY public.resultado_quiz_tres.id;
 
 
 --
--- Name: tematica; Type: TABLE; Schema: public; Owner: -
+-- Name: tematica; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.tematica (
@@ -728,8 +935,10 @@ CREATE TABLE public.tematica (
 );
 
 
+ALTER TABLE public.tematica OWNER TO leidy_user;
+
 --
--- Name: tematica_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: tematica_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.tematica_id_seq
@@ -741,15 +950,17 @@ CREATE SEQUENCE public.tematica_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.tematica_id_seq OWNER TO leidy_user;
+
 --
--- Name: tematica_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: tematica_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.tematica_id_seq OWNED BY public.tematica.id;
 
 
 --
--- Name: user; Type: TABLE; Schema: public; Owner: -
+-- Name: user; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public."user" (
@@ -765,12 +976,16 @@ CREATE TABLE public."user" (
     username character varying(80) NOT NULL,
     password character varying(200) NOT NULL,
     institucion character varying(120),
-    cedula character varying(20)
+    cedula character varying(20),
+    created_at timestamp without time zone DEFAULT now(),
+    last_login timestamp without time zone
 );
 
 
+ALTER TABLE public."user" OWNER TO leidy_user;
+
 --
--- Name: user_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: user_id_seq; Type: SEQUENCE; Schema: public; Owner: leidy_user
 --
 
 CREATE SEQUENCE public.user_id_seq
@@ -782,15 +997,17 @@ CREATE SEQUENCE public.user_id_seq
     CACHE 1;
 
 
+ALTER SEQUENCE public.user_id_seq OWNER TO leidy_user;
+
 --
--- Name: user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: leidy_user
 --
 
 ALTER SEQUENCE public.user_id_seq OWNED BY public."user".id;
 
 
 --
--- Name: usuarios_cursos; Type: TABLE; Schema: public; Owner: -
+-- Name: usuarios_cursos; Type: TABLE; Schema: public; Owner: leidy_user
 --
 
 CREATE TABLE public.usuarios_cursos (
@@ -799,180 +1016,213 @@ CREATE TABLE public.usuarios_cursos (
 );
 
 
+ALTER TABLE public.usuarios_cursos OWNER TO leidy_user;
+
 --
--- Name: actividad_generada id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: Users id; Type: DEFAULT; Schema: public; Owner: leidy_user
+--
+
+ALTER TABLE ONLY public."Users" ALTER COLUMN id SET DEFAULT nextval('public."Users_id_seq"'::regclass);
+
+
+--
+-- Name: actividad_generada id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.actividad_generada ALTER COLUMN id SET DEFAULT nextval('public.actividad_generada_id_seq'::regclass);
 
 
 --
--- Name: answer id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: answer id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.answer ALTER COLUMN id SET DEFAULT nextval('public.answer_id_seq'::regclass);
 
 
 --
--- Name: answer_tres id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: answer_tres id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.answer_tres ALTER COLUMN id SET DEFAULT nextval('public.answer_tres_id_seq'::regclass);
 
 
 --
--- Name: asignatura id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: asignatura id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.asignatura ALTER COLUMN id SET DEFAULT nextval('public.asignatura_id_seq'::regclass);
 
 
 --
--- Name: colegio id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: colegio id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.colegio ALTER COLUMN id SET DEFAULT nextval('public.colegio_id_seq'::regclass);
 
 
 --
--- Name: configuracion_sistema id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: configuracion_notificaciones id; Type: DEFAULT; Schema: public; Owner: leidy_user
+--
+
+ALTER TABLE ONLY public.configuracion_notificaciones ALTER COLUMN id SET DEFAULT nextval('public.configuracion_notificaciones_id_seq'::regclass);
+
+
+--
+-- Name: configuracion_sistema id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.configuracion_sistema ALTER COLUMN id SET DEFAULT nextval('public.configuracion_sistema_id_seq'::regclass);
 
 
 --
--- Name: curso id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: curso id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.curso ALTER COLUMN id SET DEFAULT nextval('public.curso_id_seq'::regclass);
 
 
 --
--- Name: grado id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: grado id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.grado ALTER COLUMN id SET DEFAULT nextval('public.grado_id_seq'::regclass);
 
 
 --
--- Name: habilidad id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: habilidad id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.habilidad ALTER COLUMN id SET DEFAULT nextval('public.habilidad_id_seq'::regclass);
 
 
 --
--- Name: nivel id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: nivel id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.nivel ALTER COLUMN id SET DEFAULT nextval('public.nivel_id_seq'::regclass);
 
 
 --
--- Name: question id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: question id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.question ALTER COLUMN id SET DEFAULT nextval('public.question_id_seq'::regclass);
 
 
 --
--- Name: question_dos id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: question_cuatro id; Type: DEFAULT; Schema: public; Owner: leidy_user
+--
+
+ALTER TABLE ONLY public.question_cuatro ALTER COLUMN id SET DEFAULT nextval('public.question_cuatro_id_seq'::regclass);
+
+
+--
+-- Name: question_dos id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.question_dos ALTER COLUMN id SET DEFAULT nextval('public.question_dos_id_seq'::regclass);
 
 
 --
--- Name: question_tres id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: question_tres id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.question_tres ALTER COLUMN id SET DEFAULT nextval('public.question_tres_id_seq'::regclass);
 
 
 --
--- Name: quiz_cuatro id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: quiz_cuatro id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.quiz_cuatro ALTER COLUMN id SET DEFAULT nextval('public.quiz_cuatro_id_seq'::regclass);
 
 
 --
--- Name: quiz_result id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: quiz_result id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.quiz_result ALTER COLUMN id SET DEFAULT nextval('public.quiz_result_id_seq'::regclass);
 
 
 --
--- Name: recurso id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: recurso id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.recurso ALTER COLUMN id SET DEFAULT nextval('public.recurso_id_seq'::regclass);
 
 
 --
--- Name: resultado_quiz id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: resultado_quiz id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz ALTER COLUMN id SET DEFAULT nextval('public.resultado_quiz_id_seq'::regclass);
 
 
 --
--- Name: resultado_quiz_cuatro id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: resultado_quiz_cuatro id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz_cuatro ALTER COLUMN id SET DEFAULT nextval('public.resultado_quiz_cuatro_id_seq'::regclass);
 
 
 --
--- Name: resultado_quiz_dos id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: resultado_quiz_dos id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz_dos ALTER COLUMN id SET DEFAULT nextval('public.resultado_quiz_dos_id_seq'::regclass);
 
 
 --
--- Name: resultado_quiz_tres id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: resultado_quiz_tres id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz_tres ALTER COLUMN id SET DEFAULT nextval('public.resultado_quiz_tres_id_seq'::regclass);
 
 
 --
--- Name: tematica id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: tematica id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.tematica ALTER COLUMN id SET DEFAULT nextval('public.tematica_id_seq'::regclass);
 
 
 --
--- Name: user id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: user id; Type: DEFAULT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public."user" ALTER COLUMN id SET DEFAULT nextval('public.user_id_seq'::regclass);
 
 
 --
--- Data for Name: actividad_generada; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: Users; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
-COPY public.actividad_generada (id, user_id, nombre_profesor, grado, asignatura, tematica, cantidad_estudiantes, tipo_actividad, tiempo, recursos, contenido, fecha_creacion, fecha_modificacion) FROM stdin;
+COPY public."Users" (id, username, email, password) FROM stdin;
 \.
 
 
 --
--- Data for Name: alembic_version; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: actividad_generada; Type: TABLE DATA; Schema: public; Owner: leidy_user
+--
+
+COPY public.actividad_generada (id, user_id, nombre_profesor, grado, asignatura, tematica, cantidad_estudiantes, tipo_actividad, tiempo, recursos, contenido, fecha_creacion, fecha_modificacion) FROM stdin;
+2	18	Carlos GIovanny Hidalgo Suarez	6° Grado	Matematicas	sumas	40	Colaborativo	34	cuaderno y lampicero	## Taller: **Sumas Colaborativas: Construyendo Números Juntos**\n\n### Objetivos de Aprendizaje\n\n1. **Desarrollar la habilidad de descomposición numérica** para realizar sumas más complejas.\n2. **Fomentar el trabajo en equipo** y la colaboración entre compañeros para resolver problemas matemáticos.\n3. **Estimular la abstracción** de conceptos matemáticos a través de la práctica de sumas.\n4. **Mejorar la comunicación** y la argumentación matemática al explicar los procedimientos utilizados en las sumas.\n\n### Introducción Motivadora\n\n¡Bienvenidos, estudiantes! Hoy vamos a convertirnos en verdaderos *constructores de números*. Imaginemos que cada número es un ladrillo y que, al sumarlos, estamos construyendo una increíble torre de matemáticas. Cada uno de ustedes jugará un papel importante en este proyecto colaborativo. ¿Están listos para trabajar en equipo y descubrir el poder de las sumas? ¡Vamos a empezar!\n\n### Desarrollo de la Actividad\n\n#### Paso a Paso:\n\n1. **Formación de Equipos:**\n   - Dividir la clase en **8 grupos** de **5 estudiantes** cada uno. Esto fomentará la colaboración y el intercambio de ideas.\n\n2. **Introducción a la Descomposición:**\n   - Explicar brevemente qué es la descomposición numérica y cómo se relaciona con la suma.\n   - Proporcionar ejemplos simples en la pizarra.\n\n3. **Presentación de Desafío:**\n   - Cada grupo recibirá un conjunto de problemas de suma que deberán resolver colaborativamente. Estos problemas estarán diseñados para ser descompuestos en partes más pequeñas.\n\n4. **Distribución de Recursos:**\n   - Proporcionar a cada estudiante un cuaderno y un lampicero para que puedan trabajar en sus soluciones.\n\n5. **Resolución Colaborativa:**\n   - Los grupos trabajarán juntos para resolver los problemas, utilizando la descomposición. Cada grupo debe elegir un **portavoz** que explique su método al resto de la clase.\n\n### Actividades Prácticas Específicas\n\n- **Ejercicio 1: Sumas Simples descompuestas**\n  - Problema: 58 + 27\n  - Descomponer los números en decenas y unidades y sumar cada parte por separado.\n\n- **Ejercicio 2: Problema de la Torre**\n  - Cada grupo debe crear un problema de suma utilizando un conjunto de números que ellos elijan, y luego compartirlo con otro grupo para que lo resuelvan.\n\n- **Ejercicio 3: Justificación del Método**\n  - Cada grupo debe escribir brevemente en su cuaderno cómo descompusieron los números y por qué eligieron ese método.\n\n### Evaluación o Cierre\n\n- **Presentación de Resultados:**\n  - Cada grupo tendrá **3 minutos** para presentar su solución al resto de la clase, explicando su método y el razonamiento detrás de él.\n  \n- **Reflexión Final:**\n  - Preguntar a los estudiantes cómo se sintieron trabajando en equipo y qué aprendieron sobre la suma y la descomposición.\n\n### Recursos Necesarios\n\n- **Cuadernos** para cada estudiante.\n- **Lampiceros** para escribir.\n- **Problemas de suma** impresos o escritos en la pizarra para que los grupos los resuelvan.\n- **Cronómetro** para controlar el tiempo de las presentaciones.\n\n---\n\nEste taller no solo desarrollará las habilidades matemáticas de los estudiantes, sino que también fortalecerá su capacidad de trabajar en equipo y comunicarse efectivamente. ¡Que empiece la aventura matemática!	2025-10-25 16:08:14.004354	2025-10-25 16:08:14.004359
+\.
+
+
+--
+-- Data for Name: alembic_version; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
+base
 624fdffbc687
 beae1797a1b1
 \.
 
 
 --
--- Data for Name: answer; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: answer; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.answer (id, user_id, question_id, selected_answer) FROM stdin;
@@ -980,7 +1230,7 @@ COPY public.answer (id, user_id, question_id, selected_answer) FROM stdin;
 
 
 --
--- Data for Name: answer_tres; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: answer_tres; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.answer_tres (id, user_id, question_id, selected_answer) FROM stdin;
@@ -988,7 +1238,7 @@ COPY public.answer_tres (id, user_id, question_id, selected_answer) FROM stdin;
 
 
 --
--- Data for Name: asignatura; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: asignatura; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.asignatura (id, nombre) FROM stdin;
@@ -1001,7 +1251,7 @@ COPY public.asignatura (id, nombre) FROM stdin;
 
 
 --
--- Data for Name: colegio; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: colegio; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.colegio (id, nombre) FROM stdin;
@@ -1015,7 +1265,16 @@ COPY public.colegio (id, nombre) FROM stdin;
 
 
 --
--- Data for Name: configuracion_sistema; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: configuracion_notificaciones; Type: TABLE DATA; Schema: public; Owner: leidy_user
+--
+
+COPY public.configuracion_notificaciones (id, notif_login, notif_registro, notif_test_completado, email_destino, actualizado_at) FROM stdin;
+1	t	t	t	cgiohidalgo@gmail.com	2025-10-24 04:40:08.370692
+\.
+
+
+--
+-- Data for Name: configuracion_sistema; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.configuracion_sistema (id, clave, valor, descripcion) FROM stdin;
@@ -1023,18 +1282,18 @@ COPY public.configuracion_sistema (id, clave, valor, descripcion) FROM stdin;
 3	quiz3_activo	true	Activar/Desactivar Quiz 3 (Jugador)
 4	quiz4_activo	true	Activar/Desactivar Quiz 4 (Pensamiento)
 6	permitir_registro	true	Permitir nuevos registros
-9	generador_actividades_activo	false	Activar/Desactivar Generador de Actividades y Mis Actividades
 11	perfil_activo	true	Activar/Desactivar vista de Perfil del usuario
 2	quiz2_activo	true	Activar/Desactivar Quiz 2 (Estilos)
 10	resultados_activo	false	Activar/Desactivar vista de Resultados del usuario
 7	tiempo_quiz1	60	Tiempo límite Quiz 1 (minutos)
 8	tiempo_quiz4	60	Tiempo límite Quiz 4 (minutos)
 5	mensaje_bienvenida	Bienvenido a la plataforma AKILA	Mensaje de bienvenida
+9	generador_actividades_activo	false	Activar/Desactivar Generador de Actividades y Mis Actividades
 \.
 
 
 --
--- Data for Name: curso; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: curso; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.curso (id, nombre) FROM stdin;
@@ -1048,7 +1307,7 @@ COPY public.curso (id, nombre) FROM stdin;
 
 
 --
--- Data for Name: grado; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: grado; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.grado (id, nombre) FROM stdin;
@@ -1070,10 +1329,12 @@ COPY public.grado (id, nombre) FROM stdin;
 
 
 --
--- Data for Name: grados_dictados; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: grados_dictados; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.grados_dictados (user_id, grado_id) FROM stdin;
+120	1
+121	10
 19	10
 19	11
 20	8
@@ -1186,6 +1447,7 @@ COPY public.grados_dictados (user_id, grado_id) FROM stdin;
 93	7
 95	10
 95	11
+121	9
 101	7
 101	8
 102	3
@@ -1206,11 +1468,16 @@ COPY public.grados_dictados (user_id, grado_id) FROM stdin;
 111	11
 115	10
 115	9
+121	8
+121	11
+121	7
+121	6
+122	10
 \.
 
 
 --
--- Data for Name: habilidad; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: habilidad; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.habilidad (id, nombre) FROM stdin;
@@ -1221,7 +1488,7 @@ COPY public.habilidad (id, nombre) FROM stdin;
 
 
 --
--- Data for Name: nivel; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: nivel; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.nivel (id, nombre) FROM stdin;
@@ -1233,7 +1500,7 @@ COPY public.nivel (id, nombre) FROM stdin;
 
 
 --
--- Data for Name: nivel_por_grados; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: nivel_por_grados; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.nivel_por_grados (user_id, nivel_id) FROM stdin;
@@ -1283,11 +1550,14 @@ COPY public.nivel_por_grados (user_id, nivel_id) FROM stdin;
 115	2
 115	1
 115	4
+120	3
+121	3
+122	3
 \.
 
 
 --
--- Data for Name: question; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: question; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.question (id, statement, option_a, option_b, option_c, option_d, correct_answer, label, percentage, image_url) FROM stdin;
@@ -1310,7 +1580,15 @@ COPY public.question (id, statement, option_a, option_b, option_c, option_d, cor
 
 
 --
--- Data for Name: question_dos; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: question_cuatro; Type: TABLE DATA; Schema: public; Owner: leidy_user
+--
+
+COPY public.question_cuatro (id, statement, option_a, option_b, option_c, option_d, correct_answer, label, percentage, image_url) FROM stdin;
+\.
+
+
+--
+-- Data for Name: question_dos; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.question_dos (id, statement, option_a, option_b) FROM stdin;
@@ -1362,7 +1640,7 @@ COPY public.question_dos (id, statement, option_a, option_b) FROM stdin;
 
 
 --
--- Data for Name: question_tres; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: question_tres; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.question_tres (id, statement, option_a, option_b, option_c, option_d, option_e) FROM stdin;
@@ -1382,7 +1660,7 @@ COPY public.question_tres (id, statement, option_a, option_b, option_c, option_d
 
 
 --
--- Data for Name: quiz_cuatro; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: quiz_cuatro; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.quiz_cuatro (id, statement, option_a, option_b, option_c, option_d, correct_answer, label, percentage, image_url) FROM stdin;
@@ -1422,7 +1700,7 @@ COPY public.quiz_cuatro (id, statement, option_a, option_b, option_c, option_d, 
 
 
 --
--- Data for Name: quiz_result; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: quiz_result; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.quiz_result (id, user_id, score) FROM stdin;
@@ -1430,7 +1708,7 @@ COPY public.quiz_result (id, user_id, score) FROM stdin;
 
 
 --
--- Data for Name: recurso; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: recurso; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.recurso (id, nombre) FROM stdin;
@@ -1438,7 +1716,7 @@ COPY public.recurso (id, nombre) FROM stdin;
 
 
 --
--- Data for Name: resultado_quiz; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: resultado_quiz; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.resultado_quiz (id, user_id, abstraccion, descomposicion, pensamiento_algoritmico, respuestas_correctas, respuestas_incorrectas) FROM stdin;
@@ -1470,20 +1748,25 @@ COPY public.resultado_quiz (id, user_id, abstraccion, descomposicion, pensamient
 35	20	0	16	28	7	8
 36	75	20	8	20	8	7
 37	105	8	12	12	5	10
+38	18	8	12	6	4	10
+39	121	20	4	6	4	10
+40	120	34	16	26	11	4
+42	116	6	0	4	2	13
 \.
 
 
 --
--- Data for Name: resultado_quiz_cuatro; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: resultado_quiz_cuatro; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
-COPY public.resultado_quiz_cuatro (id, user_id, score, correct_count, incorrect_count) FROM stdin;
-3	103	21	7	19
+COPY public.resultado_quiz_cuatro (id, user_id, score, abstraccion, descomposicion, pensamiento_algoritmico, respuestas_correctas, respuestas_incorrectas) FROM stdin;
+5	120	21	\N	\N	\N	7	22
+8	18	25	\N	\N	\N	8	24
 \.
 
 
 --
--- Data for Name: resultado_quiz_dos; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: resultado_quiz_dos; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.resultado_quiz_dos (id, user_id, sensorial_intuitivo, visual_verbal, activo_reflexivo, secuencial_global) FROM stdin;
@@ -1496,11 +1779,13 @@ COPY public.resultado_quiz_dos (id, user_id, sensorial_intuitivo, visual_verbal,
 9	111	{"estado": "Intuitivo", "valor": "Apropiado", "total": 9}	{"estado": "Visual", "valor": "Moderado", "total": 8}	{"estado": "Activo", "valor": "Moderado", "total": 8}	{"estado": "Secuencial", "valor": "Fuerte", "total": 11}
 10	20	{"estado": "Intuitivo", "valor": "Apropiado", "total": 6}	{"estado": "Verbal", "valor": "Apropiado", "total": 5}	{"estado": "Reflexivo", "valor": "Apropiado", "total": 7}	{"estado": "Global", "valor": "Apropiado", "total": 8}
 11	105	{"estado": "Sensorial", "valor": "Apropiado", "total": 6}	{"estado": "Visual", "valor": "Apropiado", "total": 7}	{"estado": "Activo", "valor": "Apropiado", "total": 7}	{"estado": "Secuencial", "valor": "Moderado", "total": 9}
+12	18	{"estado": "Sensorial", "valor": "Moderado", "total": 9}	{"estado": "Visual", "valor": "Apropiado", "total": 7}	{"estado": "Activo", "valor": "Fuerte", "total": 10}	{"estado": "Secuencial", "valor": "Moderado", "total": 9}
+14	120	{"estado": "Sensorial", "valor": "Moderado", "total": 9}	{"estado": "Visual", "valor": "Moderado", "total": 9}	{"estado": "Activo", "valor": "Moderado", "total": 8}	{"estado": "Secuencial", "valor": "Fuerte", "total": 10}
 \.
 
 
 --
--- Data for Name: resultado_quiz_tres; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: resultado_quiz_tres; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.resultado_quiz_tres (id, user_id, filantropo, socializador, triunfador, jugador, espiritu_libre, disruptor) FROM stdin;
@@ -1508,11 +1793,14 @@ COPY public.resultado_quiz_tres (id, user_id, filantropo, socializador, triunfad
 3	15	0	0	0	0	8.89	0
 5	45	0	0	0	0	10.87	0
 6	105	0	0	0	0	9.62	0
+7	18	0	0	0	0	9.62	0
+8	120	0	0	0	0	10.2	0
+9	116	0	0	0	0	10.2	0
 \.
 
 
 --
--- Data for Name: tematica; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: tematica; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.tematica (id, nombre) FROM stdin;
@@ -1520,61 +1808,64 @@ COPY public.tematica (id, nombre) FROM stdin;
 
 
 --
--- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
-COPY public."user" (id, nombres, correo, edad, colegio_id, nivel_grados_id, nivel_educativo, rol, anios_experiencia, username, password, institucion, cedula) FROM stdin;
-15	Jose Luis	hublol58@gmail.com	22	3	\N	Básica	estudiante	1	Jlvallejo	pbkdf2:sha256:600000$ZzefUmlKaK3F08yd$b1ffeed41b3d48be40587dee88044cf86554e96f3d23bf6470d759734d0a70a7	Universidad Antonio Jose Camacho	\N
-19	James Mauricio Nunez	d.eus.james.nunez@cali.edu.co	49	5	\N	pregrado	docente	15	94487253	pbkdf2:sha256:1000000$LjWwMEriKYjtBe2P$8227e0a01364fed9e0b40acfb31e3d8b04ad27043893cfb634c5936ed9bcb67e	I.E. Eustaquio Palacios	\N
-20	Ángel David Silva Polo	d.pam.angel.silva@cali.edu.co	32	1	\N	posgrado	docente	8	angeld36	pbkdf2:sha256:1000000$RXFxE0r1SgkgE01B$78afae25dff8b27a88c36431b27fb1b779bd243bae9a4800141d40df2f33aea0	Pedro Antonio Molina	\N
-21	Indhira Valdés Salazar 	D.cht.indhira.valdes@cali.edu.co	49	1	\N	pregrado	docente	24	Indy	pbkdf2:sha256:1000000$YHErdjTOoPLYoZjP$a04f6481cccec4351e68fca62496f7d7037e7da3e339cd202d8f69ec8786a063	Carlos Holmes Trujillo 	\N
-22	Jorge Baquero 	investigo@hotmail.com	62	1	\N	secundaria	docente	21	Baquero	pbkdf2:sha256:1000000$0OFu510TCLHWCX58$edd2078c39e96af7383fbf4e4466a70f9674431b9d5bd8272c986ec3698d0517	Nuevo Latir 	\N
-24	Jhonathan Andrés Belalcázar Zapata	d.pam.jhonathan.belalcazar@cali.edu.co	26	5	\N	secundaria	docente	5	JhonathanB	pbkdf2:sha256:1000000$c79QPMtockATQXeZ$bd0db21c0e39062de6b6b8d471469571d77ed95fa3d95817ce5fa7e5d2ce73e2	IETI Pedro Antonio Molina	\N
-29	Yadira Ortega	jpto1011@gmail.com	60	5	\N	posgrado	docente	21	yadiraortega	pbkdf2:sha256:1000000$OCdqfxyNmt9j63KN$fae26e6abe2e94ad2c63c8de0fa8c98e75fc378205fba050a52f9957c491c6e0	Eustaquio Palacios	\N
-30	Diana Lucia Andrade Ardila	dianalucia3817@gmail.com	46	1	\N	posgrado	docente	14	Di3817	pbkdf2:sha256:1000000$Gsiq7o2sU8nupGth$1a46c11298aeae78bdfc7cbec03a6f67c604fa0ae7c0c815672812daca516d72	IE CIUDAD CORDOBA	\N
-32	María Cirley Ladino Montoya	d.eus.maria.ladino@cali.edu.co	58	1	\N	posgrado	docente	30	Maria	pbkdf2:sha256:1000000$lfoN9wXT0wVb0AEG$c22b703fcb19cc84d2fedd0dcda8289c809ec1966611c3e0385fc2a9fb4e9a76	Eustaquio Palacios	\N
-45	Lucero Stella López Martínez 	d.sfe.lucero.lopez@cali.edu.co	60	1	\N	secundaria	docente	30	lucelo072	pbkdf2:sha256:1000000$DbLYMBMfk6rZwhQH$ffbd022148141eebb0d136304524d9c166529407bebf7fff18526f68b979d813	Santafe	\N
-12	Emerson	emersonalbornozalvarez@gmail.com	21	3	\N	Básica	estudiante	1	Emerson	pbkdf2:sha256:600000$AIaUfReZabps1WW6$ba37cdc41e4160d452c0242142d2b0c35cf23cc01b19e8212c6ec82a0b89b501	Universidad Antonio Jose Camacho	\N
-13	Oscar estiven	ovalle@estudiante.uniajc.edu.co	21	3	\N	Básica	estudiante	1	Oscar Valle	pbkdf2:sha256:600000$WbP1kAE7dzzPubQ8$b9eb3febf23d25c504f6d338edc76e36732c7feb09bfbd633a46584620580033	Universidad Antonio Jose Camacho	\N
-14	HARRY GONGORA	harrigta@gmail.com	21	3	\N	Básica	estudiante	1	hgongora	pbkdf2:sha256:600000$I29Eibpc17OO9bpu$b4906a1da6b40f049d03431f739dd5c033acfae6cd5a8e0379f71c515fc53f1a	Universidad Antonio Jose Camacho	\N
-10	Pedro Amador R	Pedro.amador@correounivalle.edu.co	36	2	\N	Básica	estudiante	1	Pedro	pbkdf2:sha256:600000$7DyQU5DK4cqbpTeD$49a5ad8b4f4bd013f8e857155c13a5dcfdfe1db3c709d8777a2a2875955237b7	Universidad del Valle	\N
-18	Leidy Administrador	leidy3743@gmail.com	32	\N	\N	Universitaria	admin	9	leidy_admin	pbkdf2:sha256:1000000$LqTLF5emU0OGjd0y$58cdc33e2b7a29b32056172f992655a26dc3d0aab67519e37ffdc8c87bf8e294	Universidad del Valle	1085281803
-49	Lenis Eloisa Montaño Ocoro	leniss2528@gmail.com	47	1	\N	secundaria	docente	23	lenis montaño ocoro	pbkdf2:sha256:1000000$UTdwuELqLSQTvLVj$eaaf254186fbd1aa010cb1936542124d796e48ce65650283613a795fec18812c	I.E.Sagrada Familia	\N
-51	Martha Soto	d.pmc.martha.soto@cali.edu.co	48	1	\N	posgrado	docente	20	MarthaLSotoLL	pbkdf2:sha256:1000000$v8ZY40jbvqIOjtHf$785b9676bcfb6f53c3df74e524d4891d90b6fdebf43b8fd7df4ea20219141588	Politécnico Municipal de Cali	\N
-53	Cristian Olivia	d.eus.cristhian.rojas@cali.edu.co	67	1	\N	secundaria	docente	33	41668886	pbkdf2:sha256:1000000$9lez3dXKV5J428UM$872dcbe905c754618c662dde24f315bb3fe61c233780c738688ddc2a1a0e9415	Eustaquio Palacios	\N
-59	JUAN FELIPE TELLO	juan.tello@correounivalle.edu.co	30	1	\N	secundaria	docente	4	juan.tello	pbkdf2:sha256:1000000$6NoMIsnKuLOLjiYz$c4cf0186d404f1b626b9189dfac2a913781b1f9bc186f8f4a32330b7f9ae2144	IETI PEDRO ANTONIO MOLINA	\N
-57	Fabián Aranzazu Giraldo 	d.pmc.fabian.aranzazu@cali.edu.co	46	1	\N	posgrado	docente	15	Fabián	pbkdf2:sha256:1000000$3rlD9MuZjFeFLyIC$1d6c293be62f041635ba84baca71a54cb334e4f172d724ce99b76642ecf21354	Politécnico Municipal de Cali 	\N
-58	Alejandro García Mejía 	ing.agm.1a@gmail.com	46	1	\N	secundaria	docente	10	94527725	pbkdf2:sha256:1000000$nIqsFoByO3aDmd0j$2bdb81db87a2eca30f55a7c1c269ed4f8552c5abafabd588690523049d5ce9cb	Montebello 	\N
-61	Yenni Mina	Yenni.mina@correounivalle.edu.co	46	1	\N	posgrado	docente	17	Yennimina	pbkdf2:sha256:1000000$50sWoV5u8R3uufR4$bfc45ea645c76416223a73ebb3a69d9b0e177b2194b4824bb24d9cf19ffc6975	I.E. Juan Ignacio	\N
-63	Maritza Machado Mosquera	d.sto.maritza.machado@cali.edu.co	18	5	\N	posgrado	docente	22	maritzamachado	pbkdf2:sha256:1000000$HByYQVe6Jsbvd1DB$4428f8a8a2e26316cbfdcd35e299213fadc73f9b69418b52219f104fd7a0ef16	SANTO TOMÁS	\N
-64	Carolina Villamil 	cvillamil@unal.edu.co	47	1	\N	posgrado	docente	47	Cvillamil78	pbkdf2:sha256:1000000$IuTRFf63kYCCyiGc$bdc7b322a0b4f7493cffdfe29127a04385715f23996e80f3adfc2554a57506e7	Gabriel García Márquez 	\N
-65	Jorge Baquero 	d.nla.jorge.baquero@cali.edu.co	62	1	\N	primaria	docente	21	Baquero 	pbkdf2:sha256:1000000$N1gHiNoLbpCdnTaG$f583b1ded79c00280994c0f562fae00b89ee55ba34849e84c1a2882e28cb28f7	Nuevo Latir 	\N
-67	Omar uzuriaga 	Andresuzuriagaocoro@gmail.com	33	1	\N	pregrado	docente	5	Andresuzuriagaocoro@gmail.com	pbkdf2:sha256:1000000$jNYhKZgWLhi2NMnf$493585d7e97df08fbdfcf53a8e916b98fc82a3f0551c12486459bf3721afa908	Colegio Americano 	\N
-69	Anyela Andrea Lasso Petevi	anyiandrealasso@gmail.com	44	1	\N	secundaria	docente	18	29671165	pbkdf2:sha256:1000000$kWKvJ0sSEtKtj9j9$17a6902d65d6b349d8cdaeb246fd14a63f21addb1bcb8031b91ee7280ffc98fb	Eustaquio Palacio	\N
-72	Isabel Alvear	isaacademico21@gmail.com	53	2	\N	posgrado	docente	15	isalba13  	pbkdf2:sha256:1000000$hWUqAeNqF6b2SCLY$256b6fcc04f483372ba48a326de07f874b1a9bb8ab1e72007d4fd7a80b73c3eb	I.E. Juan Ignacio	\N
-75	Alejandro García Mejía 	D.eus.alejandro.garcia@cali.edu.co	46	1	\N	posgrado	docente	10	Ing_Agm	pbkdf2:sha256:1000000$q0P3YA6rx3b2jRA9$3bae05533a0f0b16271ca6d2e7b39b0d92225e70eaa15a201bd6c60b592bc293	Montebello 	\N
-76	Martha Cecilia Motta Garcia	marthamotta.maestra@ietirafaelnaviavaron.edu.co	63	1	\N	posgrado	docente	45	marthacemotta24	pbkdf2:sha256:1000000$dhubcb1en6agJvba$f5c64110868424475d916d9fe25517b26496c46053627c3315f80643ef05ded7	IE Rafael Navia Varón	\N
-77	Johny Romero Prieto 	d.nla.johny.romero@cali.edu.co	59	1	\N	posgrado	docente	17	johnyrom	pbkdf2:sha256:1000000$sFuvCrDCQRhRD3w3$689cecc4338971fd97c8a4e79209d4461ec3fe7b6b6e58c89440c7008cd23617	Nuevo latir sede Isaías Duarte Cancino 	\N
-80	CLARENA COBO VERGARA	d.blg.clarena.cobo@cali.edu.co	52	1	\N	posgrado	docente	26	66853088	pbkdf2:sha256:1000000$jylm1MliCjVcN2RP$60d0e96794fe8fb804e9a7198319fbe83876e80d028c6acf1e6bfc9afa44f24a	Bartolome Loboguerrero	\N
-83	Maritza Machado Mosquera	marymariposa0417@gmail.com	20	5	\N	posgrado	docente	1	marymariposa0417@gmail.com	pbkdf2:sha256:1000000$LVHM4yEAvjxlp2eY$1ed8019bc379efdfff6f45c958b46a68450b2325e70b88dac142d682f87421c1	SANTO TOMÁS	\N
-86	JULIO CESAR VILLAMOR GUTIERREZ	juliocesarvillamor@gmail.com	63	5	\N	secundaria	docente	18	Villamor	pbkdf2:sha256:1000000$DWnEhtAgXOUv2s8i$bd53e55f8a131c6de7241a59d02155aa52ea3f03c03d2a4f07ce9cf7ba867bcf	LAS AMÉRICAS	\N
-90	Zulma Bernarda Pabon Pipicano	zulmapabon.maestra@ietirafaelnaviavaron.edu.co	18	1	\N	secundaria	docente	14	zpabon	pbkdf2:sha256:1000000$KdhljwjguoMmeXRl$6d4f9c92f803521993db463feb8d3a94e0de758739615d68586de0add9387b78	Rafael Navia Varón	\N
-92	Tulia betty barona	Bettycontadora2011@gmail.com	64	1	\N	secundaria	docente	25	Bettyna 	pbkdf2:sha256:1000000$HJmdikFUOJyBMv3a$31bb9545f63493c663853d0212d585e2c1a9c5248423fd92d8b8aedcd4342db3	I.E.T.C LAS AMERICAS	\N
-93	Leonardo 	leonardo.duque.carvajal@gmail.com	48	5	\N	pregrado	docente	5	MatemáticoLDC	pbkdf2:sha256:1000000$CHUXB1C3kKNHrPhh$c662a195fbcf09907a444f397474b4cdc25dde3b2bb243d7f5bccdb99c26dfbe	Univalle	\N
-95	Betty Barona	Bettybarona@ielasamericas.edu.co	65	1	\N	secundaria	docente	25	Bettyna	pbkdf2:sha256:1000000$utNbC9tOtlAxPDwp$a642aa7b45ce39b7c45e82510f38edc9ad55c4e3dbad330e0508626d9bec6eb8	I.E.T.C LAS AMERICAS	\N
-101	Lazarine Rico Ortega	d.nla.lazarine.rico@cali.edu.co	44	5	\N	posgrado	docente	18	lazarinerico	pbkdf2:sha256:1000000$bw5FD48rbCCfKbfz$333930d3506687104af8edef4cb04ee531fee973c1486fc8f84d605ab890b3dc	Nuevo Latir	\N
-102	Gloria Esperanza Nieto Ramirez	gloriaesperanzanietoramirez@gmail.com	57	1	\N	posgrado	docente	19	Glorica	pbkdf2:sha256:1000000$6I1dLRUlIQ6gXUYR$8fe1cf5d329a8cc1f24b8f1f4346720634f2af06a351bcf8c5580c01b4e4f64a	Isaias Gamboa	\N
-103	ANA MILENA RIVAS	d.alv.ana.rivas@cali.edu.co	54	1	\N	secundaria	docente	3	DAVAMI	pbkdf2:sha256:1000000$WFvCTwIny9A8tmM4$67a2cadccccc22606a8093a70dacaa976dfe09bf3e1d75ce7eeb43b776d135e5	ALVARO ECHEVERRY PEREA	\N
-105	Leidy Gómez	leidy-0522@hotmail.com	33	1	\N	secundaria	docente	8	1144053783	pbkdf2:sha256:1000000$jhTcy00OdTvD2WRG$977cd555fbacffcc64d049a87823cd207c584a30fcce9f9436267abc183dd486	IE ALFREDO BONILLA MONTAÑO	\N
-106	John Duran	d.pam.john.duran@cali.edu.co	43	1	\N	secundaria	docente	15	johnferduran	pbkdf2:sha256:1000000$mhZF0zd0KihPaaEN$cff007f43cbeecec617ba6abb3ec176156839f4d6503d6738871d8101699f35b	IETI Pedro Antonio Molina	\N
-111	Wilton Sánchez Hincapié	wilton.sanchez@correounivalle.edu.co	49	5	\N	pregrado	docente	10	94323981	pbkdf2:sha256:1000000$oSJVp5tJGtHhsLoI$45210a45cc87bc1518bdbb79442a8bd653d3cb0dda0466efbba5aadc65e650d0	Fundación Hechos de Vida por ti	\N
-115	PEDRO ANTONIO	d.eus.pedro.bonilla@cali.edu.co	54	1	\N	secundaria	docente	20	16499409	pbkdf2:sha256:1000000$nT528OoufACmR8B4$278a26f6e9d851125349bedff3eb79a46cb187c4b785558c41cd3d8bd751c55e	EUSTAQUIO PALACIOS	\N
-116	pruebas	cgiohidalgo@gmail.com	34	\N	\N	Posgrado	docente	10	pruebas	pbkdf2:sha256:1000000$JkAC9jQ25CE1Q5ww$66a8c3b25e3dae9f23046d4f177147f426d03db51744a5c2c34ccb75fe47569d	prueba	1085281803
+COPY public."user" (id, nombres, correo, edad, colegio_id, nivel_grados_id, nivel_educativo, rol, anios_experiencia, username, password, institucion, cedula, created_at, last_login) FROM stdin;
+15	Jose Luis	hublol58@gmail.com	22	3	\N	Básica	estudiante	1	Jlvallejo	pbkdf2:sha256:600000$ZzefUmlKaK3F08yd$b1ffeed41b3d48be40587dee88044cf86554e96f3d23bf6470d759734d0a70a7	Universidad Antonio Jose Camacho	\N	2025-10-25 15:35:22.045631	2025-10-21 18:54:11.994194
+19	James Mauricio Nunez	d.eus.james.nunez@cali.edu.co	49	5	\N	pregrado	docente	15	94487253	pbkdf2:sha256:1000000$LjWwMEriKYjtBe2P$8227e0a01364fed9e0b40acfb31e3d8b04ad27043893cfb634c5936ed9bcb67e	I.E. Eustaquio Palacios	\N	2025-10-25 15:35:22.045631	2025-10-23 01:09:11.994125
+20	Ángel David Silva Polo	d.pam.angel.silva@cali.edu.co	32	1	\N	posgrado	docente	8	angeld36	pbkdf2:sha256:1000000$RXFxE0r1SgkgE01B$78afae25dff8b27a88c36431b27fb1b779bd243bae9a4800141d40df2f33aea0	Pedro Antonio Molina	\N	2025-10-25 15:35:22.045631	2025-10-24 06:35:11.994022
+21	Indhira Valdés Salazar 	D.cht.indhira.valdes@cali.edu.co	49	1	\N	pregrado	docente	24	Indy	pbkdf2:sha256:1000000$YHErdjTOoPLYoZjP$a04f6481cccec4351e68fca62496f7d7037e7da3e339cd202d8f69ec8786a063	Carlos Holmes Trujillo 	\N	2025-10-25 15:35:22.045631	2025-10-23 13:26:11.993973
+22	Jorge Baquero 	investigo@hotmail.com	62	1	\N	secundaria	docente	21	Baquero	pbkdf2:sha256:1000000$0OFu510TCLHWCX58$edd2078c39e96af7383fbf4e4466a70f9674431b9d5bd8272c986ec3698d0517	Nuevo Latir 	\N	2025-10-25 15:35:22.045631	2025-10-21 16:03:11.994092
+24	Jhonathan Andrés Belalcázar Zapata	d.pam.jhonathan.belalcazar@cali.edu.co	26	5	\N	secundaria	docente	5	JhonathanB	pbkdf2:sha256:1000000$c79QPMtockATQXeZ$bd0db21c0e39062de6b6b8d471469571d77ed95fa3d95817ce5fa7e5d2ce73e2	IETI Pedro Antonio Molina	\N	2025-10-25 15:35:22.045631	2025-10-24 06:44:11.994059
+29	Yadira Ortega	jpto1011@gmail.com	60	5	\N	posgrado	docente	21	yadiraortega	pbkdf2:sha256:1000000$OCdqfxyNmt9j63KN$fae26e6abe2e94ad2c63c8de0fa8c98e75fc378205fba050a52f9957c491c6e0	Eustaquio Palacios	\N	2025-10-25 15:35:22.045631	2025-10-22 23:53:11.994158
+120	Yeison Fernando 	gonzalezyeison209@gmail.com	18	5	\N	primaria	docente	1	Yeison Fernando 	pbkdf2:sha256:1000000$q6yrPlh2FftgjYzA$ba2a88848863d33ae6937febeb3927c9cf394eef2bfb3c567024207feb70bf3e	Rafael Navia Varon 	1110367951	2025-10-25 16:49:43.11567	2025-10-25 00:14:11.993937
+121	Jhon Alexander Martinez Serrano 	jdecimo2010@gmail.com	54	5	\N	secundaria	docente	28	jdecimo2010	pbkdf2:sha256:1000000$ynfsEwFaOw2WSlZH$dd72f63af54bf41a7f0a07b84e8d150b30d91a31ea9dea0d187eee55035c65b9	La Esperanza 	16790721	2025-10-25 16:56:25.466698	2025-10-23 02:22:11.993725
+18	Leidy Administrador	leidy3743@gmail.com	32	\N	\N	Universitaria	admin	9	leidy_admin	pbkdf2:sha256:1000000$LqTLF5emU0OGjd0y$58cdc33e2b7a29b32056172f992655a26dc3d0aab67519e37ffdc8c87bf8e294	Universidad del Valle	1085281803	2025-10-25 15:35:22.045631	2025-10-26 23:52:59.240861
+30	Diana Lucia Andrade Ardila	dianalucia3817@gmail.com	46	1	\N	posgrado	docente	14	Di3817	pbkdf2:sha256:1000000$Gsiq7o2sU8nupGth$1a46c11298aeae78bdfc7cbec03a6f67c604fa0ae7c0c815672812daca516d72	IE CIUDAD CORDOBA	\N	2025-10-25 15:35:22.045631	\N
+32	María Cirley Ladino Montoya	d.eus.maria.ladino@cali.edu.co	58	1	\N	posgrado	docente	30	Maria	pbkdf2:sha256:1000000$lfoN9wXT0wVb0AEG$c22b703fcb19cc84d2fedd0dcda8289c809ec1966611c3e0385fc2a9fb4e9a76	Eustaquio Palacios	\N	2025-10-25 15:35:22.045631	\N
+45	Lucero Stella López Martínez 	d.sfe.lucero.lopez@cali.edu.co	60	1	\N	secundaria	docente	30	lucelo072	pbkdf2:sha256:1000000$DbLYMBMfk6rZwhQH$ffbd022148141eebb0d136304524d9c166529407bebf7fff18526f68b979d813	Santafe	\N	2025-10-25 15:35:22.045631	\N
+12	Emerson	emersonalbornozalvarez@gmail.com	21	3	\N	Básica	estudiante	1	Emerson	pbkdf2:sha256:600000$AIaUfReZabps1WW6$ba37cdc41e4160d452c0242142d2b0c35cf23cc01b19e8212c6ec82a0b89b501	Universidad Antonio Jose Camacho	\N	2025-10-25 15:35:22.045631	\N
+13	Oscar estiven	ovalle@estudiante.uniajc.edu.co	21	3	\N	Básica	estudiante	1	Oscar Valle	pbkdf2:sha256:600000$WbP1kAE7dzzPubQ8$b9eb3febf23d25c504f6d338edc76e36732c7feb09bfbd633a46584620580033	Universidad Antonio Jose Camacho	\N	2025-10-25 15:35:22.045631	\N
+14	HARRY GONGORA	harrigta@gmail.com	21	3	\N	Básica	estudiante	1	hgongora	pbkdf2:sha256:600000$I29Eibpc17OO9bpu$b4906a1da6b40f049d03431f739dd5c033acfae6cd5a8e0379f71c515fc53f1a	Universidad Antonio Jose Camacho	\N	2025-10-25 15:35:22.045631	\N
+10	Pedro Amador R	Pedro.amador@correounivalle.edu.co	36	2	\N	Básica	estudiante	1	Pedro	pbkdf2:sha256:600000$7DyQU5DK4cqbpTeD$49a5ad8b4f4bd013f8e857155c13a5dcfdfe1db3c709d8777a2a2875955237b7	Universidad del Valle	\N	2025-10-25 15:35:22.045631	\N
+122	Faber Sarmiento Florez 	d.sto.faber.sarmiento@cali.edu.co	62	5	\N	posgrado	docente	15	16270115	pbkdf2:sha256:1000000$bgyw29vuxPfuPkKj$7a168d1be61c80d0326045971cb199af2bea19db7bef5fd509bd3823cd63d9df	I. E Santo Tomás CASD 	16270115	2025-10-26 16:46:52.78425	\N
+49	Lenis Eloisa Montaño Ocoro	leniss2528@gmail.com	47	1	\N	secundaria	docente	23	lenis montaño ocoro	pbkdf2:sha256:1000000$UTdwuELqLSQTvLVj$eaaf254186fbd1aa010cb1936542124d796e48ce65650283613a795fec18812c	I.E.Sagrada Familia	\N	2025-10-25 15:35:22.045631	\N
+51	Martha Soto	d.pmc.martha.soto@cali.edu.co	48	1	\N	posgrado	docente	20	MarthaLSotoLL	pbkdf2:sha256:1000000$v8ZY40jbvqIOjtHf$785b9676bcfb6f53c3df74e524d4891d90b6fdebf43b8fd7df4ea20219141588	Politécnico Municipal de Cali	\N	2025-10-25 15:35:22.045631	\N
+53	Cristian Olivia	d.eus.cristhian.rojas@cali.edu.co	67	1	\N	secundaria	docente	33	41668886	pbkdf2:sha256:1000000$9lez3dXKV5J428UM$872dcbe905c754618c662dde24f315bb3fe61c233780c738688ddc2a1a0e9415	Eustaquio Palacios	\N	2025-10-25 15:35:22.045631	\N
+59	JUAN FELIPE TELLO	juan.tello@correounivalle.edu.co	30	1	\N	secundaria	docente	4	juan.tello	pbkdf2:sha256:1000000$6NoMIsnKuLOLjiYz$c4cf0186d404f1b626b9189dfac2a913781b1f9bc186f8f4a32330b7f9ae2144	IETI PEDRO ANTONIO MOLINA	\N	2025-10-25 15:35:22.045631	\N
+57	Fabián Aranzazu Giraldo 	d.pmc.fabian.aranzazu@cali.edu.co	46	1	\N	posgrado	docente	15	Fabián	pbkdf2:sha256:1000000$3rlD9MuZjFeFLyIC$1d6c293be62f041635ba84baca71a54cb334e4f172d724ce99b76642ecf21354	Politécnico Municipal de Cali 	\N	2025-10-25 15:35:22.045631	\N
+58	Alejandro García Mejía 	ing.agm.1a@gmail.com	46	1	\N	secundaria	docente	10	94527725	pbkdf2:sha256:1000000$nIqsFoByO3aDmd0j$2bdb81db87a2eca30f55a7c1c269ed4f8552c5abafabd588690523049d5ce9cb	Montebello 	\N	2025-10-25 15:35:22.045631	\N
+61	Yenni Mina	Yenni.mina@correounivalle.edu.co	46	1	\N	posgrado	docente	17	Yennimina	pbkdf2:sha256:1000000$50sWoV5u8R3uufR4$bfc45ea645c76416223a73ebb3a69d9b0e177b2194b4824bb24d9cf19ffc6975	I.E. Juan Ignacio	\N	2025-10-25 15:35:22.045631	\N
+63	Maritza Machado Mosquera	d.sto.maritza.machado@cali.edu.co	18	5	\N	posgrado	docente	22	maritzamachado	pbkdf2:sha256:1000000$HByYQVe6Jsbvd1DB$4428f8a8a2e26316cbfdcd35e299213fadc73f9b69418b52219f104fd7a0ef16	SANTO TOMÁS	\N	2025-10-25 15:35:22.045631	\N
+64	Carolina Villamil 	cvillamil@unal.edu.co	47	1	\N	posgrado	docente	47	Cvillamil78	pbkdf2:sha256:1000000$IuTRFf63kYCCyiGc$bdc7b322a0b4f7493cffdfe29127a04385715f23996e80f3adfc2554a57506e7	Gabriel García Márquez 	\N	2025-10-25 15:35:22.045631	\N
+65	Jorge Baquero 	d.nla.jorge.baquero@cali.edu.co	62	1	\N	primaria	docente	21	Baquero 	pbkdf2:sha256:1000000$N1gHiNoLbpCdnTaG$f583b1ded79c00280994c0f562fae00b89ee55ba34849e84c1a2882e28cb28f7	Nuevo Latir 	\N	2025-10-25 15:35:22.045631	\N
+67	Omar uzuriaga 	Andresuzuriagaocoro@gmail.com	33	1	\N	pregrado	docente	5	Andresuzuriagaocoro@gmail.com	pbkdf2:sha256:1000000$jNYhKZgWLhi2NMnf$493585d7e97df08fbdfcf53a8e916b98fc82a3f0551c12486459bf3721afa908	Colegio Americano 	\N	2025-10-25 15:35:22.045631	\N
+69	Anyela Andrea Lasso Petevi	anyiandrealasso@gmail.com	44	1	\N	secundaria	docente	18	29671165	pbkdf2:sha256:1000000$kWKvJ0sSEtKtj9j9$17a6902d65d6b349d8cdaeb246fd14a63f21addb1bcb8031b91ee7280ffc98fb	Eustaquio Palacio	\N	2025-10-25 15:35:22.045631	\N
+72	Isabel Alvear	isaacademico21@gmail.com	53	2	\N	posgrado	docente	15	isalba13  	pbkdf2:sha256:1000000$hWUqAeNqF6b2SCLY$256b6fcc04f483372ba48a326de07f874b1a9bb8ab1e72007d4fd7a80b73c3eb	I.E. Juan Ignacio	\N	2025-10-25 15:35:22.045631	\N
+75	Alejandro García Mejía 	D.eus.alejandro.garcia@cali.edu.co	46	1	\N	posgrado	docente	10	Ing_Agm	pbkdf2:sha256:1000000$q0P3YA6rx3b2jRA9$3bae05533a0f0b16271ca6d2e7b39b0d92225e70eaa15a201bd6c60b592bc293	Montebello 	\N	2025-10-25 15:35:22.045631	\N
+76	Martha Cecilia Motta Garcia	marthamotta.maestra@ietirafaelnaviavaron.edu.co	63	1	\N	posgrado	docente	45	marthacemotta24	pbkdf2:sha256:1000000$dhubcb1en6agJvba$f5c64110868424475d916d9fe25517b26496c46053627c3315f80643ef05ded7	IE Rafael Navia Varón	\N	2025-10-25 15:35:22.045631	\N
+77	Johny Romero Prieto 	d.nla.johny.romero@cali.edu.co	59	1	\N	posgrado	docente	17	johnyrom	pbkdf2:sha256:1000000$sFuvCrDCQRhRD3w3$689cecc4338971fd97c8a4e79209d4461ec3fe7b6b6e58c89440c7008cd23617	Nuevo latir sede Isaías Duarte Cancino 	\N	2025-10-25 15:35:22.045631	\N
+80	CLARENA COBO VERGARA	d.blg.clarena.cobo@cali.edu.co	52	1	\N	posgrado	docente	26	66853088	pbkdf2:sha256:1000000$jylm1MliCjVcN2RP$60d0e96794fe8fb804e9a7198319fbe83876e80d028c6acf1e6bfc9afa44f24a	Bartolome Loboguerrero	\N	2025-10-25 15:35:22.045631	\N
+83	Maritza Machado Mosquera	marymariposa0417@gmail.com	20	5	\N	posgrado	docente	1	marymariposa0417@gmail.com	pbkdf2:sha256:1000000$LVHM4yEAvjxlp2eY$1ed8019bc379efdfff6f45c958b46a68450b2325e70b88dac142d682f87421c1	SANTO TOMÁS	\N	2025-10-25 15:35:22.045631	\N
+86	JULIO CESAR VILLAMOR GUTIERREZ	juliocesarvillamor@gmail.com	63	5	\N	secundaria	docente	18	Villamor	pbkdf2:sha256:1000000$DWnEhtAgXOUv2s8i$bd53e55f8a131c6de7241a59d02155aa52ea3f03c03d2a4f07ce9cf7ba867bcf	LAS AMÉRICAS	\N	2025-10-25 15:35:22.045631	\N
+90	Zulma Bernarda Pabon Pipicano	zulmapabon.maestra@ietirafaelnaviavaron.edu.co	18	1	\N	secundaria	docente	14	zpabon	pbkdf2:sha256:1000000$KdhljwjguoMmeXRl$6d4f9c92f803521993db463feb8d3a94e0de758739615d68586de0add9387b78	Rafael Navia Varón	\N	2025-10-25 15:35:22.045631	\N
+92	Tulia betty barona	Bettycontadora2011@gmail.com	64	1	\N	secundaria	docente	25	Bettyna 	pbkdf2:sha256:1000000$HJmdikFUOJyBMv3a$31bb9545f63493c663853d0212d585e2c1a9c5248423fd92d8b8aedcd4342db3	I.E.T.C LAS AMERICAS	\N	2025-10-25 15:35:22.045631	\N
+93	Leonardo 	leonardo.duque.carvajal@gmail.com	48	5	\N	pregrado	docente	5	MatemáticoLDC	pbkdf2:sha256:1000000$CHUXB1C3kKNHrPhh$c662a195fbcf09907a444f397474b4cdc25dde3b2bb243d7f5bccdb99c26dfbe	Univalle	\N	2025-10-25 15:35:22.045631	\N
+95	Betty Barona	Bettybarona@ielasamericas.edu.co	65	1	\N	secundaria	docente	25	Bettyna	pbkdf2:sha256:1000000$utNbC9tOtlAxPDwp$a642aa7b45ce39b7c45e82510f38edc9ad55c4e3dbad330e0508626d9bec6eb8	I.E.T.C LAS AMERICAS	\N	2025-10-25 15:35:22.045631	\N
+101	Lazarine Rico Ortega	d.nla.lazarine.rico@cali.edu.co	44	5	\N	posgrado	docente	18	lazarinerico	pbkdf2:sha256:1000000$bw5FD48rbCCfKbfz$333930d3506687104af8edef4cb04ee531fee973c1486fc8f84d605ab890b3dc	Nuevo Latir	\N	2025-10-25 15:35:22.045631	\N
+102	Gloria Esperanza Nieto Ramirez	gloriaesperanzanietoramirez@gmail.com	57	1	\N	posgrado	docente	19	Glorica	pbkdf2:sha256:1000000$6I1dLRUlIQ6gXUYR$8fe1cf5d329a8cc1f24b8f1f4346720634f2af06a351bcf8c5580c01b4e4f64a	Isaias Gamboa	\N	2025-10-25 15:35:22.045631	\N
+103	ANA MILENA RIVAS	d.alv.ana.rivas@cali.edu.co	54	1	\N	secundaria	docente	3	DAVAMI	pbkdf2:sha256:1000000$WFvCTwIny9A8tmM4$67a2cadccccc22606a8093a70dacaa976dfe09bf3e1d75ce7eeb43b776d135e5	ALVARO ECHEVERRY PEREA	\N	2025-10-25 15:35:22.045631	\N
+105	Leidy Gómez	leidy-0522@hotmail.com	33	1	\N	secundaria	docente	8	1144053783	pbkdf2:sha256:1000000$jhTcy00OdTvD2WRG$977cd555fbacffcc64d049a87823cd207c584a30fcce9f9436267abc183dd486	IE ALFREDO BONILLA MONTAÑO	\N	2025-10-25 15:35:22.045631	\N
+106	John Duran	d.pam.john.duran@cali.edu.co	43	1	\N	secundaria	docente	15	johnferduran	pbkdf2:sha256:1000000$mhZF0zd0KihPaaEN$cff007f43cbeecec617ba6abb3ec176156839f4d6503d6738871d8101699f35b	IETI Pedro Antonio Molina	\N	2025-10-25 15:35:22.045631	\N
+111	Wilton Sánchez Hincapié	wilton.sanchez@correounivalle.edu.co	49	5	\N	pregrado	docente	10	94323981	pbkdf2:sha256:1000000$oSJVp5tJGtHhsLoI$45210a45cc87bc1518bdbb79442a8bd653d3cb0dda0466efbba5aadc65e650d0	Fundación Hechos de Vida por ti	\N	2025-10-25 15:35:22.045631	\N
+115	PEDRO ANTONIO	d.eus.pedro.bonilla@cali.edu.co	54	1	\N	secundaria	docente	20	16499409	pbkdf2:sha256:1000000$nT528OoufACmR8B4$278a26f6e9d851125349bedff3eb79a46cb187c4b785558c41cd3d8bd751c55e	EUSTAQUIO PALACIOS	\N	2025-10-25 15:35:22.045631	\N
+116	pruebas	cgiohidalgo@gmail.com	34	\N	\N	Posgrado	docente	10	pruebas	pbkdf2:sha256:1000000$JkAC9jQ25CE1Q5ww$66a8c3b25e3dae9f23046d4f177147f426d03db51744a5c2c34ccb75fe47569d	prueba	12324234	2025-10-25 15:35:22.045631	2025-10-25 21:36:32.528367
 \.
 
 
 --
--- Data for Name: usuarios_cursos; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: usuarios_cursos; Type: TABLE DATA; Schema: public; Owner: leidy_user
 --
 
 COPY public.usuarios_cursos (user_id, curso_id) FROM stdin;
@@ -1628,165 +1919,215 @@ COPY public.usuarios_cursos (user_id, curso_id) FROM stdin;
 111	2
 111	6
 115	3
+120	1
+121	6
+122	3
+122	6
+122	2
 \.
 
 
 --
--- Name: actividad_generada_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: Users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
+--
+
+SELECT pg_catalog.setval('public."Users_id_seq"', 1, false);
+
+
+--
+-- Name: actividad_generada_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.actividad_generada_id_seq', 1, true);
 
 
 --
--- Name: answer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: answer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.answer_id_seq', 1, false);
 
 
 --
--- Name: answer_tres_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: answer_tres_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.answer_tres_id_seq', 1, false);
 
 
 --
--- Name: asignatura_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: asignatura_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.asignatura_id_seq', 5, true);
 
 
 --
--- Name: colegio_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: colegio_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.colegio_id_seq', 6, true);
 
 
 --
--- Name: configuracion_sistema_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: configuracion_notificaciones_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
+--
+
+SELECT pg_catalog.setval('public.configuracion_notificaciones_id_seq', 1, true);
+
+
+--
+-- Name: configuracion_sistema_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.configuracion_sistema_id_seq', 11, true);
 
 
 --
--- Name: curso_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: curso_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.curso_id_seq', 6, true);
 
 
 --
--- Name: grado_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: grado_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.grado_id_seq', 14, true);
 
 
 --
--- Name: habilidad_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: habilidad_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.habilidad_id_seq', 3, true);
 
 
 --
--- Name: nivel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: nivel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.nivel_id_seq', 4, true);
 
 
 --
--- Name: question_dos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: question_cuatro_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
+--
+
+SELECT pg_catalog.setval('public.question_cuatro_id_seq', 1, false);
+
+
+--
+-- Name: question_dos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.question_dos_id_seq', 45, true);
 
 
 --
--- Name: question_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: question_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.question_id_seq', 15, true);
 
 
 --
--- Name: question_tres_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: question_tres_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.question_tres_id_seq', 12, true);
 
 
 --
--- Name: quiz_cuatro_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: quiz_cuatro_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.quiz_cuatro_id_seq', 33, true);
 
 
 --
--- Name: quiz_result_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: quiz_result_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.quiz_result_id_seq', 1, false);
 
 
 --
--- Name: recurso_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: recurso_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.recurso_id_seq', 1, false);
 
 
 --
--- Name: resultado_quiz_cuatro_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: resultado_quiz_cuatro_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
-SELECT pg_catalog.setval('public.resultado_quiz_cuatro_id_seq', 3, true);
-
-
---
--- Name: resultado_quiz_dos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.resultado_quiz_dos_id_seq', 11, true);
+SELECT pg_catalog.setval('public.resultado_quiz_cuatro_id_seq', 8, true);
 
 
 --
--- Name: resultado_quiz_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: resultado_quiz_dos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
-SELECT pg_catalog.setval('public.resultado_quiz_id_seq', 37, true);
-
-
---
--- Name: resultado_quiz_tres_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
---
-
-SELECT pg_catalog.setval('public.resultado_quiz_tres_id_seq', 6, true);
+SELECT pg_catalog.setval('public.resultado_quiz_dos_id_seq', 14, true);
 
 
 --
--- Name: tematica_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: resultado_quiz_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
+--
+
+SELECT pg_catalog.setval('public.resultado_quiz_id_seq', 42, true);
+
+
+--
+-- Name: resultado_quiz_tres_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
+--
+
+SELECT pg_catalog.setval('public.resultado_quiz_tres_id_seq', 9, true);
+
+
+--
+-- Name: tematica_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
 SELECT pg_catalog.setval('public.tematica_id_seq', 1, false);
 
 
 --
--- Name: user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
-SELECT pg_catalog.setval('public.user_id_seq', 117, true);
+SELECT pg_catalog.setval('public.user_id_seq', 122, true);
 
 
 --
--- Name: actividad_generada actividad_generada_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: Users Users_email_key; Type: CONSTRAINT; Schema: public; Owner: leidy_user
+--
+
+ALTER TABLE ONLY public."Users"
+    ADD CONSTRAINT "Users_email_key" UNIQUE (email);
+
+
+--
+-- Name: Users Users_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
+--
+
+ALTER TABLE ONLY public."Users"
+    ADD CONSTRAINT "Users_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Users Users_username_key; Type: CONSTRAINT; Schema: public; Owner: leidy_user
+--
+
+ALTER TABLE ONLY public."Users"
+    ADD CONSTRAINT "Users_username_key" UNIQUE (username);
+
+
+--
+-- Name: actividad_generada actividad_generada_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.actividad_generada
@@ -1794,7 +2135,7 @@ ALTER TABLE ONLY public.actividad_generada
 
 
 --
--- Name: alembic_version alembic_version_pkc; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: alembic_version alembic_version_pkc; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.alembic_version
@@ -1802,7 +2143,7 @@ ALTER TABLE ONLY public.alembic_version
 
 
 --
--- Name: answer answer_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: answer answer_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.answer
@@ -1810,7 +2151,7 @@ ALTER TABLE ONLY public.answer
 
 
 --
--- Name: answer_tres answer_tres_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: answer_tres answer_tres_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.answer_tres
@@ -1818,7 +2159,7 @@ ALTER TABLE ONLY public.answer_tres
 
 
 --
--- Name: asignatura asignatura_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: asignatura asignatura_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.asignatura
@@ -1826,7 +2167,7 @@ ALTER TABLE ONLY public.asignatura
 
 
 --
--- Name: colegio colegio_nombre_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: colegio colegio_nombre_key; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.colegio
@@ -1834,7 +2175,7 @@ ALTER TABLE ONLY public.colegio
 
 
 --
--- Name: colegio colegio_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: colegio colegio_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.colegio
@@ -1842,7 +2183,15 @@ ALTER TABLE ONLY public.colegio
 
 
 --
--- Name: configuracion_sistema configuracion_sistema_clave_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: configuracion_notificaciones configuracion_notificaciones_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
+--
+
+ALTER TABLE ONLY public.configuracion_notificaciones
+    ADD CONSTRAINT configuracion_notificaciones_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: configuracion_sistema configuracion_sistema_clave_key; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.configuracion_sistema
@@ -1850,7 +2199,7 @@ ALTER TABLE ONLY public.configuracion_sistema
 
 
 --
--- Name: configuracion_sistema configuracion_sistema_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: configuracion_sistema configuracion_sistema_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.configuracion_sistema
@@ -1858,7 +2207,7 @@ ALTER TABLE ONLY public.configuracion_sistema
 
 
 --
--- Name: curso curso_nombre_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: curso curso_nombre_key; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.curso
@@ -1866,7 +2215,7 @@ ALTER TABLE ONLY public.curso
 
 
 --
--- Name: curso curso_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: curso curso_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.curso
@@ -1874,7 +2223,7 @@ ALTER TABLE ONLY public.curso
 
 
 --
--- Name: grado grado_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: grado grado_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.grado
@@ -1882,7 +2231,7 @@ ALTER TABLE ONLY public.grado
 
 
 --
--- Name: grados_dictados grados_dictados_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: grados_dictados grados_dictados_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.grados_dictados
@@ -1890,7 +2239,7 @@ ALTER TABLE ONLY public.grados_dictados
 
 
 --
--- Name: habilidad habilidad_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: habilidad habilidad_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.habilidad
@@ -1898,7 +2247,7 @@ ALTER TABLE ONLY public.habilidad
 
 
 --
--- Name: nivel nivel_nombre_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: nivel nivel_nombre_key; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.nivel
@@ -1906,7 +2255,7 @@ ALTER TABLE ONLY public.nivel
 
 
 --
--- Name: nivel nivel_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: nivel nivel_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.nivel
@@ -1914,7 +2263,7 @@ ALTER TABLE ONLY public.nivel
 
 
 --
--- Name: nivel_por_grados nivel_por_grados_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: nivel_por_grados nivel_por_grados_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.nivel_por_grados
@@ -1922,7 +2271,15 @@ ALTER TABLE ONLY public.nivel_por_grados
 
 
 --
--- Name: question_dos question_dos_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: question_cuatro question_cuatro_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
+--
+
+ALTER TABLE ONLY public.question_cuatro
+    ADD CONSTRAINT question_cuatro_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: question_dos question_dos_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.question_dos
@@ -1930,7 +2287,7 @@ ALTER TABLE ONLY public.question_dos
 
 
 --
--- Name: question question_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: question question_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.question
@@ -1938,7 +2295,7 @@ ALTER TABLE ONLY public.question
 
 
 --
--- Name: question_tres question_tres_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: question_tres question_tres_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.question_tres
@@ -1946,7 +2303,7 @@ ALTER TABLE ONLY public.question_tres
 
 
 --
--- Name: quiz_cuatro quiz_cuatro_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: quiz_cuatro quiz_cuatro_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.quiz_cuatro
@@ -1954,7 +2311,7 @@ ALTER TABLE ONLY public.quiz_cuatro
 
 
 --
--- Name: quiz_result quiz_result_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: quiz_result quiz_result_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.quiz_result
@@ -1962,7 +2319,7 @@ ALTER TABLE ONLY public.quiz_result
 
 
 --
--- Name: recurso recurso_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: recurso recurso_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.recurso
@@ -1970,7 +2327,7 @@ ALTER TABLE ONLY public.recurso
 
 
 --
--- Name: resultado_quiz_cuatro resultado_quiz_cuatro_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: resultado_quiz_cuatro resultado_quiz_cuatro_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz_cuatro
@@ -1978,7 +2335,7 @@ ALTER TABLE ONLY public.resultado_quiz_cuatro
 
 
 --
--- Name: resultado_quiz_cuatro resultado_quiz_cuatro_user_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: resultado_quiz_cuatro resultado_quiz_cuatro_user_id_key; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz_cuatro
@@ -1986,7 +2343,7 @@ ALTER TABLE ONLY public.resultado_quiz_cuatro
 
 
 --
--- Name: resultado_quiz_dos resultado_quiz_dos_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: resultado_quiz_dos resultado_quiz_dos_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz_dos
@@ -1994,7 +2351,7 @@ ALTER TABLE ONLY public.resultado_quiz_dos
 
 
 --
--- Name: resultado_quiz_dos resultado_quiz_dos_user_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: resultado_quiz_dos resultado_quiz_dos_user_id_key; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz_dos
@@ -2002,7 +2359,7 @@ ALTER TABLE ONLY public.resultado_quiz_dos
 
 
 --
--- Name: resultado_quiz resultado_quiz_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: resultado_quiz resultado_quiz_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz
@@ -2010,7 +2367,7 @@ ALTER TABLE ONLY public.resultado_quiz
 
 
 --
--- Name: resultado_quiz_tres resultado_quiz_tres_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: resultado_quiz_tres resultado_quiz_tres_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz_tres
@@ -2018,7 +2375,7 @@ ALTER TABLE ONLY public.resultado_quiz_tres
 
 
 --
--- Name: resultado_quiz_tres resultado_quiz_tres_user_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: resultado_quiz_tres resultado_quiz_tres_user_id_key; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz_tres
@@ -2026,7 +2383,7 @@ ALTER TABLE ONLY public.resultado_quiz_tres
 
 
 --
--- Name: resultado_quiz resultado_quiz_user_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: resultado_quiz resultado_quiz_user_id_key; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz
@@ -2034,7 +2391,7 @@ ALTER TABLE ONLY public.resultado_quiz
 
 
 --
--- Name: tematica tematica_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: tematica tematica_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.tematica
@@ -2042,7 +2399,7 @@ ALTER TABLE ONLY public.tematica
 
 
 --
--- Name: user user_correo_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: user user_correo_key; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public."user"
@@ -2050,7 +2407,7 @@ ALTER TABLE ONLY public."user"
 
 
 --
--- Name: user user_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: user user_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public."user"
@@ -2058,7 +2415,7 @@ ALTER TABLE ONLY public."user"
 
 
 --
--- Name: user user_username_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: user user_username_key; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public."user"
@@ -2066,7 +2423,7 @@ ALTER TABLE ONLY public."user"
 
 
 --
--- Name: usuarios_cursos usuarios_cursos_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: usuarios_cursos usuarios_cursos_pkey; Type: CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.usuarios_cursos
@@ -2074,14 +2431,105 @@ ALTER TABLE ONLY public.usuarios_cursos
 
 
 --
--- Name: idx_actividad_user_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_actividad_user; Type: INDEX; Schema: public; Owner: leidy_user
+--
+
+CREATE INDEX idx_actividad_user ON public.actividad_generada USING btree (user_id);
+
+
+--
+-- Name: idx_actividad_user_id; Type: INDEX; Schema: public; Owner: leidy_user
 --
 
 CREATE INDEX idx_actividad_user_id ON public.actividad_generada USING btree (user_id);
 
 
 --
--- Name: actividad_generada actividad_generada_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: idx_answer_question; Type: INDEX; Schema: public; Owner: leidy_user
+--
+
+CREATE INDEX idx_answer_question ON public.answer USING btree (question_id);
+
+
+--
+-- Name: idx_answer_user; Type: INDEX; Schema: public; Owner: leidy_user
+--
+
+CREATE INDEX idx_answer_user ON public.answer USING btree (user_id);
+
+
+--
+-- Name: idx_answer_user_question; Type: INDEX; Schema: public; Owner: leidy_user
+--
+
+CREATE INDEX idx_answer_user_question ON public.answer USING btree (user_id, question_id);
+
+
+--
+-- Name: idx_resultado_quiz_cuatro_user; Type: INDEX; Schema: public; Owner: leidy_user
+--
+
+CREATE INDEX idx_resultado_quiz_cuatro_user ON public.resultado_quiz_cuatro USING btree (user_id);
+
+
+--
+-- Name: idx_resultado_quiz_dos_user; Type: INDEX; Schema: public; Owner: leidy_user
+--
+
+CREATE INDEX idx_resultado_quiz_dos_user ON public.resultado_quiz_dos USING btree (user_id);
+
+
+--
+-- Name: idx_resultado_quiz_tres_user; Type: INDEX; Schema: public; Owner: leidy_user
+--
+
+CREATE INDEX idx_resultado_quiz_tres_user ON public.resultado_quiz_tres USING btree (user_id);
+
+
+--
+-- Name: idx_resultado_quiz_user; Type: INDEX; Schema: public; Owner: leidy_user
+--
+
+CREATE INDEX idx_resultado_quiz_user ON public.resultado_quiz USING btree (user_id);
+
+
+--
+-- Name: idx_user_colegio; Type: INDEX; Schema: public; Owner: leidy_user
+--
+
+CREATE INDEX idx_user_colegio ON public."user" USING btree (colegio_id);
+
+
+--
+-- Name: idx_user_correo; Type: INDEX; Schema: public; Owner: leidy_user
+--
+
+CREATE INDEX idx_user_correo ON public."user" USING btree (correo);
+
+
+--
+-- Name: idx_user_rol; Type: INDEX; Schema: public; Owner: leidy_user
+--
+
+CREATE INDEX idx_user_rol ON public."user" USING btree (rol);
+
+
+--
+-- Name: idx_user_rol_colegio; Type: INDEX; Schema: public; Owner: leidy_user
+--
+
+CREATE INDEX idx_user_rol_colegio ON public."user" USING btree (rol, colegio_id);
+
+
+--
+-- Name: idx_user_username; Type: INDEX; Schema: public; Owner: leidy_user
+--
+
+CREATE INDEX idx_user_username ON public."user" USING btree (username);
+
+
+--
+-- Name: actividad_generada actividad_generada_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.actividad_generada
@@ -2089,7 +2537,7 @@ ALTER TABLE ONLY public.actividad_generada
 
 
 --
--- Name: answer answer_question_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: answer answer_question_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.answer
@@ -2097,7 +2545,7 @@ ALTER TABLE ONLY public.answer
 
 
 --
--- Name: answer_tres answer_tres_question_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: answer_tres answer_tres_question_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.answer_tres
@@ -2105,7 +2553,7 @@ ALTER TABLE ONLY public.answer_tres
 
 
 --
--- Name: answer_tres answer_tres_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: answer_tres answer_tres_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.answer_tres
@@ -2113,7 +2561,7 @@ ALTER TABLE ONLY public.answer_tres
 
 
 --
--- Name: answer answer_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: answer answer_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.answer
@@ -2121,7 +2569,7 @@ ALTER TABLE ONLY public.answer
 
 
 --
--- Name: grados_dictados grados_dictados_grado_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: grados_dictados grados_dictados_grado_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.grados_dictados
@@ -2129,7 +2577,7 @@ ALTER TABLE ONLY public.grados_dictados
 
 
 --
--- Name: grados_dictados grados_dictados_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: grados_dictados grados_dictados_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.grados_dictados
@@ -2137,7 +2585,7 @@ ALTER TABLE ONLY public.grados_dictados
 
 
 --
--- Name: nivel_por_grados nivel_por_grados_nivel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: nivel_por_grados nivel_por_grados_nivel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.nivel_por_grados
@@ -2145,7 +2593,7 @@ ALTER TABLE ONLY public.nivel_por_grados
 
 
 --
--- Name: nivel_por_grados nivel_por_grados_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: nivel_por_grados nivel_por_grados_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.nivel_por_grados
@@ -2153,7 +2601,7 @@ ALTER TABLE ONLY public.nivel_por_grados
 
 
 --
--- Name: quiz_result quiz_result_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: quiz_result quiz_result_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.quiz_result
@@ -2161,7 +2609,7 @@ ALTER TABLE ONLY public.quiz_result
 
 
 --
--- Name: resultado_quiz_cuatro resultado_quiz_cuatro_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: resultado_quiz_cuatro resultado_quiz_cuatro_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz_cuatro
@@ -2169,7 +2617,7 @@ ALTER TABLE ONLY public.resultado_quiz_cuatro
 
 
 --
--- Name: resultado_quiz_dos resultado_quiz_dos_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: resultado_quiz_dos resultado_quiz_dos_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz_dos
@@ -2177,7 +2625,7 @@ ALTER TABLE ONLY public.resultado_quiz_dos
 
 
 --
--- Name: resultado_quiz_tres resultado_quiz_tres_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: resultado_quiz_tres resultado_quiz_tres_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz_tres
@@ -2185,7 +2633,7 @@ ALTER TABLE ONLY public.resultado_quiz_tres
 
 
 --
--- Name: resultado_quiz resultado_quiz_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: resultado_quiz resultado_quiz_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.resultado_quiz
@@ -2193,7 +2641,7 @@ ALTER TABLE ONLY public.resultado_quiz
 
 
 --
--- Name: user user_colegio_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: user user_colegio_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public."user"
@@ -2201,7 +2649,7 @@ ALTER TABLE ONLY public."user"
 
 
 --
--- Name: user user_nivel_grados_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: user user_nivel_grados_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public."user"
@@ -2209,7 +2657,7 @@ ALTER TABLE ONLY public."user"
 
 
 --
--- Name: usuarios_cursos usuarios_cursos_curso_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: usuarios_cursos usuarios_cursos_curso_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.usuarios_cursos
@@ -2217,7 +2665,7 @@ ALTER TABLE ONLY public.usuarios_cursos
 
 
 --
--- Name: usuarios_cursos usuarios_cursos_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: usuarios_cursos usuarios_cursos_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: leidy_user
 --
 
 ALTER TABLE ONLY public.usuarios_cursos
@@ -2225,8 +2673,36 @@ ALTER TABLE ONLY public.usuarios_cursos
 
 
 --
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: -; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT ALL ON SEQUENCES TO leidy_user;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TYPES; Type: DEFAULT ACL; Schema: -; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT ALL ON TYPES TO leidy_user;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: -; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT ALL ON FUNCTIONS TO leidy_user;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: -; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT ALL ON TABLES TO leidy_user;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Vyhgsz5aLXXzllBNloYi3rHPcWbKeLoxn1Ka3NvmcIEGCBXgRFgK0yhY0r1IlQN
+\unrestrict PqlMDxGJPOHX3pEEYfNgkoGW6eGvYZdtvJlsgGPxWiX4TV0ANR9lcepIehfVHkS
 
