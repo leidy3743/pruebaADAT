@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict PqlMDxGJPOHX3pEEYfNgkoGW6eGvYZdtvJlsgGPxWiX4TV0ANR9lcepIehfVHkS
+\restrict 0iekstgpNKHT9cuE91SgN3MUgs2euHl0kALbpZpXRCCVdYGwZWipwtUDGbK79Zf
 
 -- Dumped from database version 17.6 (Debian 17.6-1.pgdg12+1)
 -- Dumped by pg_dump version 17.6 (Debian 17.6-2.pgdg13+1)
@@ -1473,6 +1473,43 @@ COPY public.grados_dictados (user_id, grado_id) FROM stdin;
 121	7
 121	6
 122	10
+123	7
+124	3
+124	9
+124	7
+124	5
+124	8
+124	6
+124	2
+124	1
+148	11
+148	9
+148	7
+148	8
+148	10
+148	6
+149	12
+149	11
+149	8
+149	6
+149	10
+149	7
+149	9
+150	9
+150	8
+151	9
+151	10
+151	8
+154	10
+154	11
+154	8
+154	9
+157	9
+157	10
+157	8
+157	11
+158	7
+158	8
 \.
 
 
@@ -1553,6 +1590,18 @@ COPY public.nivel_por_grados (user_id, nivel_id) FROM stdin;
 120	3
 121	3
 122	3
+123	3
+124	1
+124	2
+124	3
+148	3
+149	3
+149	4
+150	3
+151	3
+154	3
+157	3
+158	3
 \.
 
 
@@ -1752,6 +1801,9 @@ COPY public.resultado_quiz (id, user_id, abstraccion, descomposicion, pensamient
 39	121	20	4	6	4	10
 40	120	34	16	26	11	4
 42	116	6	0	4	2	13
+43	122	0	0	0	0	1
+44	86	8	4	14	5	10
+45	148	8	4	20	6	8
 \.
 
 
@@ -1762,6 +1814,9 @@ COPY public.resultado_quiz (id, user_id, abstraccion, descomposicion, pensamient
 COPY public.resultado_quiz_cuatro (id, user_id, score, abstraccion, descomposicion, pensamiento_algoritmico, respuestas_correctas, respuestas_incorrectas) FROM stdin;
 5	120	21	\N	\N	\N	7	22
 8	18	25	\N	\N	\N	8	24
+9	20	34	\N	\N	\N	11	21
+10	122	25	\N	\N	\N	8	24
+12	86	25	\N	\N	\N	8	24
 \.
 
 
@@ -1781,6 +1836,7 @@ COPY public.resultado_quiz_dos (id, user_id, sensorial_intuitivo, visual_verbal,
 11	105	{"estado": "Sensorial", "valor": "Apropiado", "total": 6}	{"estado": "Visual", "valor": "Apropiado", "total": 7}	{"estado": "Activo", "valor": "Apropiado", "total": 7}	{"estado": "Secuencial", "valor": "Moderado", "total": 9}
 12	18	{"estado": "Sensorial", "valor": "Moderado", "total": 9}	{"estado": "Visual", "valor": "Apropiado", "total": 7}	{"estado": "Activo", "valor": "Fuerte", "total": 10}	{"estado": "Secuencial", "valor": "Moderado", "total": 9}
 14	120	{"estado": "Sensorial", "valor": "Moderado", "total": 9}	{"estado": "Visual", "valor": "Moderado", "total": 9}	{"estado": "Activo", "valor": "Moderado", "total": 8}	{"estado": "Secuencial", "valor": "Fuerte", "total": 10}
+15	86	{"estado": "Sensorial", "valor": "Apropiado", "total": 7}	{"estado": "Visual", "valor": "Apropiado", "total": 6}	{"estado": "Activo", "valor": "Apropiado", "total": 7}	{"estado": "Secuencial", "valor": "Apropiado", "total": 6}
 \.
 
 
@@ -1796,6 +1852,9 @@ COPY public.resultado_quiz_tres (id, user_id, filantropo, socializador, triunfad
 7	18	0	0	0	0	9.62	0
 8	120	0	0	0	0	10.2	0
 9	116	0	0	0	0	10.2	0
+10	20	0	0	0	0	10.42	0
+11	86	0	0	0	0	10	0
+12	148	0	0	0	0	10.2	0
 \.
 
 
@@ -1814,14 +1873,16 @@ COPY public.tematica (id, nombre) FROM stdin;
 COPY public."user" (id, nombres, correo, edad, colegio_id, nivel_grados_id, nivel_educativo, rol, anios_experiencia, username, password, institucion, cedula, created_at, last_login) FROM stdin;
 15	Jose Luis	hublol58@gmail.com	22	3	\N	Básica	estudiante	1	Jlvallejo	pbkdf2:sha256:600000$ZzefUmlKaK3F08yd$b1ffeed41b3d48be40587dee88044cf86554e96f3d23bf6470d759734d0a70a7	Universidad Antonio Jose Camacho	\N	2025-10-25 15:35:22.045631	2025-10-21 18:54:11.994194
 19	James Mauricio Nunez	d.eus.james.nunez@cali.edu.co	49	5	\N	pregrado	docente	15	94487253	pbkdf2:sha256:1000000$LjWwMEriKYjtBe2P$8227e0a01364fed9e0b40acfb31e3d8b04ad27043893cfb634c5936ed9bcb67e	I.E. Eustaquio Palacios	\N	2025-10-25 15:35:22.045631	2025-10-23 01:09:11.994125
-20	Ángel David Silva Polo	d.pam.angel.silva@cali.edu.co	32	1	\N	posgrado	docente	8	angeld36	pbkdf2:sha256:1000000$RXFxE0r1SgkgE01B$78afae25dff8b27a88c36431b27fb1b779bd243bae9a4800141d40df2f33aea0	Pedro Antonio Molina	\N	2025-10-25 15:35:22.045631	2025-10-24 06:35:11.994022
 21	Indhira Valdés Salazar 	D.cht.indhira.valdes@cali.edu.co	49	1	\N	pregrado	docente	24	Indy	pbkdf2:sha256:1000000$YHErdjTOoPLYoZjP$a04f6481cccec4351e68fca62496f7d7037e7da3e339cd202d8f69ec8786a063	Carlos Holmes Trujillo 	\N	2025-10-25 15:35:22.045631	2025-10-23 13:26:11.993973
 22	Jorge Baquero 	investigo@hotmail.com	62	1	\N	secundaria	docente	21	Baquero	pbkdf2:sha256:1000000$0OFu510TCLHWCX58$edd2078c39e96af7383fbf4e4466a70f9674431b9d5bd8272c986ec3698d0517	Nuevo Latir 	\N	2025-10-25 15:35:22.045631	2025-10-21 16:03:11.994092
 24	Jhonathan Andrés Belalcázar Zapata	d.pam.jhonathan.belalcazar@cali.edu.co	26	5	\N	secundaria	docente	5	JhonathanB	pbkdf2:sha256:1000000$c79QPMtockATQXeZ$bd0db21c0e39062de6b6b8d471469571d77ed95fa3d95817ce5fa7e5d2ce73e2	IETI Pedro Antonio Molina	\N	2025-10-25 15:35:22.045631	2025-10-24 06:44:11.994059
-29	Yadira Ortega	jpto1011@gmail.com	60	5	\N	posgrado	docente	21	yadiraortega	pbkdf2:sha256:1000000$OCdqfxyNmt9j63KN$fae26e6abe2e94ad2c63c8de0fa8c98e75fc378205fba050a52f9957c491c6e0	Eustaquio Palacios	\N	2025-10-25 15:35:22.045631	2025-10-22 23:53:11.994158
 120	Yeison Fernando 	gonzalezyeison209@gmail.com	18	5	\N	primaria	docente	1	Yeison Fernando 	pbkdf2:sha256:1000000$q6yrPlh2FftgjYzA$ba2a88848863d33ae6937febeb3927c9cf394eef2bfb3c567024207feb70bf3e	Rafael Navia Varon 	1110367951	2025-10-25 16:49:43.11567	2025-10-25 00:14:11.993937
-121	Jhon Alexander Martinez Serrano 	jdecimo2010@gmail.com	54	5	\N	secundaria	docente	28	jdecimo2010	pbkdf2:sha256:1000000$ynfsEwFaOw2WSlZH$dd72f63af54bf41a7f0a07b84e8d150b30d91a31ea9dea0d187eee55035c65b9	La Esperanza 	16790721	2025-10-25 16:56:25.466698	2025-10-23 02:22:11.993725
-18	Leidy Administrador	leidy3743@gmail.com	32	\N	\N	Universitaria	admin	9	leidy_admin	pbkdf2:sha256:1000000$LqTLF5emU0OGjd0y$58cdc33e2b7a29b32056172f992655a26dc3d0aab67519e37ffdc8c87bf8e294	Universidad del Valle	1085281803	2025-10-25 15:35:22.045631	2025-10-26 23:52:59.240861
+151	Juan Manuel López 	manungo180705@gmail.com	42	5	\N	pregrado	docente	15	14697432	pbkdf2:sha256:260000$p0Uvy1dJ7oc0cU8L$b5b4f33713e4287bb96a954b8bc83d1f61acb4479b283ff60cce469ee032cf1e	I..E El Rodeo 	14697432	2025-10-29 00:56:45.614467	2025-10-29 00:57:24.079841
+18	Leidy Administrador	leidy3743@gmail.com	32	\N	\N	Universitaria	admin	9	leidy_admin	pbkdf2:sha256:1000000$LqTLF5emU0OGjd0y$58cdc33e2b7a29b32056172f992655a26dc3d0aab67519e37ffdc8c87bf8e294	Universidad del Valle	1085281803	2025-10-25 15:35:22.045631	2025-10-30 21:56:59.551406
+29	Yadira Ortega	jpto1011@gmail.com	60	5	\N	Básica	docente	21	yadiraortega	pbkdf2:sha256:260000$mFU9zuTkhq42OSxP$81d40869a4c854f85e59fe77feda4e666e6eb3f90ed5c439cac818365b071e1a	Eustaquio Palacios	\N	2025-10-25 15:35:22.045631	2025-10-28 23:34:42.896742
+121	Jhon Alexander Martinez Serrano 	jdecimo2010@gmail.com	54	5	\N	secundaria	docente	28	jdecimo2010	pbkdf2:sha256:1000000$ynfsEwFaOw2WSlZH$dd72f63af54bf41a7f0a07b84e8d150b30d91a31ea9dea0d187eee55035c65b9	La Esperanza 	16790721	2025-10-25 16:56:25.466698	2025-10-28 23:35:36.835915
+20	Ángel David Silva Polo	d.pam.angel.silva@cali.edu.co	32	1	\N	posgrado	docente	8	angeld36	pbkdf2:sha256:1000000$RXFxE0r1SgkgE01B$78afae25dff8b27a88c36431b27fb1b779bd243bae9a4800141d40df2f33aea0	Pedro Antonio Molina	1143849896	2025-10-25 15:35:22.045631	2025-10-28 23:37:15.768608
+149	Jose  Martinez 	gatomat@hotmail.com	50	2	\N	secundaria	docente	25	jose_martinez	pbkdf2:sha256:260000$VMfRfnonsNxUEiQP$3dfdc3241b48b5411a6bc2c2368658b277654d28be69bb525867a39b865f5f8d	JUAN XXIII	79735876	2025-10-29 00:47:10.747905	2025-10-29 00:48:19.309847
 30	Diana Lucia Andrade Ardila	dianalucia3817@gmail.com	46	1	\N	posgrado	docente	14	Di3817	pbkdf2:sha256:1000000$Gsiq7o2sU8nupGth$1a46c11298aeae78bdfc7cbec03a6f67c604fa0ae7c0c815672812daca516d72	IE CIUDAD CORDOBA	\N	2025-10-25 15:35:22.045631	\N
 32	María Cirley Ladino Montoya	d.eus.maria.ladino@cali.edu.co	58	1	\N	posgrado	docente	30	Maria	pbkdf2:sha256:1000000$lfoN9wXT0wVb0AEG$c22b703fcb19cc84d2fedd0dcda8289c809ec1966611c3e0385fc2a9fb4e9a76	Eustaquio Palacios	\N	2025-10-25 15:35:22.045631	\N
 45	Lucero Stella López Martínez 	d.sfe.lucero.lopez@cali.edu.co	60	1	\N	secundaria	docente	30	lucelo072	pbkdf2:sha256:1000000$DbLYMBMfk6rZwhQH$ffbd022148141eebb0d136304524d9c166529407bebf7fff18526f68b979d813	Santafe	\N	2025-10-25 15:35:22.045631	\N
@@ -1829,38 +1890,45 @@ COPY public."user" (id, nombres, correo, edad, colegio_id, nivel_grados_id, nive
 13	Oscar estiven	ovalle@estudiante.uniajc.edu.co	21	3	\N	Básica	estudiante	1	Oscar Valle	pbkdf2:sha256:600000$WbP1kAE7dzzPubQ8$b9eb3febf23d25c504f6d338edc76e36732c7feb09bfbd633a46584620580033	Universidad Antonio Jose Camacho	\N	2025-10-25 15:35:22.045631	\N
 14	HARRY GONGORA	harrigta@gmail.com	21	3	\N	Básica	estudiante	1	hgongora	pbkdf2:sha256:600000$I29Eibpc17OO9bpu$b4906a1da6b40f049d03431f739dd5c033acfae6cd5a8e0379f71c515fc53f1a	Universidad Antonio Jose Camacho	\N	2025-10-25 15:35:22.045631	\N
 10	Pedro Amador R	Pedro.amador@correounivalle.edu.co	36	2	\N	Básica	estudiante	1	Pedro	pbkdf2:sha256:600000$7DyQU5DK4cqbpTeD$49a5ad8b4f4bd013f8e857155c13a5dcfdfe1db3c709d8777a2a2875955237b7	Universidad del Valle	\N	2025-10-25 15:35:22.045631	\N
-122	Faber Sarmiento Florez 	d.sto.faber.sarmiento@cali.edu.co	62	5	\N	posgrado	docente	15	16270115	pbkdf2:sha256:1000000$bgyw29vuxPfuPkKj$7a168d1be61c80d0326045971cb199af2bea19db7bef5fd509bd3823cd63d9df	I. E Santo Tomás CASD 	16270115	2025-10-26 16:46:52.78425	\N
 49	Lenis Eloisa Montaño Ocoro	leniss2528@gmail.com	47	1	\N	secundaria	docente	23	lenis montaño ocoro	pbkdf2:sha256:1000000$UTdwuELqLSQTvLVj$eaaf254186fbd1aa010cb1936542124d796e48ce65650283613a795fec18812c	I.E.Sagrada Familia	\N	2025-10-25 15:35:22.045631	\N
+122	Faber Sarmiento Florez 	d.sto.faber.sarmiento@cali.edu.co	62	5	\N	posgrado	docente	15	16270115	pbkdf2:sha256:1000000$bgyw29vuxPfuPkKj$7a168d1be61c80d0326045971cb199af2bea19db7bef5fd509bd3823cd63d9df	I. E Santo Tomás CASD 	16270115	2025-10-26 16:46:52.78425	2025-10-28 22:49:19.251153
 51	Martha Soto	d.pmc.martha.soto@cali.edu.co	48	1	\N	posgrado	docente	20	MarthaLSotoLL	pbkdf2:sha256:1000000$v8ZY40jbvqIOjtHf$785b9676bcfb6f53c3df74e524d4891d90b6fdebf43b8fd7df4ea20219141588	Politécnico Municipal de Cali	\N	2025-10-25 15:35:22.045631	\N
 53	Cristian Olivia	d.eus.cristhian.rojas@cali.edu.co	67	1	\N	secundaria	docente	33	41668886	pbkdf2:sha256:1000000$9lez3dXKV5J428UM$872dcbe905c754618c662dde24f315bb3fe61c233780c738688ddc2a1a0e9415	Eustaquio Palacios	\N	2025-10-25 15:35:22.045631	\N
 59	JUAN FELIPE TELLO	juan.tello@correounivalle.edu.co	30	1	\N	secundaria	docente	4	juan.tello	pbkdf2:sha256:1000000$6NoMIsnKuLOLjiYz$c4cf0186d404f1b626b9189dfac2a913781b1f9bc186f8f4a32330b7f9ae2144	IETI PEDRO ANTONIO MOLINA	\N	2025-10-25 15:35:22.045631	\N
+123	Alejandra Quilindo 	alejaquili@gmail.com	44	5	\N	posgrado	docente	15	Alejandra Quilindo 	pbkdf2:sha256:260000$HWM7JLWgBz5En5hR$6ca5aff8fc764e88dd0d12b95779d39d30513e66b1b49ab959b0c10592edf00d	Eustaquio Palacios 	25292398	2025-10-28 23:34:50.464383	2025-10-29 00:40:27.286016
 57	Fabián Aranzazu Giraldo 	d.pmc.fabian.aranzazu@cali.edu.co	46	1	\N	posgrado	docente	15	Fabián	pbkdf2:sha256:1000000$3rlD9MuZjFeFLyIC$1d6c293be62f041635ba84baca71a54cb334e4f172d724ce99b76642ecf21354	Politécnico Municipal de Cali 	\N	2025-10-25 15:35:22.045631	\N
+124	Yolanda millan ortiz	Yolami8888@gmail.com	59	5	\N	secundaria	docente	20	yolami8888@gmail.com	pbkdf2:sha256:260000$HwWlQ0zPmGsRafNq$9bf7ecf1b8c25e1497ed9697d06bd399a41232c434b3fd9ab5b523774b6ac62b	Funcoarte	31953533	2025-10-28 23:35:07.670926	2025-10-28 23:38:48.95976
 58	Alejandro García Mejía 	ing.agm.1a@gmail.com	46	1	\N	secundaria	docente	10	94527725	pbkdf2:sha256:1000000$nIqsFoByO3aDmd0j$2bdb81db87a2eca30f55a7c1c269ed4f8552c5abafabd588690523049d5ce9cb	Montebello 	\N	2025-10-25 15:35:22.045631	\N
 61	Yenni Mina	Yenni.mina@correounivalle.edu.co	46	1	\N	posgrado	docente	17	Yennimina	pbkdf2:sha256:1000000$50sWoV5u8R3uufR4$bfc45ea645c76416223a73ebb3a69d9b0e177b2194b4824bb24d9cf19ffc6975	I.E. Juan Ignacio	\N	2025-10-25 15:35:22.045631	\N
 63	Maritza Machado Mosquera	d.sto.maritza.machado@cali.edu.co	18	5	\N	posgrado	docente	22	maritzamachado	pbkdf2:sha256:1000000$HByYQVe6Jsbvd1DB$4428f8a8a2e26316cbfdcd35e299213fadc73f9b69418b52219f104fd7a0ef16	SANTO TOMÁS	\N	2025-10-25 15:35:22.045631	\N
-64	Carolina Villamil 	cvillamil@unal.edu.co	47	1	\N	posgrado	docente	47	Cvillamil78	pbkdf2:sha256:1000000$IuTRFf63kYCCyiGc$bdc7b322a0b4f7493cffdfe29127a04385715f23996e80f3adfc2554a57506e7	Gabriel García Márquez 	\N	2025-10-25 15:35:22.045631	\N
 65	Jorge Baquero 	d.nla.jorge.baquero@cali.edu.co	62	1	\N	primaria	docente	21	Baquero 	pbkdf2:sha256:1000000$N1gHiNoLbpCdnTaG$f583b1ded79c00280994c0f562fae00b89ee55ba34849e84c1a2882e28cb28f7	Nuevo Latir 	\N	2025-10-25 15:35:22.045631	\N
+154	jhon Alexander hurtado Benavides 	d.nla.jhon.hurtado@cali.edu.co	45	5	\N	posgrado	docente	9	d.nla.jhon.hurtado@cali.edu.co	pbkdf2:sha256:260000$GWhlsxBLEXDgVQTv$06ae3f079fabc7349b33b2cd36167e34a3bc63085f71bad51ee0e10b2006e7e3	Nuevo Latir 	98432216	2025-10-29 13:11:11.320245	\N
 67	Omar uzuriaga 	Andresuzuriagaocoro@gmail.com	33	1	\N	pregrado	docente	5	Andresuzuriagaocoro@gmail.com	pbkdf2:sha256:1000000$jNYhKZgWLhi2NMnf$493585d7e97df08fbdfcf53a8e916b98fc82a3f0551c12486459bf3721afa908	Colegio Americano 	\N	2025-10-25 15:35:22.045631	\N
 69	Anyela Andrea Lasso Petevi	anyiandrealasso@gmail.com	44	1	\N	secundaria	docente	18	29671165	pbkdf2:sha256:1000000$kWKvJ0sSEtKtj9j9$17a6902d65d6b349d8cdaeb246fd14a63f21addb1bcb8031b91ee7280ffc98fb	Eustaquio Palacio	\N	2025-10-25 15:35:22.045631	\N
+86	JULIO CESAR VILLAMOR GUTIERREZ	juliocesarvillamor@gmail.com	63	5	\N	secundaria	docente	18	Villamor	pbkdf2:sha256:1000000$DWnEhtAgXOUv2s8i$bd53e55f8a131c6de7241a59d02155aa52ea3f03c03d2a4f07ce9cf7ba867bcf	LAS AMÉRICAS	16689953	2025-10-25 15:35:22.045631	2025-10-29 00:39:22.726209
 72	Isabel Alvear	isaacademico21@gmail.com	53	2	\N	posgrado	docente	15	isalba13  	pbkdf2:sha256:1000000$hWUqAeNqF6b2SCLY$256b6fcc04f483372ba48a326de07f874b1a9bb8ab1e72007d4fd7a80b73c3eb	I.E. Juan Ignacio	\N	2025-10-25 15:35:22.045631	\N
+80	CLARENA COBO VERGARA	d.blg.clarena.cobo@cali.edu.co	52	1	\N	Básica	docente	26	66853088	pbkdf2:sha256:260000$EnjoYAGCgOMZXsDn$06f301dc0b1e399fe8f649631a56ad240f4542de75563c69ceb0a2eaf82a00d5	Bartolome Loboguerrero	66853088	2025-10-25 15:35:22.045631	2025-10-29 00:40:24.929133
 75	Alejandro García Mejía 	D.eus.alejandro.garcia@cali.edu.co	46	1	\N	posgrado	docente	10	Ing_Agm	pbkdf2:sha256:1000000$q0P3YA6rx3b2jRA9$3bae05533a0f0b16271ca6d2e7b39b0d92225e70eaa15a201bd6c60b592bc293	Montebello 	\N	2025-10-25 15:35:22.045631	\N
 76	Martha Cecilia Motta Garcia	marthamotta.maestra@ietirafaelnaviavaron.edu.co	63	1	\N	posgrado	docente	45	marthacemotta24	pbkdf2:sha256:1000000$dhubcb1en6agJvba$f5c64110868424475d916d9fe25517b26496c46053627c3315f80643ef05ded7	IE Rafael Navia Varón	\N	2025-10-25 15:35:22.045631	\N
 77	Johny Romero Prieto 	d.nla.johny.romero@cali.edu.co	59	1	\N	posgrado	docente	17	johnyrom	pbkdf2:sha256:1000000$sFuvCrDCQRhRD3w3$689cecc4338971fd97c8a4e79209d4461ec3fe7b6b6e58c89440c7008cd23617	Nuevo latir sede Isaías Duarte Cancino 	\N	2025-10-25 15:35:22.045631	\N
-80	CLARENA COBO VERGARA	d.blg.clarena.cobo@cali.edu.co	52	1	\N	posgrado	docente	26	66853088	pbkdf2:sha256:1000000$jylm1MliCjVcN2RP$60d0e96794fe8fb804e9a7198319fbe83876e80d028c6acf1e6bfc9afa44f24a	Bartolome Loboguerrero	\N	2025-10-25 15:35:22.045631	\N
+157	jhon Alexander hurtado Benavides 	cholomania30@gmail.com	45	2	\N	posgrado	docente	9	98432216	pbkdf2:sha256:260000$tMX9zyfzhS9Byhhx$6a98ded3c66911147b9b6d98faebeb1096f8feae13e1b63dc53e087c5112fa5d	Nuevo Latir 	98432216	2025-10-29 19:21:10.573902	2025-10-29 19:21:33.813918
 83	Maritza Machado Mosquera	marymariposa0417@gmail.com	20	5	\N	posgrado	docente	1	marymariposa0417@gmail.com	pbkdf2:sha256:1000000$LVHM4yEAvjxlp2eY$1ed8019bc379efdfff6f45c958b46a68450b2325e70b88dac142d682f87421c1	SANTO TOMÁS	\N	2025-10-25 15:35:22.045631	\N
-86	JULIO CESAR VILLAMOR GUTIERREZ	juliocesarvillamor@gmail.com	63	5	\N	secundaria	docente	18	Villamor	pbkdf2:sha256:1000000$DWnEhtAgXOUv2s8i$bd53e55f8a131c6de7241a59d02155aa52ea3f03c03d2a4f07ce9cf7ba867bcf	LAS AMÉRICAS	\N	2025-10-25 15:35:22.045631	\N
 90	Zulma Bernarda Pabon Pipicano	zulmapabon.maestra@ietirafaelnaviavaron.edu.co	18	1	\N	secundaria	docente	14	zpabon	pbkdf2:sha256:1000000$KdhljwjguoMmeXRl$6d4f9c92f803521993db463feb8d3a94e0de758739615d68586de0add9387b78	Rafael Navia Varón	\N	2025-10-25 15:35:22.045631	\N
 92	Tulia betty barona	Bettycontadora2011@gmail.com	64	1	\N	secundaria	docente	25	Bettyna 	pbkdf2:sha256:1000000$HJmdikFUOJyBMv3a$31bb9545f63493c663853d0212d585e2c1a9c5248423fd92d8b8aedcd4342db3	I.E.T.C LAS AMERICAS	\N	2025-10-25 15:35:22.045631	\N
 93	Leonardo 	leonardo.duque.carvajal@gmail.com	48	5	\N	pregrado	docente	5	MatemáticoLDC	pbkdf2:sha256:1000000$CHUXB1C3kKNHrPhh$c662a195fbcf09907a444f397474b4cdc25dde3b2bb243d7f5bccdb99c26dfbe	Univalle	\N	2025-10-25 15:35:22.045631	\N
+64	Carolina Villamil 	cvillamil@unal.edu.co	47	1	\N	Básica	docente	47	Cvillamil78	pbkdf2:sha256:260000$OBiHxaJXLvmQdB9z$42babf777c31b43dc9f8818aef91af147555df1d372b2e37458c7746596ce600	Gabriel García Márquez 	\N	2025-10-25 15:35:22.045631	2025-10-30 21:58:01.683544
 95	Betty Barona	Bettybarona@ielasamericas.edu.co	65	1	\N	secundaria	docente	25	Bettyna	pbkdf2:sha256:1000000$utNbC9tOtlAxPDwp$a642aa7b45ce39b7c45e82510f38edc9ad55c4e3dbad330e0508626d9bec6eb8	I.E.T.C LAS AMERICAS	\N	2025-10-25 15:35:22.045631	\N
 101	Lazarine Rico Ortega	d.nla.lazarine.rico@cali.edu.co	44	5	\N	posgrado	docente	18	lazarinerico	pbkdf2:sha256:1000000$bw5FD48rbCCfKbfz$333930d3506687104af8edef4cb04ee531fee973c1486fc8f84d605ab890b3dc	Nuevo Latir	\N	2025-10-25 15:35:22.045631	\N
 102	Gloria Esperanza Nieto Ramirez	gloriaesperanzanietoramirez@gmail.com	57	1	\N	posgrado	docente	19	Glorica	pbkdf2:sha256:1000000$6I1dLRUlIQ6gXUYR$8fe1cf5d329a8cc1f24b8f1f4346720634f2af06a351bcf8c5580c01b4e4f64a	Isaias Gamboa	\N	2025-10-25 15:35:22.045631	\N
-103	ANA MILENA RIVAS	d.alv.ana.rivas@cali.edu.co	54	1	\N	secundaria	docente	3	DAVAMI	pbkdf2:sha256:1000000$WFvCTwIny9A8tmM4$67a2cadccccc22606a8093a70dacaa976dfe09bf3e1d75ce7eeb43b776d135e5	ALVARO ECHEVERRY PEREA	\N	2025-10-25 15:35:22.045631	\N
+150	Mauricio Rodrigue Aguiño	d.cco.mauricio.rodriguez@cali.edu.co	54	5	\N	secundaria	docente	9	d.cco.mauricio.rodriguez@cali.edu.co	pbkdf2:sha256:260000$94yWp4R7jsG5zJwx$b4e91592c4c9fbed4fcc20ebaad28c4df581eaeaccbfb0c5a843f653c1f7262f	I.E. Ciudad Córdoba	94365678	2025-10-29 00:47:50.5667	2025-10-31 12:59:52.003235
 105	Leidy Gómez	leidy-0522@hotmail.com	33	1	\N	secundaria	docente	8	1144053783	pbkdf2:sha256:1000000$jhTcy00OdTvD2WRG$977cd555fbacffcc64d049a87823cd207c584a30fcce9f9436267abc183dd486	IE ALFREDO BONILLA MONTAÑO	\N	2025-10-25 15:35:22.045631	\N
 106	John Duran	d.pam.john.duran@cali.edu.co	43	1	\N	secundaria	docente	15	johnferduran	pbkdf2:sha256:1000000$mhZF0zd0KihPaaEN$cff007f43cbeecec617ba6abb3ec176156839f4d6503d6738871d8101699f35b	IETI Pedro Antonio Molina	\N	2025-10-25 15:35:22.045631	\N
 111	Wilton Sánchez Hincapié	wilton.sanchez@correounivalle.edu.co	49	5	\N	pregrado	docente	10	94323981	pbkdf2:sha256:1000000$oSJVp5tJGtHhsLoI$45210a45cc87bc1518bdbb79442a8bd653d3cb0dda0466efbba5aadc65e650d0	Fundación Hechos de Vida por ti	\N	2025-10-25 15:35:22.045631	\N
 115	PEDRO ANTONIO	d.eus.pedro.bonilla@cali.edu.co	54	1	\N	secundaria	docente	20	16499409	pbkdf2:sha256:1000000$nT528OoufACmR8B4$278a26f6e9d851125349bedff3eb79a46cb187c4b785558c41cd3d8bd751c55e	EUSTAQUIO PALACIOS	\N	2025-10-25 15:35:22.045631	\N
 116	pruebas	cgiohidalgo@gmail.com	34	\N	\N	Posgrado	docente	10	pruebas	pbkdf2:sha256:1000000$JkAC9jQ25CE1Q5ww$66a8c3b25e3dae9f23046d4f177147f426d03db51744a5c2c34ccb75fe47569d	prueba	12324234	2025-10-25 15:35:22.045631	2025-10-25 21:36:32.528367
+103	ANA MILENA RIVAS	d.alv.ana.rivas@cali.edu.co	54	1	\N	Básica	docente	3	DAVAMI	pbkdf2:sha256:260000$goBZ14Ss1FO1sD0d$f91964e1561a27e1841f07ba1a130330afd2438ab468c30b29658e368f1c04dd	ALVARO ECHEVERRY PEREA	66835047	2025-10-25 15:35:22.045631	2025-10-29 00:44:04.602913
+148	Rosalba Valencia Quejada	rv5463@gmail.com	59	5	\N	secundaria	docente	26	Rosalbavq	pbkdf2:sha256:260000$YI7rAsCx1dR1ytlP$c3c59f4e13ddb8836a40fda88356d44ed480c68cde44c9b082216837a6bd600f	IE LA ESPERANZA	54253139	2025-10-29 00:46:52.513124	2025-10-29 13:12:44.623893
+158	Victoria Eugenia Villamil Torres 	d.eus.victoria.villamil@cali.edu.co	54	5	\N	posgrado	docente	15	Vicky Villamil 	pbkdf2:sha256:260000$uYociZdaAMxnyzCR$b2243f8fb66a0cd6c67f1842c6fefccae6d6d7468696854ee814ecb3811935ad	Eustaquio Palacios 	66826992	2025-10-30 21:05:17.430375	2025-10-30 21:06:00.570777
 \.
 
 
@@ -1924,6 +1992,21 @@ COPY public.usuarios_cursos (user_id, curso_id) FROM stdin;
 122	3
 122	6
 122	2
+123	6
+124	2
+124	4
+124	3
+148	3
+149	2
+149	3
+150	2
+151	6
+154	1
+154	5
+154	3
+157	3
+157	5
+158	3
 \.
 
 
@@ -2064,28 +2147,28 @@ SELECT pg_catalog.setval('public.recurso_id_seq', 1, false);
 -- Name: resultado_quiz_cuatro_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
-SELECT pg_catalog.setval('public.resultado_quiz_cuatro_id_seq', 8, true);
+SELECT pg_catalog.setval('public.resultado_quiz_cuatro_id_seq', 12, true);
 
 
 --
 -- Name: resultado_quiz_dos_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
-SELECT pg_catalog.setval('public.resultado_quiz_dos_id_seq', 14, true);
+SELECT pg_catalog.setval('public.resultado_quiz_dos_id_seq', 15, true);
 
 
 --
 -- Name: resultado_quiz_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
-SELECT pg_catalog.setval('public.resultado_quiz_id_seq', 42, true);
+SELECT pg_catalog.setval('public.resultado_quiz_id_seq', 45, true);
 
 
 --
 -- Name: resultado_quiz_tres_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
-SELECT pg_catalog.setval('public.resultado_quiz_tres_id_seq', 9, true);
+SELECT pg_catalog.setval('public.resultado_quiz_tres_id_seq', 12, true);
 
 
 --
@@ -2099,7 +2182,7 @@ SELECT pg_catalog.setval('public.tematica_id_seq', 1, false);
 -- Name: user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: leidy_user
 --
 
-SELECT pg_catalog.setval('public.user_id_seq', 122, true);
+SELECT pg_catalog.setval('public.user_id_seq', 158, true);
 
 
 --
@@ -2704,5 +2787,5 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT ALL ON TABLES TO leidy_user;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict PqlMDxGJPOHX3pEEYfNgkoGW6eGvYZdtvJlsgGPxWiX4TV0ANR9lcepIehfVHkS
+\unrestrict 0iekstgpNKHT9cuE91SgN3MUgs2euHl0kALbpZpXRCCVdYGwZWipwtUDGbK79Zf
 

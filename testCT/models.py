@@ -1,5 +1,6 @@
 from datetime import datetime
 from extensions import db
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 usuarios_cursos = db.Table('usuarios_cursos',
@@ -81,6 +82,21 @@ class User(db.Model):
     def is_active(self):
         # Puedes personalizar esta lógica si tienes un campo de estado
         return True
+
+    # ====== Gestión de contraseñas ======
+    def set_password(self, password: str) -> None:
+        """Hashea y establece la contraseña del usuario.
+        Usa pbkdf2:sha256 para mantener compatibilidad con el resto de la app.
+        """
+        if not password:
+            raise ValueError("La contraseña no puede estar vacía")
+        self.password = generate_password_hash(password, method='pbkdf2:sha256')
+
+    def check_password(self, password: str) -> bool:
+        """Verifica si la contraseña en texto plano coincide con el hash almacenado."""
+        if not isinstance(self.password, str) or not self.password:
+            return False
+        return check_password_hash(self.password, password)
 
 
 class Question(db.Model):

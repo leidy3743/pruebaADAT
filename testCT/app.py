@@ -6,6 +6,7 @@ from flask import Flask, render_template, redirect, url_for, flash, request, jso
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
 
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 # Utilidades y librerías estándar/faltantes
 import io
 from datetime import datetime, timedelta
@@ -23,6 +24,15 @@ if os.path.exists('config.py'):
     app.config.from_object('config.Config')
 else:
     app.config['SECRET_KEY'] = 'dev-secret-key'
+
+# Configuración de uploads
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
+
+# Asegurar que existe la carpeta de uploads
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Registrar la extensión de SQLAlchemy
 from models import db
@@ -42,6 +52,27 @@ from cache_utils import get_cached_colegios, get_cached_cursos, get_cached_nivel
 from forms import RegistrationForm, LoginForm, QuizForm, QuizFormDos, QuizFormTres, QuizFormCuatro
 # Importar IntegrityError para manejo de errores de integridad
 from sqlalchemy.exc import IntegrityError
+
+
+# ==================== FUNCIONES AUXILIARES PARA UPLOADS ====================
+
+def allowed_file(filename):
+    """Verificar si la extensión del archivo es permitida"""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_uploaded_image(file):
+    """Guardar imagen subida y retornar la ruta relativa"""
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        # Agregar timestamp para evitar colisiones
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        name, ext = os.path.splitext(filename)
+        unique_filename = f"{name}_{timestamp}{ext}"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+        file.save(filepath)
+        # Retornar ruta relativa para guardar en BD
+        return f"/static/uploads/{unique_filename}"
+    return None
 
 
 # Ruta para el test Marco Roman
@@ -142,8 +173,12 @@ def profile():
             confirm_password = request.form.get('confirm_password')
             
             if new_password:
+                if len(new_password) < 6:
+                    flash('La contraseña debe tener al menos 6 caracteres', 'error')
+                    return render_template('profile.html')
                 if new_password == confirm_password:
                     current_user.set_password(new_password)
+                    flash('Contraseña actualizada correctamente. Por seguridad, cierra sesión y vuelve a iniciar sesión.', 'info')
                 else:
                     flash('Las contraseñas no coinciden', 'error')
                     return render_template('profile.html')
@@ -260,17 +295,17 @@ def login():
     form = LoginForm()
     if request.method == 'POST':
         print("POST REQUEST RECIBIDO")
-        username = request.form['username']
+        username = request.form['username'].strip()  # Limpiar espacios
         password = request.form['password']
         print(f"Usuario: {username}, Password: {password}")
-        # Buscar usuario en la base de datos por email
+        # Buscar usuario en la base de datos por username (limpio)
         user = User.query.filter_by(username=username).first()
         
         if user:
             print(f"Usuario encontrado: {user.username}")
             print(f"Hash almacenado: {user.password}")
             print(f"Verificando contraseña...")
-            password_match = check_password_hash(user.password, password)
+            password_match = user.check_password(password)
             print(f"¿Contraseña coincide? {password_match}")
             
             if password_match:
@@ -428,7 +463,11 @@ def editar_usuario(user_id):
             # Cambiar contraseña solo si se proporciona
             new_password = request.form.get('password')
             if new_password:
-                usuario.password = generate_password_hash(new_password, method='pbkdf2:sha256')
+                if len(new_password) < 6:
+                    flash('La contraseña debe tener al menos 6 caracteres', 'danger')
+                    colegios = get_cached_colegios()
+                    return render_template('editar_usuario.html', usuario=usuario, colegios=colegios)
+                usuario.set_password(new_password)
             
             db.session.commit()
             flash('Usuario actualizado exitosamente', 'success')
@@ -1009,9 +1048,20 @@ def editar_quiz4(question_id):
             pregunta.correct_answer = form.correct_answer.data
             pregunta.label = form.label.data
             pregunta.percentage = form.percentage.data
-            # Preferir imagen subida; si no, usar URL normalizada
+            
+            # Manejar imagen subida
             uploaded = request.files.get('image_file')
-            pregunta.image_url = form.image_url.data if form.image_url.data else ''
+            if uploaded and uploaded.filename:
+                # Si hay archivo subido, guardar y usar su ruta
+                saved_path = save_uploaded_image(uploaded)
+                if saved_path:
+                    pregunta.image_url = saved_path
+                else:
+                    flash('Formato de imagen no válido. Use: png, jpg, jpeg, gif, webp', 'warning')
+            elif form.image_url.data:
+                # Si no hay archivo pero sí URL, usar la URL
+                pregunta.image_url = form.image_url.data
+            # Si no hay ni archivo ni URL, mantener la imagen existente (no cambiar pregunta.image_url)
 
             db.session.commit()
             flash('Pregunta actualizada exitosamente', 'success')
@@ -2138,7 +2188,18 @@ def register_quiz4_question():
     if form.validate_on_submit():
         # Manejar upload o URL
         uploaded = request.files.get('image_file')
-        image_url_final = form.image_url.data if form.image_url.data else ''
+        image_url_final = ''
+        
+        if uploaded and uploaded.filename:
+            # Si hay archivo subido, guardarlo
+            saved_path = save_uploaded_image(uploaded)
+            if saved_path:
+                image_url_final = saved_path
+            else:
+                flash('Formato de imagen no válido. Use: png, jpg, jpeg, gif, webp', 'warning')
+        elif form.image_url.data:
+            # Si no hay archivo pero sí URL
+            image_url_final = form.image_url.data
 
         question = QuestionCuatro(
             statement=form.statement.data,
