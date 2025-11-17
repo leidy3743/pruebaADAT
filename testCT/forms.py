@@ -67,6 +67,21 @@ class LoginForm(FlaskForm):
     password = PasswordField('Contraseña', validators=[DataRequired(), Length(min=6, max=200)])
     submit = SubmitField('Iniciar sesión')
 
+class ForgotPasswordForm(FlaskForm):
+    """Formulario para recordar contraseña"""
+    identifier = StringField('Cédula, Usuario o Email', validators=[DataRequired(), Length(min=2, max=120)])
+    submit = SubmitField('Recordar contraseña')
+
+class ResetPasswordForm(FlaskForm):
+    """Formulario para establecer nueva contraseña"""
+    password = PasswordField('Nueva Contraseña', validators=[DataRequired(), Length(min=6, max=200)])
+    confirm_password = PasswordField('Confirmar Contraseña', validators=[DataRequired(), Length(min=6, max=200)])
+    submit = SubmitField('Cambiar contraseña')
+    
+    def validate_confirm_password(self, field):
+        if field.data != self.password.data:
+            raise ValidationError('Las contraseñas no coinciden')
+
 class QuizForm(FlaskForm):
     # Aquí puedes agregar campos para las preguntas del cuestionario
     # Ejemplo:

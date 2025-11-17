@@ -2,8 +2,11 @@ import json
 import os
 import openai
 import traceback
+import string
+import random
 from flask import Flask, render_template, redirect, url_for, flash, request, jsonify, session, send_file
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
+from flask_mail import Mail, Message
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -11,6 +14,7 @@ from werkzeug.utils import secure_filename
 import io
 from datetime import datetime, timedelta
 import zipfile
+import secrets
 from sqlalchemy import text, inspect
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import landscape, A4
@@ -34,6 +38,18 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
 # Asegurar que existe la carpeta de uploads
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+# Configuración de Flask-Mail (Gmail)
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'carlos.hidalgo@correounivalle.edu.co'
+app.config['MAIL_PASSWORD'] = 'szdg sypl xtsp omkm'
+app.config['MAIL_DEFAULT_SENDER'] = ('ADAT - Sistema de Recuperación', 'carlos.hidalgo@correounivalle.edu.co')
+
+# Inicializar Flask-Mail
+mail = Mail(app)
+
 # Registrar la extensión de SQLAlchemy
 from models import db
 db.init_app(app)
@@ -42,14 +58,14 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
 # Importar modelos y utilidades desde models.py
-from models import db, User, QuestionCuatro, ResultadoQuizCuatro, Curso, Nivel, Grado, Answer, QuestionTres, usuarios_cursos, nivel_por_grados, grados_dictados, Question, QuestionDos, ResultadoQuiz, ResultadoQuizDos, ResultadoQuizTres
+from models import db, User, QuestionCuatro, ResultadoQuizCuatro, Curso, Nivel, Grado, Answer, QuestionTres, usuarios_cursos, nivel_por_grados, grados_dictados, Question, QuestionDos, ResultadoQuiz, ResultadoQuizDos, ResultadoQuizTres, PasswordResetToken
 
 # Inicializar Flask-Migrate
 from flask_migrate import Migrate
 migrate = Migrate(app, db)
 from cache_utils import get_cached_colegios, get_cached_cursos, get_cached_niveles, get_cached_grados
 # Importar formularios desde forms.py
-from forms import RegistrationForm, LoginForm, QuizForm, QuizFormDos, QuizFormTres, QuizFormCuatro
+from forms import RegistrationForm, LoginForm, QuizForm, QuizFormDos, QuizFormTres, QuizFormCuatro, ForgotPasswordForm, ResetPasswordForm
 # Importar IntegrityError para manejo de errores de integridad
 from sqlalchemy.exc import IntegrityError
 
@@ -332,6 +348,94 @@ def login():
             print(f"Usuario '{username}' no encontrado en la base de datos")
             flash('Usuario o contraseña incorrectos', 'danger')
     return render_template('login.html', form=form)
+
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    """Ruta para recordar contraseña - Paso 1: identificar usuario y pasar a definir nueva contraseña"""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        identifier = form.identifier.data.strip().lower()
+        
+        # Buscar usuario por cédula, username o email
+        user = User.query.filter(
+            (User.cedula == identifier) | 
+            (User.username == identifier) |
+            (User.correo.ilike(identifier))
+        ).first()
+        
+        if user:
+            # Guardar el usuario a resetear en sesión y redirigir al paso 2
+            session['inline_reset_user_id'] = user.id
+            flash('Usuario encontrado. Define tu nueva contraseña.', 'info')
+            return redirect(url_for('set_new_password'))
+        else:
+            flash('No se encontró un usuario con esos datos', 'danger')
+            return redirect(url_for('forgot_password'))
+    
+    return render_template('forgot_password.html', form=form)
+
+
+@app.route('/set-new-password', methods=['GET', 'POST'])
+def set_new_password():
+    """Ruta para definir nueva contraseña sin token, usando sesión del paso previo"""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    user_id = session.get('inline_reset_user_id')
+    if not user_id:
+        flash('Inicia el proceso desde "¿Olvidaste tu contraseña?"', 'warning')
+        return redirect(url_for('forgot_password'))
+    
+    user = User.query.get(user_id)
+    if not user:
+        session.pop('inline_reset_user_id', None)
+        flash('Usuario no encontrado. Intenta nuevamente.', 'danger')
+        return redirect(url_for('forgot_password'))
+    
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        try:
+            user.set_password(form.password.data)
+            db.session.commit()
+            session.pop('inline_reset_user_id', None)
+            flash('Contraseña actualizada exitosamente. Ya puedes iniciar sesión.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar contraseña: {str(e)}', 'danger')
+    return render_template('set_new_password.html', form=form, user=user)
+
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    """Ruta para resetear contraseña con token"""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    
+    # Buscar token
+    reset_token = PasswordResetToken.query.filter_by(token=token).first()
+    
+    if not reset_token or not reset_token.is_valid():
+        flash('El enlace de recuperación es inválido o ha expirado', 'danger')
+        return redirect(url_for('forgot_password'))
+    
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        # Actualizar contraseña
+        user = reset_token.user
+        user.set_password(form.password.data)
+        
+        # Marcar token como usado
+        reset_token.used = True
+        db.session.commit()
+        
+        flash('Contraseña actualizada exitosamente. Ya puedes iniciar sesión', 'success')
+        return redirect(url_for('login'))
+    
+    return render_template('reset_password.html', form=form, token=token)
 
 
 @app.route('/actualizar_cedula', methods=['POST'])

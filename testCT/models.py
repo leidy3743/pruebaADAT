@@ -199,6 +199,21 @@ class ResultadoQuizCuatro(db.Model):
     respuestas_incorrectas = db.Column(db.Integer, nullable=False)
     usuario = db.relationship('User', backref=db.backref('resultado_quiz_cuatro', uselist=False))
 
+class PasswordResetToken(db.Model):
+    __tablename__ = 'password_reset_tokens'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    token = db.Column(db.String(100), unique=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    used = db.Column(db.Boolean, default=False, nullable=False)
+    
+    user = db.relationship('User', backref=db.backref('reset_tokens', lazy='dynamic'))
+    
+    def is_valid(self):
+        """Verifica si el token es válido (no usado y no expirado)"""
+        return not self.used and datetime.utcnow() < self.expires_at
+
 class Grado(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
